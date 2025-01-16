@@ -4,8 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
+    "start": "node index.js",
+    "start:dev": "./start_dev.sh",
+    "start:prod": "./start_prod.sh"
+  },  
   "keywords": [],
   "author": "",
   "license": "ISC",

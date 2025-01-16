@@ -1,0 +1,37 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Lancer Docker Dev",
+        "program": "${workspaceFolder}/index.js",
+        "preLaunchTask": "start-docker-dev",
+        "outFiles": ["${workspaceFolder}/**/*.js"]
+      },
+      {
+        "type": "node",
+        "request": "launch",
+        "name": "Lancer Docker Prod",
+        "program": "${workspaceFolder}/index.js",
+        "preLaunchTask": "start-docker-prod",
+        "outFiles": ["${workspaceFolder}/**/*.js"]
+      }
+    ],
+    "tasks": {
+      "version": "2.0.0",
+      "tasks": [
+        {
+          "label": "start-docker-dev",
+          "type": "shell",
+          "command": "./start_dev.sh"
+        },
+        {
+          "label": "start-docker-prod",
+          "type": "shell",
+          "command": "./start_prod.sh"
+        }
+      ]
+    }
+  }
+  
