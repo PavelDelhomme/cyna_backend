@@ -21,7 +21,7 @@ services:
     image: mysql:8.0
     container_name: cyna_db
     ports:
-      - "3306:3306"
+      - "3307:3306" # Changez ici le port hôte à 3307
     environment:
       MYSQL_ROOT_PASSWORD: yourpassword
       MYSQL_DATABASE: cyna_database
