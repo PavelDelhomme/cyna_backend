@@ -4,10 +4,10 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "start": "node index.js",
-    "start:dev": "./start_dev.sh",
-    "start:prod": "./start_prod.sh"
-  },  
+    "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
+    "start:prod": "node src/index.js"
+  },
   "keywords": [],
   "author": "",
   "license": "ISC",
@@ -16,6 +16,7 @@
     "dotenv": "^16.4.7",
     "express": "^4.21.2",
     "mysql2": "^3.12.0",
+    "nodemon": "^3.1.9",
     "sequelize": "^6.37.5"
   }
 }
