@@ -40,6 +40,7 @@ const Stat = require('./stat')
 // ASSOCIATION ---->
 const OrderItemProduct = require('./orderItemProduct') 
 const OrderItemService = require('./orderItemService')
+const ProductCategoryRole = require('./productCategoryRole')
 // New Models
 
 // Initialiser les modèles avec sequelize
@@ -69,6 +70,7 @@ const models = {
   // ASSOCIATION ---->
   OrderItemProduct: OrderItemProduct(sequelize),
   OrderItemService: OrderItemService(sequelize),
+  ProductCategoryRole: ProductCategoryRole(sequelize),
 };
 
 // Définir les associations
