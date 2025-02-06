@@ -32,13 +32,14 @@ const PromoCode = require('./promoCode');
 const Service = require('./service');
 const ServiceType = require('./serviceType');
 const Product = require('./product');
-const ProductCategorie = require('./productCategorie')
+const ProductCategory = require('./productCategory')
 const Payment = require('./payment')
 const Review = require('./review')
 const Stat = require('./stat')
 
 // ASSOCIATION ---->
 const OrderItemProduct = require('./orderItemProduct') 
+const OrderItemService = require('./orderItemService')
 // New Models
 
 // Initialiser les modèles avec sequelize
@@ -60,13 +61,14 @@ const models = {
   Service: Service(sequelize),
   ServiceType: ServiceType(sequelize),
   Product: Product(sequelize),
-  ProductCategorie: ProductCategorie(sequelize),
+  ProductCategory: ProductCategory(sequelize),
   Payment: Payment(sequelize),
   Review: Review(sequelize),
   Stat: Stat(sequelize),
 
   // ASSOCIATION ---->
-  OrderItemProduct = OrderItemProduct(sequelize),
+  OrderItemProduct: OrderItemProduct(sequelize),
+  OrderItemService: OrderItemService(sequelize),
 };
 
 // Définir les associations

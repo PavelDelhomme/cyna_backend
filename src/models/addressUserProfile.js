@@ -2,8 +2,8 @@ const { DataTypes, Sequelize } = require("sequelize");
 const config = require("../config/database");
 const sequelize = new Sequelize(config);
 
-// Modèle OrderItem
-const OrderItem = sequelize.define("OrderItem", {
+// Modèle Address
+const Address = sequelize.define("Address", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -11,8 +11,8 @@ const OrderItem = sequelize.define("OrderItem", {
   },
 });
 
-// Modèle Product
-const Product = sequelize.define("Product", {
+// Modèle UserProfile
+const UserProfile = sequelize.define("UserProfile", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -20,23 +20,23 @@ const Product = sequelize.define("Product", {
   },
 });
 
-// Modèle de table intermédiaire OrderItemProduct
-const OrderItemProduct = sequelize.define(
-  "OrderItemProduct",
+// Modèle de table intermédiaire AddressUserProfile
+const AddressUserProfile = sequelize.define(
+  "AddressUserProfile",
   {
-    order_item_id: {
+    address_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: OrderItem,
+        model: Adresse,
         key: "id",
       },
     },
-    product_id: {
+    user_profile_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Product,
+        model: UserProfile,
         key: "id",
       },
     },
@@ -45,16 +45,16 @@ const OrderItemProduct = sequelize.define(
 );
 
 // Définition des associations Many-to-Many
-OrderItem.belongsToMany(Product, {
-  through: OrderItemProduct,
-  foreignKey: "order_item_id",
-  as: "products",
+Address.belongsToMany(UserProfile, {
+  through: AddressUserProfile,
+  foreignKey: "address_id",
+  as: "userProfiles",
 });
 
-Product.belongsToMany(OrderItem, {
-  through: OrderItemProduct,
-  foreignKey: "product_id",
-  as: "orderItems",
+UserProfile.belongsToMany(Address, {
+  through: AddressUserProfile,
+  foreignKey: "user_profile_id",
+  as: "addresses",
 });
 
-module.exports = { OrderItem, Product, OrderItemProduct };
+module.exports = { Address, UserProfile, AddressUserProfile };

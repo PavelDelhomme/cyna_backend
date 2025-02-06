@@ -2,8 +2,8 @@ const { DataTypes, Sequelize } = require("sequelize");
 const config = require("../config/database");
 const sequelize = new Sequelize(config);
 
-// Modèle OrderItem
-const OrderItem = sequelize.define("OrderItem", {
+// Modèle ProductCategory
+const ProductCategory = sequelize.define("ProductCategory", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -11,8 +11,8 @@ const OrderItem = sequelize.define("OrderItem", {
   },
 });
 
-// Modèle Product
-const Product = sequelize.define("Product", {
+// Modèle Role
+const Role = sequelize.define("Role", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -21,10 +21,10 @@ const Product = sequelize.define("Product", {
 });
 
 // Modèle de table intermédiaire OrderItemProduct
-const OrderItemProduct = sequelize.define(
-  "OrderItemProduct",
+const ProductCategoryRole = sequelize.define(
+  "ProductCategoryRole",
   {
-    order_item_id: {
+    category_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -32,11 +32,11 @@ const OrderItemProduct = sequelize.define(
         key: "id",
       },
     },
-    product_id: {
+    role_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: Product,
+        model: Role,
         key: "id",
       },
     },
@@ -45,16 +45,16 @@ const OrderItemProduct = sequelize.define(
 );
 
 // Définition des associations Many-to-Many
-OrderItem.belongsToMany(Product, {
-  through: OrderItemProduct,
-  foreignKey: "order_item_id",
-  as: "products",
+ProductCategory.belongsToMany(ProductCategory, {
+  through: ProductCategoryRole,
+  foreignKey: "category_id",
+  as: "productCategorys",
 });
 
-Product.belongsToMany(OrderItem, {
-  through: OrderItemProduct,
-  foreignKey: "product_id",
-  as: "orderItems",
+Role.belongsToMany(Role, {
+  through: ProductCategoryRole,
+  foreignKey: "role_id",
+  as: "Roles",
 });
 
 module.exports = { OrderItem, Product, OrderItemProduct };
