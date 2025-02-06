@@ -18,22 +18,55 @@ const sequelize = new Sequelize(
 const User = require('./user');
 const Role = require('./role');
 const Order = require('./order');
+// New Model
+const OrderItem = require('./orderItem')
+// New Model
 const Invoice = require('./invoice');
 const Ticket = require('./ticket');
 const Chatbot = require('./chatbot');
 const ChatbotHistory = require('./chatbotHistory');
 const Address = require('./address');
+const Cart = require('./cart');
+// New Models
+const PromoCode = require('./promoCode');
+const Service = require('./service');
+const ServiceType = require('./serviceType');
+const Product = require('./product');
+const ProductCategorie = require('./productCategorie')
+const Payment = require('./payment')
+const Review = require('./review')
+const Stat = require('./stat')
+
+// ASSOCIATION ---->
+const OrderItemProduct = require('./orderItemProduct') 
+// New Models
 
 // Initialiser les modèles avec sequelize
 const models = {
   User: User(sequelize),
   Role: Role(sequelize),
   Order: Order(sequelize),
+  //New Models
+  OrderItem: OrderItem(sequelize),
+  //New Models
   Invoice: Invoice(sequelize),
   Ticket: Ticket(sequelize),
   Chatbot: Chatbot(sequelize),
   ChatbotHistory: ChatbotHistory(sequelize),
-  Address: Address(sequelize)
+  Address: Address(sequelize),
+  Cart: Cart(sequelize),
+  //New Models
+  PromoCode: PromoCode(sequelize),
+  Service: Service(sequelize),
+  ServiceType: ServiceType(sequelize),
+  Product: Product(sequelize),
+  ProductCategorie: ProductCategorie(sequelize),
+  Payment: Payment(sequelize),
+  Review: Review(sequelize),
+  Stat: Stat(sequelize),
+
+  // ASSOCIATION ---->
+  OrderItemProduct = OrderItemProduct(sequelize),
 };
 
 // Définir les associations
