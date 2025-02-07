@@ -19,7 +19,7 @@ const User = require('./user');
 const Role = require('./role');
 const Order = require('./order');
 // New Model
-const OrderItem = require('./orderItem')
+const OrderItem = require('./orderItem');
 // New Model
 const Invoice = require('./invoice');
 const Ticket = require('./ticket');
@@ -32,15 +32,15 @@ const PromoCode = require('./promoCode');
 const Service = require('./service');
 const ServiceType = require('./serviceType');
 const Product = require('./product');
-const ProductCategory = require('./productCategory')
-const Payment = require('./payment')
-const Review = require('./review')
-const Stat = require('./stat')
+const ProductCategory = require('./productCategory');
+const Payment = require('./payment');
+const Review = require('./review');
+const Stat = require('./stat');
 
 // ASSOCIATION ---->
-const OrderItemProduct = require('./orderItemProduct') 
-const OrderItemService = require('./orderItemService')
-const ProductCategoryRole = require('./productCategoryRole')
+const OrderItemProduct = require('./orderItemProduct') ;
+const OrderItemService = require('./orderItemService');
+const ProductCategoryRole = require('./productCategoryRole');
 // New Models
 
 // Initialiser les modèles avec sequelize
