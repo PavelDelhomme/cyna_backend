@@ -18,5 +18,5 @@ const Invoice = sequelize.define('Invoice', {
     quantity: DataTypes.STRING(50),
     userId: DataTypes.INTEGER,
     paymentId: DataTypes.INTEGER
-  });
+});
   

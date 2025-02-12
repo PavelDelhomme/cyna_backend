@@ -2,8 +2,8 @@ const { DataTypes, Sequelize } = require("sequelize");
 const config = require("../config/database");
 const sequelize = new Sequelize(config);
 
-// Modèle ProductCategory
-const ProductCategory = sequelize.define("ProductCategory", {
+// Modèle OrderItem
+const ServiceType = sequelize.define("ServiceType", {
   id: {
     type: DataTypes.INTEGER,
     autoIncrement: true,
@@ -11,7 +11,7 @@ const ProductCategory = sequelize.define("ProductCategory", {
   },
 });
 
-// Modèle Role
+// Modèle Product
 const Role = sequelize.define("Role", {
   id: {
     type: DataTypes.INTEGER,
@@ -21,14 +21,14 @@ const Role = sequelize.define("Role", {
 });
 
 // Modèle de table intermédiaire OrderItemProduct
-const ProductCategoryRole = sequelize.define(
-  "ProductCategoryRole",
+const ServiceTypeRole = sequelize.define(
+  "ServiceTypeRole",
   {
-    category_id: {
+    service_type_id: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
-        model: OrderItem,
+        model: ServiceType,
         key: "id",
       },
     },
@@ -45,16 +45,16 @@ const ProductCategoryRole = sequelize.define(
 );
 
 // Définition des associations Many-to-Many
-ProductCategory.belongsToMany(ProductCategory, {
-  through: ProductCategoryRole,
-  foreignKey: "category_id",
-  as: "productCategorys",
+ServiceType.belongsToMany(Role, {
+  through: ServiceTypeRole,
+  foreignKey: "service_type_id",
+  as: "roles",
 });
 
-Role.belongsToMany(Role, {
-  through: ProductCategoryRole,
+Role.belongsToMany(ServiceType, {
+  through: ServiceTypeRole,
   foreignKey: "role_id",
-  as: "Roles",
+  as: "serviceTypes",
 });
 
-module.exports = { ProductCategory, Role, ProductCategoryRole };
+module.exports = { ServiceType, Role, ServiceTypeRole };
