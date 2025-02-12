@@ -41,6 +41,9 @@ const Stat = require('./stat');
 const OrderItemProduct = require('./orderItemProduct') ;
 const OrderItemService = require('./orderItemService');
 const ProductCategoryRole = require('./productCategoryRole');
+const ServiceTypeRole = require('./serviceTypeRole');
+const RolePromoCode = require('./rolePromoCode');
+const ServiceRole = require('./serviceRole');
 // New Models
 
 // Initialiser les modèles avec sequelize
@@ -71,6 +74,9 @@ const models = {
   OrderItemProduct: OrderItemProduct(sequelize),
   OrderItemService: OrderItemService(sequelize),
   ProductCategoryRole: ProductCategoryRole(sequelize),
+  ServiceTypeRole: ServiceTypeRole(sequelize),
+  RolePromoCode: RolePromoCode(sequelize),
+  ServiceRole: ServiceRole(sequelize),
 };
 
 // Définir les associations
