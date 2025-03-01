@@ -1,13 +1,17 @@
+const { DataTypes } = require('sequelize');
 
-  const { DataTypes, Sequelize } = require("sequelize");
-  const config = require('../config/database');
-  const sequelize = new Sequelize(config);
-  
+module.exports = (sequelize) => {
   const Stat = sequelize.define('Stat', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
-    },
-    userProfileId: DataTypes.INTEGER,
+    }
   });
+
+  Stat.associate = (models) => {
+    Stat.belongsTo(models.UserProfile, { foreignKey: 'userProfileId' });
+  };
+
+  return Stat;
+};

@@ -1,14 +1,25 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const config = require('../config/database');
-const sequelize = new Sequelize(config);
+const { DataTypes } = require("sequelize");
 
-const OrderItem = sequelize.define('OrderItem', {
+module.exports = (sequelize) => {
+  const OrderItem = sequelize.define('OrderItem', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    Quantity: DataTypes.INTEGER,
-    Price: DataTypes.DOUBLE,
-    orderId: DataTypes.INTEGER,
+    quantity: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    },
+    price: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
+    }
   });
+
+  OrderItem.associate = (models) => {
+    OrderItem.belongsTo(models.Order);
+  };
+
+  return OrderItem;
+};

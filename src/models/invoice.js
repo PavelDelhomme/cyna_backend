@@ -1,9 +1,7 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const config = require('../config/database');
-const sequelize = new Sequelize(config);
+const { DataTypes } = require('sequelize');
 
-
-const Invoice = sequelize.define('Invoice', {
+module.exports = (sequelize) => {
+  const Invoice = sequelize.define('Invoice', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -11,12 +9,23 @@ const Invoice = sequelize.define('Invoice', {
     },
     name: DataTypes.STRING(50),
     email: DataTypes.STRING(50),
-    amount: DataTypes.DOUBLE,
+    amount: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false
+    },
     phone: DataTypes.STRING(20),
-    creationDate: DataTypes.DATE,
+    creationDate: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW
+    },
     method: DataTypes.STRING(50),
-    quantity: DataTypes.STRING(50),
-    userId: DataTypes.INTEGER,
-    paymentId: DataTypes.INTEGER
-});
-  
+    quantity: DataTypes.STRING(50)
+  });
+
+  Invoice.associate = (models) => {
+    Invoice.belongsTo(models.User, { foreignKey: 'userId' });
+    Invoice.belongsTo(models.Payment, { foreignKey: 'paymentId' });
+  };
+
+  return Invoice;
+};

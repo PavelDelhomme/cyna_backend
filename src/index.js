@@ -1,7 +1,15 @@
 const express = require('express');
 const { Sequelize } = require('sequelize');
 const config = require("./config/database")[process.env.NODE_ENV || 'development'];
+
+// Routes
 const userRoutes = require("./routes/users");
+// const serviceRoutes = require('./routes/services');
+// const productRoutes = require('./routes/products');
+// const orderRoutes = require('./routes/orders');
+
+// DB
+const db = require('./models');
 
 const app = express();
 
@@ -10,6 +18,10 @@ app.use(express.json());
 
 // Routes
 app.use("/api/users", userRoutes);
+// Autres routes
+// app.use("/api/services", serviceRoutes);
+// app.use("/api/products", productRoutes);
+// app.user("/api/orders", orderRoutes);
 
 // Initialisation de Sequelize
 const sequelize = new Sequelize(
@@ -24,21 +36,43 @@ const sequelize = new Sequelize(
   }
 );
 
-// Test de la connexion
-sequelize.authenticate()
-.then(() => {
-  console.log("Connexion à la base de données établie avec succès.");
-  // Synchronisation des modèles avec la base de données
-  return sequelize.sync({ force: false });
-})
-.then(() => {
-  console.log("Modèles synchronisés avec la base de données");
-})
-.catch(err => {
-  console.error("Impossible de se connecter à la base de données : ", err);
-});
+// Initialisation de l'application après connexion à la base de données
+const initializeApp = async () => {
+  let retries = 5;
+  while (retries) {
+    try {
+      await db.sequelize.authenticate();
+      console.log("Connexion à la base de données établie avec succès.");
+      
+      // Utilisation d'une variable d'environnement pour contrôler la réinitialisation de la base de données
+      const resetDatabase = process.env.RESET_DB === 'true';
+      // Synchronisation des modèles avec la base de données (force : false pour ne pas supprimer les tables existantes | true pour laisser sequelize supprimer les tables existantes et les recréer)
+      await db.sequelize.sync({ force: resetDatabase });
+      if (resetDatabase) {
+        console.log("Base de données réinitialisée et les modèles synchronisés.");
+      } else {
+        console.log("Modèles synchronisés avec la base de données existante.");
+      }
+      /* Alternativement si on ne souhaite pas supprimer toutes les données existantes il faut modifier le modèle User pour spécifier un nom unique pour la contrainte de clé étrangère (Foreign Key (FK)) */
+    
+      // Configuration du port
+      const port = process.env.PORT || 3000;
+      app.listen(port, () => {
+        console.log(`Le serveur a démarré sur le port ${port}`);
+      });
+      break;
+    } catch (err) {
+      console.error(`Tentative de connexion échouée (${5-retries+1}/5): `, err);
+      retries -= 1;
+      if (retries === 0) {
+        console.error("Impossible de se connecter à la base de données après plusieurs tentatives");
+        process.exit(1);
+      }
+      // Attendre 5 secondes avant de réessayer
+      await new Promise(resolve => setTimeout(resolve, 5000));
+    }
+  }
+};
 
-const port = process.env.PORT || 3000;
-app.listen(port, () => {
-  console.log(`Le serveur à démarré sur le port ${port} (en réalité c'est sur le port 3007)`);
-});
+
+initializeApp();

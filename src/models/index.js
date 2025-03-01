@@ -1,4 +1,6 @@
 const { Sequelize } = require('sequelize');
+const fs = require('fs');
+const path = require('path');
 const config = require('../config/database')[process.env.NODE_ENV || 'development'];
 
 const sequelize = new Sequelize(
@@ -7,87 +9,30 @@ const sequelize = new Sequelize(
   config.password,
   {
     host: config.host,
-    //dialect: 'mysql',
     dialect: config.dialect,
     port: config.port,
     pool: config.pool
   }
 );
 
-// Importer tous les modèles
-const User = require('./user');
-const Role = require('./role');
-const Order = require('./order');
-// New Model
-const OrderItem = require('./orderItem');
-// New Model
-const Invoice = require('./invoice');
-const Ticket = require('./ticket');
-const Chatbot = require('./chatbot');
-const ChatbotHistory = require('./chatbotHistory');
-const Address = require('./address');
-const Cart = require('./cart');
-// New Models
-const PromoCode = require('./promoCode');
-const Service = require('./service');
-const ServiceType = require('./serviceType');
-const Product = require('./product');
-const ProductCategory = require('./productCategory');
-const Payment = require('./payment');
-const Review = require('./review');
-const Stat = require('./stat');
+const db = {};
 
-// ASSOCIATION ---->
-const OrderItemProduct = require('./orderItemProduct') ;
-const OrderItemService = require('./orderItemService');
-const ProductCategoryRole = require('./productCategoryRole');
-const ServiceTypeRole = require('./serviceTypeRole');
-const RolePromoCode = require('./rolePromoCode');
-const ServiceRole = require('./serviceRole');
-// New Models
+// Chargement automatique de tous les modèles du dossier 
+fs.readdirSync(__dirname)
+  .filter(file => file !== 'index.js' && file.endsWith('.js'))
+  .forEach(file => {
+    const model = require(path.join(__dirname, file))(sequelize);
+    db[model.name] = model;
+  });
 
-// Initialiser les modèles avec sequelize
-const models = {
-  User: User(sequelize),
-  Role: Role(sequelize),
-  Order: Order(sequelize),
-  //New Models
-  OrderItem: OrderItem(sequelize),
-  //New Models
-  Invoice: Invoice(sequelize),
-  Ticket: Ticket(sequelize),
-  Chatbot: Chatbot(sequelize),
-  ChatbotHistory: ChatbotHistory(sequelize),
-  Address: Address(sequelize),
-  Cart: Cart(sequelize),
-  //New Models
-  PromoCode: PromoCode(sequelize),
-  Service: Service(sequelize),
-  ServiceType: ServiceType(sequelize),
-  Product: Product(sequelize),
-  ProductCategory: ProductCategory(sequelize),
-  Payment: Payment(sequelize),
-  Review: Review(sequelize),
-  Stat: Stat(sequelize),
-
-  // ASSOCIATION ---->
-  OrderItemProduct: OrderItemProduct(sequelize),
-  OrderItemService: OrderItemService(sequelize),
-  ProductCategoryRole: ProductCategoryRole(sequelize),
-  ServiceTypeRole: ServiceTypeRole(sequelize),
-  RolePromoCode: RolePromoCode(sequelize),
-  ServiceRole: ServiceRole(sequelize),
-};
-
-// Définir les associations
-Object.keys(models).forEach(modelName => {
-  if (models[modelName].associate) {
-    models[modelName].associate(models);
+// Appliquer les associations
+Object.keys(db).forEach(modelName => {
+  if (db[modelName].associate) {
+    db[modelName].associate(db);
   }
 });
 
-// Exporter les modèles et sequelize
-module.exports = {
-  ...models,
-  sequelize
-};
+db.sequelize = sequelize;
+db.Sequelize = Sequelize;
+
+module.exports = db;

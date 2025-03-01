@@ -1,4 +1,5 @@
-const { User } = require('../models');
+const db = require('../models');
+const User = db.User;
 
 exports.getAllUsers = async (req, res) => {
   try {
@@ -30,3 +31,31 @@ exports.getUserById = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.updateUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé" });
+    }
+    const { name, email, password } = req.body;
+    await user.update({ name, email, password });
+    res.json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: "Utilisateur non trouvé"});
+    }
+    await user.destroy();
+    res.json({ message: "Utilisateur supprimé avec succès"});
+  } catch (error) {
+    res.status(500).json({ error: error.message});
+  }
+};
+

@@ -1,8 +1,7 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const config = require('../config/database');
-const sequelize = new Sequelize(config);
+const { DataTypes } = require('sequelize');
 
-const Chatbot = sequelize.define('Chatbot', {
+module.exports = (sequelize) => {
+  const Chatbot = sequelize.define('Chatbot', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
@@ -10,8 +9,13 @@ const Chatbot = sequelize.define('Chatbot', {
     },
     escalated: DataTypes.BOOLEAN,
     prompts: DataTypes.TEXT,
-    userId: {
-      type: DataTypes.INTEGER,
-      unique: true
-    }
+    // Suppression du champs userId car Sequelize l'ajoute automatiquement
   });
+
+  Chatbot.associate = (models) => {
+    Chatbot.belongsTo(models.User);
+    Chatbot.hasMany(models.ChatbotHistory);
+  };
+
+  return Chatbot;
+};

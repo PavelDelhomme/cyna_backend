@@ -1,14 +1,21 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const config = require('../config/database');
-const sequelize = new Sequelize(config);
+const { DataTypes } = require('sequelize');
 
-const ChatbotHistory = sequelize.define('ChatbotHistory', {
+module.exports = (sequelize) => {
+  const ChatbotHistory = sequelize.define('ChatbotHistory', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    chat: DataTypes.TEXT,
-    chatbotId: DataTypes.INTEGER
+    chat: {
+      type: DataTypes.TEXT,
+      allowNull: false
+    }
   });
-  
+
+  ChatbotHistory.associate = (models) => {
+    ChatbotHistory.belongsTo(models.Chatbot);
+  };
+
+  return ChatbotHistory;
+};

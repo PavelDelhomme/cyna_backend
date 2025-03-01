@@ -1,13 +1,24 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const config = require('../config/database');
-const sequelize = new Sequelize(config);
+const { DataTypes } = require('sequelize');
 
-const ProductCategory = sequelize.define('ProductCategory', {
+module.exports = (sequelize) => {
+  const ProductCategory = sequelize.define('ProductCategory', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    Name: DataTypes.STRING(50),
-    Description: DataTypes.STRING(50),
+    name: DataTypes.STRING(50),
+    description: DataTypes.STRING(50)
   });
+
+  ProductCategory.associate = (models) => {
+    ProductCategory.hasMany(models.Product);
+    ProductCategory.belongsToMany(models.Role, {
+      through: 'ProductCategoryRole',
+      foreignKey: 'category_id',
+      as: 'roles'
+    });
+  };
+
+  return ProductCategory;
+};

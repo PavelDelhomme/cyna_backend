@@ -1,14 +1,24 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const config = require('../config/database');
-const sequelize = new Sequelize(config);
+const { DataTypes } = require('sequelize');
 
-const PromoCode = sequelize.define('PromoCode', {
+module.exports = (sequelize) => {
+  const PromoCode = sequelize.define('PromoCode', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    Name: DataTypes.STRING(50),
-    Benefit: DataTypes.STRING(50),
-    Status: DataTypes.BOOLEAN,
+    name: DataTypes.STRING(50),
+    benefit: DataTypes.STRING(50),
+    status: DataTypes.BOOLEAN
   });
+
+  PromoCode.associate = (models) => {
+    PromoCode.belongsToMany(models.Role, {
+      through: 'RolePromoCode',
+      foreignKey: 'promo_code_id',
+      as: 'roles'
+    });
+  };
+
+  return PromoCode;
+};

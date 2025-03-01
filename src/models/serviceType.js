@@ -1,13 +1,24 @@
-const { DataTypes, Sequelize } = require("sequelize");
-const config = require('../config/database');
-const sequelize = new Sequelize(config);
+const { DataTypes } = require('sequelize');
 
-const ServiceType = sequelize.define('ServiceType', {
+module.exports = (sequelize) => {
+  const ServiceType = sequelize.define('ServiceType', {
     id: {
       type: DataTypes.INTEGER,
       autoIncrement: true,
       primaryKey: true
     },
-    Name: DataTypes.STRING(50),
-    Description: DataTypes.STRING(255),
+    name: DataTypes.STRING(50),
+    description: DataTypes.STRING(255)
   });
+
+  ServiceType.associate = (models) => {
+    ServiceType.hasMany(models.Service);
+    ServiceType.belongsToMany(models.Role, {
+      through: 'ServiceTypeRole',
+      foreignKey: 'service_type_id',
+      as: 'roles'
+    });
+  };
+
+  return ServiceType;
+};
