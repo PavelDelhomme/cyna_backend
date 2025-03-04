@@ -54,13 +54,7 @@ const initializeApp = async () => {
         console.log("Modèles synchronisés avec la base de données existante.");
       }
       /* Alternativement si on ne souhaite pas supprimer toutes les données existantes il faut modifier le modèle User pour spécifier un nom unique pour la contrainte de clé étrangère (Foreign Key (FK)) */
-    
-      // Configuration du port
-      const port = process.env.PORT || 3000;
-      app.listen(port, () => {
-        console.log(`Le serveur a démarré sur le port ${port}`);
-      });
-      break;
+      process.exit(1)
     } catch (err) {
       console.error(`Tentative de connexion échouée (${5-retries+1}/5): `, err);
       retries -= 1;

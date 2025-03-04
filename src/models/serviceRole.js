@@ -4,6 +4,7 @@ module.exports = (sequelize) => {
   const ServiceRole = sequelize.define(
     "ServiceRole",
     {
+      // Supprimez l'ID si jointure
       service_id: {
         type: DataTypes.INTEGER,
         allowNull: false,
@@ -21,7 +22,13 @@ module.exports = (sequelize) => {
         },
       },
     },
-    { timestamps: false }
+    { 
+      timestamps: false,
+      primaryKey: [
+        'service_id',
+        'role_id'
+      ] 
+    }
   );
 
   return ServiceRole;
