@@ -2,7 +2,7 @@ console.log('Server is Running');
 
 const express = require('express');
 const app = express();
-const PORT = 3005;
+const PORT = 3006;
 
 // Middleware pour parser le JSON
 app.use(express.json());
@@ -44,10 +44,10 @@ function requestsLogging(req, res, next) {
 
 // ** Authentification Basique **
 const ADMIN_USER = {
-    firstname: 'toto',
-    lastname: 'titi',
-    username: 'machine',
-    password: 'acafe',
+    firstname: 'Admin',
+    lastname: 'AdminLN',
+    username: 'raphael',
+    password: 'cynaPasswordAPI',
 };
 
 
@@ -61,11 +61,11 @@ const authMiddleWare = require('./middlewares/authMiddleware');
 // ** Charger les routes utilisateur **
 const usersRoutes = require('./controllers/userController');
 
-app.use('/users', usersRoutes);  // Prefixe "/api"
+app.use('/users', usersRoutes);  // Prefixe "/api" 
 
 // ** Route principale **
 app.get('/', (req, res) => {
-    res.send("Main Page");
+    res.send("API Cyna V1");
 });
 
 // ** Lancer le serveur **

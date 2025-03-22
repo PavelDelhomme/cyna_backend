@@ -5,7 +5,7 @@ services:
     volumes:
       - ".:/app"  #Initialize l'application
     ports:
-      - "3002:3002" #Port de connexion à l'application via serveur
+      - "3006:3006" #Port de connexion à l'application via serveur
     command: >
       bash -c "
         echo 'Node.js container is running...' &&

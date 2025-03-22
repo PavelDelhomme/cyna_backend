@@ -14,7 +14,7 @@ services:
   adminer:
     image: adminer
     ports:
-      - "8081:8080"
+      - "8082:8080"
     depends_on: 
       - db
 
@@ -23,7 +23,7 @@ services:
     volumes:
       - ".:/app"  #Initialize l'application
     ports:
-      - "3005:3005" #Port de connexion à l'application via serveur
+      - "3006:3006" #Port de connexion à l'application via serveur
       - "5555:5555" # command (npx prisma studio) to launch the prisma database access on port 5555
     command: npm run dev
     working_dir: /app
