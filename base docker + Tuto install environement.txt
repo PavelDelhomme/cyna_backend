@@ -20,7 +20,7 @@ services:
 # docker compose up -d
 # docker ps -a
 # docker compose exec <service_name> <path_to_executable> (docker compose exec app bash) --Commande fréquement utilisée
-# docker ocmpose down
+# docker compose down
 
 
 TUTO INSTALL docker --
@@ -55,3 +55,14 @@ Info 2: N'oublier pas de changer le port dans votre docker-compose si vous l'ave
   adminer:
     image: adminer
 }
+
+
+[[
+  IMPORTANT POUR INTERAGIR AVEC L'API
+
+  utiliser postman pour les requêtes :  "  https://web.postman.co/workspace/6d1b0631-c5a3-4864-89c1-380882e54518/quickstart  "
+
+  Lancer prisma Studio pour avoir accés à la BDD : dans la cmd normale " npx prisma studio "
+
+  Nettoyer et generer Prisma : " npx prisma generate "
+]]
