@@ -21,7 +21,10 @@ module.exports = (sequelize) => {
         },
       },
     },
-    { timestamps: false }
+    { 
+      timestamps: false,
+      underscored: true,
+    }
   );
 
   return RolePromoCode;

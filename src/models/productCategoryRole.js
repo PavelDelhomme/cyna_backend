@@ -21,7 +21,11 @@ module.exports = (sequelize) => {
         },
       },
     },
-    { timestamps: false }
+    { 
+      timestamps: false,
+      underscored: true,
+      tableName: 'product_category_roles'
+    }
   );
 
   return ProductCategoryRole;

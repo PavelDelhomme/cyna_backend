@@ -15,6 +15,15 @@ const sequelize = new Sequelize(
   }
 );
 
+Sequelize.postgres.DECIMAL.parse = function (value) { return parseFloat(value); };
+sequelize.options.define = {
+  underscored: true,
+  timestamp: true,
+  createdAt: 'created_at',
+  updatedAt: 'updated_at',
+  paranoid: false
+};
+
 const db = {};
 
 // Chargement automatique de tous les modèles du dossier 

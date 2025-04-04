@@ -21,13 +21,19 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     promotion: DataTypes.STRING(255)
+  }, {
+    underscored: true,
   });
 
   Product.associate = (models) => {
-    Product.belongsTo(models.ProductCategory, { foreignKey: 'categoryId' });
+    Product.belongsTo(models.ProductCategory, {
+      foreignKey: 'category_id'
+    });
+    
     Product.belongsToMany(models.OrderItem, { 
-      through: 'OrderItemProduct',
+      through: models.OrderItemProduct,
       foreignKey: 'product_id',
+      otherKey: 'order_item_id',
       as: 'orderItems'
     });
   };

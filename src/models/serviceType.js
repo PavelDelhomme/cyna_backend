@@ -9,6 +9,8 @@ module.exports = (sequelize) => {
     },
     name: DataTypes.STRING(50),
     description: DataTypes.STRING(255)
+  }, {
+    underscored: true,
   });
 
   ServiceType.associate = (models) => {

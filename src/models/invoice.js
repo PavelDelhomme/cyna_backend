@@ -20,11 +20,17 @@ module.exports = (sequelize) => {
     },
     method: DataTypes.STRING(50),
     quantity: DataTypes.STRING(50)
+  }, {
+    underscored: true,
   });
 
   Invoice.associate = (models) => {
-    Invoice.belongsTo(models.User, { foreignKey: 'userId' });
-    Invoice.belongsTo(models.Payment, { foreignKey: 'paymentId' });
+    Invoice.belongsTo(models.User, {
+      foreignKey: 'user_id'
+    });
+    Invoice.belongsTo(models.Payment, {
+      foreignKey: 'payment_id'
+    });
   };
 
   return Invoice;

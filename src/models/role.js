@@ -8,6 +8,8 @@ module.exports = (sequelize) => {
       primaryKey: true
     },
     name: DataTypes.STRING(10)
+  }, {
+    underscored: true,
   });
 
   Role.associate = (models) => {

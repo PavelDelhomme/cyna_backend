@@ -18,18 +18,22 @@ module.exports = (sequelize) => {
     subscriptionType: DataTypes.STRING(50),
     userCount: DataTypes.INTEGER,
     promotion: DataTypes.STRING(255)
+  }, {
+    underscored: true,
   });
 
   Service.associate = (models) => {
     Service.belongsTo(models.ServiceType, { foreignKey: 'serviceTypeId' });
     Service.belongsToMany(models.Role, {
-      through: 'ServiceRole',
+      through: models.ServiceRole,
       foreignKey: 'service_id',
+      otherKey: 'service_role_id',
       as: 'roles'
     });
     Service.belongsToMany(models.OrderItem, {
-      through: 'OrderItemService',
+      through: models.OrderItemService,
       foreignKey: 'service_id',
+      otherKey: 'order_item_id',
       as: 'orderItems'
     });
   };

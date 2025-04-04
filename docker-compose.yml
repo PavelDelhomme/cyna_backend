@@ -44,8 +44,11 @@ services:
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pyourpassword"]
       interval: 10s
       timeout: 5s
-      retries: 5
+      retries: 10
       start_period: 30s # Pour donner plus de temps au conteneur MySQL afin qu'il soit completement démarrer avant de commencer les vérifications de santé.
+    # depends_on:
+    #   backend:
+    #     condition: service_healthy
   
   phpmyadmin:
     image: phpmyadmin/phpmyadmin

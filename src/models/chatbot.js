@@ -10,6 +10,8 @@ module.exports = (sequelize) => {
     escalated: DataTypes.BOOLEAN,
     prompts: DataTypes.TEXT,
     // Suppression du champs userId car Sequelize l'ajoute automatiquement
+  }, {
+    underscored: true,
   });
 
   Chatbot.associate = (models) => {

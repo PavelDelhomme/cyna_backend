@@ -7,10 +7,16 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     }
+  }, {
+    underscored: true,
+    tableName: 'stats'
   });
 
   Stat.associate = (models) => {
-    Stat.belongsTo(models.UserProfile, { foreignKey: 'userProfileId' });
+    Stat.belongsTo(models.UserProfile, { 
+      foreignKey: 'user_profile_id',
+      foreignKeyConstraint: { name: 'fk_stat_user_profile' } 
+    });
   };
 
   return Stat;

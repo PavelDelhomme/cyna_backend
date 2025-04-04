@@ -17,11 +17,17 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW
     },
     method: DataTypes.STRING(50)
+  }, {
+    underscored: true
   });
 
   Payment.associate = (models) => {
-    Payment.belongsTo(models.Order, { foreignKey: 'orderId' });
-    Payment.hasMany(models.Invoice);
+    Payment.belongsTo(models.Order, { 
+      foreignKey: 'order_id'
+    });
+    Payment.hasMany(models.Invoice, {
+      foreignKey: 'payment_id'
+    });
   };
 
   return Payment;

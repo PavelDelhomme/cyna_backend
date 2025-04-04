@@ -21,8 +21,11 @@ module.exports = (sequelize) => {
         },
       },
     },
-    { timestamps: false }
-  );
+    { 
+      timestamps: false, 
+      underscored: true,
+      tableName: 'address_user_profiles'
+    });
 
   return AddressUserProfile;
 };

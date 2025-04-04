@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, ForeignKeyConstraintError } = require('sequelize');
 
 module.exports = (sequelize) => {
   const PromoCode = sequelize.define('PromoCode', {
@@ -10,13 +10,18 @@ module.exports = (sequelize) => {
     name: DataTypes.STRING(50),
     benefit: DataTypes.STRING(50),
     status: DataTypes.BOOLEAN
+  }, {
+    underscored: true,
+    tableName: 'product_category_roles'
   });
 
   PromoCode.associate = (models) => {
     PromoCode.belongsToMany(models.Role, {
-      through: 'RolePromoCode',
+      tableName: 'product_category_roles',
       foreignKey: 'promo_code_id',
-      as: 'roles'
+      otherKey: 'role_id',
+      as: 'roles',
+      ForeignKeyConstraint: { name: 'fk_promo_code_role' }
     });
   };
 

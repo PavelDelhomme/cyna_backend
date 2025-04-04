@@ -21,7 +21,10 @@ module.exports = (sequelize) => {
         },
       },
     },
-    { timestamps: false }
+    { 
+      underscored: true,
+      timestamps: false
+    }
   );
 
   return ServiceTypeRole;

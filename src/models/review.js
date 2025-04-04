@@ -13,12 +13,15 @@ module.exports = (sequelize) => {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
     }
+  }, {
+    underscored: true,
+    tableName: 'reviews'
   });
 
   Review.associate = (models) => {
-    Review.belongsTo(models.Service, { foreignKey: 'serviceId' });
-    Review.belongsTo(models.Product, { foreignKey: 'productId' });
-    Review.belongsTo(models.UserProfile, { foreignKey: 'userProfileId' });
+    Review.belongsTo(models.Service, { foreignKey: 'service_id', foreignKeyConstraint: { name: 'fk_review_service' } });
+    Review.belongsTo(models.Product, { foreignKey: 'product_id', foreignKeyConstraint: { name: 'fk_review_product' } });
+    Review.belongsTo(models.UserProfile, { foreignKey: 'user_profile_id', foreignKeyConstraint: { name: 'fk_review_user_profile' }});
   };
 
   return Review;

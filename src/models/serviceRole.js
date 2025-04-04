@@ -23,11 +23,12 @@ module.exports = (sequelize) => {
       },
     },
     { 
+      underscored: true,
       timestamps: false,
       primaryKey: [
         'service_id',
         'role_id'
-      ] 
+      ]
     }
   );
 

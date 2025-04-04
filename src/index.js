@@ -47,7 +47,7 @@ const initializeApp = async () => {
       // Utilisation d'une variable d'environnement pour contrôler la réinitialisation de la base de données
       const resetDatabase = process.env.RESET_DB === 'true';
       // Synchronisation des modèles avec la base de données (force : false pour ne pas supprimer les tables existantes | true pour laisser sequelize supprimer les tables existantes et les recréer)
-      await db.sequelize.sync({ force: resetDatabase });
+      await db.sequelize.sync({ force: resetDatabase, logging: console.log });
       if (resetDatabase) {
         console.log("Base de données réinitialisée et les modèles synchronisés.");
       } else {

@@ -13,12 +13,18 @@ module.exports = (sequelize) => {
     region: DataTypes.STRING(100),
     country: DataTypes.STRING(50),
     type: DataTypes.STRING(50),
+  }, {
+    underscored: true,
+    tableName: 'addresses'
   });
 
   Address.associate = (models) => {
     Address.belongsToMany(models.UserProfile, {
-      through: "AddressUserProfile",
-      foreignKey: "address_id"
+      through: 'address_user_profiles',
+      foreignKey: "address_id",
+      otherKey: 'user_profile_id',
+      as: 'user_profiles',
+      foreignKeyConstraint: { name: 'fk_address_user_profile' }
     });
   };
 

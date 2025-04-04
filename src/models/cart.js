@@ -15,11 +15,16 @@ module.exports = (sequelize) => {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW
     }
+  }, {
+    underscored: true,
+    tableName: 'carts'
   });
 
   Cart.associate = (models) => {
-    Cart.belongsTo(models.User, { foreignKey: 'userId' });
-    Cart.hasMany(models.Order);
+    Cart.belongsTo(models.User, { 
+      foreignKey: 'userId',
+      foreignKeyConstraint: { name: 'fk_cart_user' } 
+    });
   };
 
   return Cart;

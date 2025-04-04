@@ -15,10 +15,16 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW
     },
     updateDate: DataTypes.DATE
+  }, {
+    underscored: true,
+    tableName: 'tickets'
   });
 
   Ticket.associate = (models) => {
-    Ticket.belongsTo(models.User, { foreignKey: 'userId' });
+    Ticket.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      foreignKeyConstraint: { name: 'fk_ticket_user' }
+    });
   };
 
   return Ticket;
