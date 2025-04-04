@@ -47,7 +47,26 @@ const initializeApp = async () => {
       // Utilisation d'une variable d'environnement pour contrôler la réinitialisation de la base de données
       const resetDatabase = process.env.RESET_DB === 'true';
       // Synchronisation des modèles avec la base de données (force : false pour ne pas supprimer les tables existantes | true pour laisser sequelize supprimer les tables existantes et les recréer)
-      await db.sequelize.sync({ force: resetDatabase, logging: console.log });
+      //await db.sequelize.sync({ force: resetDatabase, logging: console.log });
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+      await db.sequelize.sync({
+        force: true,
+        loggging: console.log,
+        hooks: true,
+        alter: false,
+        // Ajout de l'option pour MySQL
+        query: { raw: true },
+        // Forcer l'ordre de suppression
+        drop: {
+          cascade: true,
+          order: [
+            'addresses', 'address_user_profiles', 'carts', '', 'commandes', '', '', 'order_item_products', 'order_item_services', '', '', '', '', 'product_category_roles', 'product_category_roles', 'reviews', '', '', '', ''
+          ]
+        }
+      });
+
+      await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+
       if (resetDatabase) {
         console.log("Base de données réinitialisée et les modèles synchronisés.");
       } else {

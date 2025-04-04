@@ -16,15 +16,19 @@ module.exports = (sequelize) => {
 
   UserProfile.associate = (models) => {
     UserProfile.belongsTo(models.User, {
-      foreignKey: 'user_id',
+      foreignKey: {
+        name: 'user_id',
+        allowNull: false
+      },
       foreignKeyConstraint: { name: 'fk_user_profile_user' }
     });
 
     UserProfile.belongsToMany(models.Address, {
-      through: "address_user_profiles",
+      through: models.AddressUserProfile,
       foreignKey: "user_profile_id",
       otherKey: "address_id",
-      as: "addresses"
+      as: "addresses",
+      foreignKeyConstraint: { name: 'fk_user_profile_address' }
     });
   };
 

@@ -16,7 +16,7 @@ module.exports = (sequelize) => {
   ProductCategory.associate = (models) => {
     ProductCategory.hasMany(models.Product);
     ProductCategory.belongsToMany(models.Role, {
-      through: 'ProductCategoryRole',
+      through: models.ProductCategoryRole,
       foreignKey: 'category_id',
       as: 'roles'
     });

@@ -19,9 +19,14 @@ module.exports = (sequelize) => {
   });
 
   Order.associate = (models) => {
+    Order.hasMany(models.OrderItem, {
+      foreignKey: 'order_id',
+      foreignKeyConstraint: { name: 'fk_order_order_item' }
+    });
+    
     Order.belongsTo(models.User, {
       foreignKey: 'user_id',
-      ForeignKeyConstraint: { name: 'fk_order_user' }
+      foreignKeyConstraint: { name: 'fk_order_user' }
     });
     Order.belongsTo(models.Cart, {
       foreignKey: 'cart_id',

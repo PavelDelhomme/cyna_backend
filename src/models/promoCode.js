@@ -21,7 +21,7 @@ module.exports = (sequelize) => {
       foreignKey: 'promo_code_id',
       otherKey: 'role_id',
       as: 'roles',
-      ForeignKeyConstraint: { name: 'fk_promo_code_role' }
+      foreignKeyConstraint: { name: 'fk_promo_code_role' }
     });
   };
 

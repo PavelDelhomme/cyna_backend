@@ -23,7 +23,8 @@ module.exports = (sequelize) => {
     },
     { 
       underscored: true,
-      timestamps: false
+      timestamps: false,
+      tableName: 'service_type_roles'
     }
   );
 

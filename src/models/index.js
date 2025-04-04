@@ -18,7 +18,7 @@ const sequelize = new Sequelize(
 Sequelize.postgres.DECIMAL.parse = function (value) { return parseFloat(value); };
 sequelize.options.define = {
   underscored: true,
-  timestamp: true,
+  timestamps: true,
   createdAt: 'created_at',
   updatedAt: 'updated_at',
   paranoid: false

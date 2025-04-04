@@ -21,9 +21,12 @@ module.exports = (sequelize) => {
 
   OrderItem.associate = (models) => {
     OrderItem.belongsTo(models.Order, {
-      foreignKey: 'order_id',
-      onDelete: 'CASCADE'
-      // foreignKeyConstraint: { name: 'fk_order_item_order' }
+      foreignKey: {
+        name: 'order_id',
+        allowNull: false
+      },
+      onDelete: 'CASCADE',
+      foreignKeyConstraint: { name: 'fk_order_item_order' }
     });
 
     OrderItem.belongsToMany(models.Product, {

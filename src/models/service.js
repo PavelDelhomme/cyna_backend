@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, ForeignKeyConstraintError } = require('sequelize');
 
 module.exports = (sequelize) => {
   const Service = sequelize.define('Service', {
@@ -20,10 +20,14 @@ module.exports = (sequelize) => {
     promotion: DataTypes.STRING(255)
   }, {
     underscored: true,
+    tableName: 'services'
   });
 
   Service.associate = (models) => {
-    Service.belongsTo(models.ServiceType, { foreignKey: 'serviceTypeId' });
+    Service.belongsTo(models.ServiceType, { 
+      foreignKey: 'service_type_id',
+      ForeignKeyConstraint: { name: 'fk_service_service_type' }
+    });
     Service.belongsToMany(models.Role, {
       through: models.ServiceRole,
       foreignKey: 'service_id',

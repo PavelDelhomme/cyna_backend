@@ -1,4 +1,4 @@
-const { DataTypes } = require('sequelize');
+const { DataTypes, ForeignKeyConstraintError } = require('sequelize');
 
 module.exports = (sequelize) => {
   const Invoice = sequelize.define('Invoice', {
@@ -22,14 +22,17 @@ module.exports = (sequelize) => {
     quantity: DataTypes.STRING(50)
   }, {
     underscored: true,
+    tableName: 'invoices'
   });
 
   Invoice.associate = (models) => {
     Invoice.belongsTo(models.User, {
-      foreignKey: 'user_id'
+      foreignKey: 'user_id',
+      foreignKeyConstraint: { name: 'fk_invoice_user' }
     });
     Invoice.belongsTo(models.Payment, {
-      foreignKey: 'payment_id'
+      foreignKey: 'payment_id',
+      foreignKeyConstraint: { name: 'fk_invoice_payment' }
     });
   };
 

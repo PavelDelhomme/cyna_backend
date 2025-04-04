@@ -41,6 +41,11 @@ module.exports = (sequelize) => {
       foreignKey: 'user_id',
       onDelete: 'SET NULL'
     });
+    User.hasOne(models.UserProfile, {
+      foreignKey: 'user_id',
+      foreignKeyConstraint: { name: 'fk_user_profile_user' }
+    });
+    
     User.hasOne(models.Chatbot, {
       foreignKey: 'user_id',
       onDelete: 'CASCADE'

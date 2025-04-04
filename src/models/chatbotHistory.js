@@ -21,6 +21,7 @@ module.exports = (sequelize) => {
     // }
   }, {
     underscored: true,
+    tableName: 'chatbot_histories',
     timestamps: true,
     createdAt: 'created_at',
     updatedAt: 'updated_at'
@@ -33,7 +34,8 @@ module.exports = (sequelize) => {
         allowNull: false
       },
       onDelete: 'CASCADE',
-      onUpdate: 'CASCADE' 
+      onUpdate: 'CASCADE',
+      foreignKeyConstraint: { name: 'fk_chatbot_history_chatbot' }
     });
   };
 
