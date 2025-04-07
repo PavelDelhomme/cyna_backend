@@ -2,12 +2,6 @@ const express = require('express');
 const { Sequelize } = require('sequelize');
 const config = require("./config/database")[process.env.NODE_ENV || 'development'];
 
-// Routes
-const userRoutes = require("./routes/users");
-// const serviceRoutes = require('./routes/services');
-// const productRoutes = require('./routes/products');
-// const orderRoutes = require('./routes/orders');
-
 // DB
 const db = require('./models');
 
@@ -17,11 +11,11 @@ const app = express();
 app.use(express.json());
 
 // Routes
-app.use("/api/users", userRoutes);
+app.use("/api/users", require("./routes/users"));
 // Autres routes
-// app.use("/api/services", serviceRoutes);
-// app.use("/api/products", productRoutes);
-// app.user("/api/orders", orderRoutes);
+// app.use("/api/services", require("./routes/services"));
+// app.use("/api/products", require("./routes/products"));
+// app.user("/api/orders", require("./routes/orders"));
 
 // Initialisation de Sequelize
 const sequelize = new Sequelize(
@@ -45,38 +39,52 @@ const initializeApp = async () => {
       console.log("Connexion à la base de données établie avec succès.");
       
       // Utilisation d'une variable d'environnement pour contrôler la réinitialisation de la base de données
-      const resetDatabase = process.env.RESET_DB === 'true';
+      //const resetDatabase = process.env.RESET_DB === 'true';
       // Synchronisation des modèles avec la base de données (force : false pour ne pas supprimer les tables existantes | true pour laisser sequelize supprimer les tables existantes et les recréer)
       //await db.sequelize.sync({ force: resetDatabase, logging: console.log });
       await sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
       await db.sequelize.sync({
-        force: true,
-        loggging: console.log,
-        hooks: true,
+        force: process.env.RESET_DB === 'true',
+        logging: console.log,
+        //hooks: true,
         alter: false,
         // Ajout de l'option pour MySQL
-        query: { raw: true },
+        //query: { raw: true },
         // Forcer l'ordre de suppression
         drop: {
           cascade: true,
           order: [
-            'addresses', 'address_user_profiles', 'carts', '', 'commandes', '', '', 'order_item_products', 'order_item_services', '', '', '', '', 'product_category_roles', 'product_category_roles', 'reviews', '', '', '', ''
+            // Tables de jointure d'abord
+            'order_item_services', 'order_item_products', 
+            'address_user_profiles', 'role_promo_codes',
+            
+            // Tables enfants ensuite
+            'order_items', 'invoices', 'payments',
+            'tickets', 'stats', 'reviews',
+            
+            // Tables parents enfin
+            'orders', 'carts', 'products', 'services',
+            'promo_codes', 'service_types', 'product_categories',
+            'users', 'roles', 'addresses'
           ]
         }
       });
 
       await sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+      
+      console.log("Synchronisation de la base de données terminée");
 
-      if (resetDatabase) {
-        console.log("Base de données réinitialisée et les modèles synchronisés.");
-      } else {
-        console.log("Modèles synchronisés avec la base de données existante.");
-      }
-      /* Alternativement si on ne souhaite pas supprimer toutes les données existantes il faut modifier le modèle User pour spécifier un nom unique pour la contrainte de clé étrangère (Foreign Key (FK)) */
-      process.exit(1)
+      // Démarrage du server
+      const PORT = process.env.PORT || 3000;
+      app.listen(PORT, () => {
+        console.log(`Serveur en écoute sur le port ${PORT}`);
+      });
+
+      return;
+
     } catch (err) {
       console.error(`Tentative de connexion échouée (${5-retries+1}/5): `, err);
-      retries -= 1;
+      retries --;
       if (retries === 0) {
         console.error("Impossible de se connecter à la base de données après plusieurs tentatives");
         process.exit(1);
@@ -88,4 +96,8 @@ const initializeApp = async () => {
 };
 
 
-initializeApp();
+// Démarrer l'application
+initializeApp().catch(err => {
+  console.error("Erreur critique lors du démarrage :", err);
+  process.exit(1);
+});

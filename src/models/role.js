@@ -10,10 +10,14 @@ module.exports = (sequelize) => {
     name: DataTypes.STRING(10)
   }, {
     underscored: true,
+    tableName: 'roles'
   });
 
   Role.associate = (models) => {
-    Role.hasMany(models.User);
+    Role.hasMany(models.User, {
+      foreignKey: 'role_id',
+      foreignKeyConstraint: { name: 'fk_user_role' }
+    });
   };
 
   return Role;

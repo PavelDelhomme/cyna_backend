@@ -12,12 +12,12 @@ module.exports = (sequelize) => {
     status: DataTypes.BOOLEAN
   }, {
     underscored: true,
-    tableName: 'product_category_roles'
+    tableName: 'promo_codes'
   });
 
   PromoCode.associate = (models) => {
     PromoCode.belongsToMany(models.Role, {
-      tableName: 'product_category_roles',
+      through: models.RolePromoCode,
       foreignKey: 'promo_code_id',
       otherKey: 'role_id',
       as: 'roles',

@@ -26,6 +26,7 @@ module.exports = (sequelize) => {
         allowNull: false
       },
       onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
       foreignKeyConstraint: { name: 'fk_order_item_order' }
     });
 

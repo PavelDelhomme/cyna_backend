@@ -7,7 +7,7 @@ services:
       dockerfile: Dockerfile
     container_name: cyna_backend
     ports:
-      - "3007:${SERVER_PORT:-3000}" # Map 3007 sur l'hôte vers 3000 dans le conteneur
+      - "3007:${SERVER_PORT:-3000}" # Host:3007 -> Container:3000
     environment:
       - NODE_ENV=${NODE_ENV:-development}
       - DB_HOST=${DB_HOST:-db}

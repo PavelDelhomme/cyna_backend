@@ -31,7 +31,7 @@ module.exports = (sequelize) => {
     Service.belongsToMany(models.Role, {
       through: models.ServiceRole,
       foreignKey: 'service_id',
-      otherKey: 'service_role_id',
+      otherKey: 'role_id',
       as: 'roles'
     });
     Service.belongsToMany(models.OrderItem, {

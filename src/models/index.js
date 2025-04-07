@@ -11,18 +11,17 @@ const sequelize = new Sequelize(
     host: config.host,
     dialect: config.dialect,
     port: config.port,
-    pool: config.pool
+    pool: config.pool,
+    define: {
+      underscored: true,
+      timestamps: true,
+      createdAt: 'created_at',
+      updatedAt: 'updated_at',
+      paranoid: false
+    }
   }
 );
 
-Sequelize.postgres.DECIMAL.parse = function (value) { return parseFloat(value); };
-sequelize.options.define = {
-  underscored: true,
-  timestamps: true,
-  createdAt: 'created_at',
-  updatedAt: 'updated_at',
-  paranoid: false
-};
 
 const db = {};
 
