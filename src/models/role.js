@@ -2,15 +2,31 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const Role = sequelize.define('Role', {
-    id: {
-      type: DataTypes.INTEGER,
-      autoIncrement: true,
-      primaryKey: true
+    // id: {
+    //   type: DataTypes.INTEGER,
+    //   autoIncrement: true,
+    //   primaryKey: true
+    // },
+    name: {
+      type: DataTypes.ENUM('admin', 'user', 'support'),
+      defaultValue: 'user'
     },
-    name: DataTypes.STRING(10)
+    created_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false
+    },
+    updated_at: {
+      type: DataTypes.DATE,
+      defaultValue: DataTypes.NOW,
+      allowNull: false
+    }
   }, {
+    timestamps: true,
     underscored: true,
-    tableName: 'roles'
+    tableName: 'roles',
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'    
   });
 
   Role.associate = (models) => {

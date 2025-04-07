@@ -1,0 +1,10 @@
+{
+    "development": {
+        "username": "admin",
+        "password": "yourpassword",
+        "database": "cyna_database",
+        "host": "db",
+        "dialect": "mysql",
+        "port": 3306
+    }
+}

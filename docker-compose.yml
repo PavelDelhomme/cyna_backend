@@ -14,7 +14,7 @@ services:
       - DB_USER=${DB_USER:-admin}
       - DB_PASSWORD=${DB_PASSWORD:-yourpassword}
       - DB_NAME=${DB_NAME:-cyna_database}
-      - DB_PORT=${DB_PORT:-3306}
+      - DB_PORT=3306
       - RESET_DB=${RESET_DB:-true}
     depends_on:
       db:
@@ -42,10 +42,10 @@ services:
     healthcheck:
       #test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
       test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pyourpassword"]
-      interval: 10s
-      timeout: 5s
-      retries: 10
-      start_period: 30s # Pour donner plus de temps au conteneur MySQL afin qu'il soit completement démarrer avant de commencer les vérifications de santé.
+      interval: 5s
+      timeout: 20s
+      retries: 20
+      start_period: 40s # Pour donner plus de temps au conteneur MySQL afin qu'il soit completement démarrer avant de commencer les vérifications de santé.
     # depends_on:
     #   backend:
     #     condition: service_healthy

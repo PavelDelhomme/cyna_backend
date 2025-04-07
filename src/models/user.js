@@ -1,4 +1,5 @@
 const { DataTypes } = require('sequelize');
+const bcrypt = require("bcryptjs");
 
 module.exports = (sequelize) => {
   const User = sequelize.define('User', {
@@ -7,9 +8,22 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     },
-    name: DataTypes.STRING(50),
-    email: DataTypes.STRING(50),
-    password: DataTypes.STRING(50),
+    name: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    email: {
+      type: DataTypes.STRING(50),
+      unique: true,
+      validate: { isEmail: true }
+    },
+    password: {
+      type: DataTypes.STRING,
+      set(value) {
+        const hash = bcrypt.hashSync(value, 10);
+        this.setDataValue('password', hash);
+      }
+    },
     phone: DataTypes.STRING(20)
   }, {
     underscored: true,
@@ -23,13 +37,10 @@ module.exports = (sequelize) => {
   });
 
   User.associate = (models) => {
-    /* Pour l'alternative pour spécification de nom unique pour la contrainte de clé étrangère si nécessaire si dans index.js de models les étapes n'ont pas fonctionné */
     User.belongsTo(models.Role, {
       foreignKey: 'role_id',
-      //targetKey: 'id',
-      // constraints: true,
-      // onDelete: 'SET NULL',
-      // onUpdate: 'CASCADE',
+      targetKey: 'id',
+      as: 'role',
       foreignKeyConstraint: { name: 'fk_user_role' }
     });
 
@@ -50,6 +61,10 @@ module.exports = (sequelize) => {
       foreignKey: 'user_id',
       onDelete: 'CASCADE'
     });
+  };
+
+  User.prototype.validPassword = function(password) {
+    return bcrypt.compareSync(password, this.password);
   };
 
   return User;
