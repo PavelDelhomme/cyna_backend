@@ -1,7 +1,7 @@
 const express = require('express');
 const { Sequelize } = require('sequelize');
 const config = require("./config/database")[process.env.NODE_ENV || 'development'];
-
+console.log(config);
 // DB
 const db = require('./models');
 

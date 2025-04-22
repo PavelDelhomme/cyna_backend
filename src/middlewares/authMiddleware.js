@@ -1,12 +1,12 @@
 const jwt = require('jsonwebtoken');
-const { User } = require('../models');
+const { User, Role } = require('../models');
 
 module.exports = (roles = []) => {
     return async (req, res, next) => {
         //const token = req.headers.authorization?.split(' ')[1];
         const authHeader = req.headers.authorization;
 
-        if (!authHeader?.startWith('Bearer ')) {
+        if (!authHeader?.startsWith('Bearer ')) {
             return res.status(401).json({ error: "Token non fourni" });
         }
 
@@ -14,7 +14,7 @@ module.exports = (roles = []) => {
         
         try {
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const user = await req.db.User.findByPk(decoded.userId, {
+            const user = await User.findByPk(decoded.userId, {
                 include: [{
                     model: Role,
                     attributes: ['name']

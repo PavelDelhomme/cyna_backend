@@ -2,6 +2,22 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User, Role } = require("../models");
 
+const generateTokens = (user) => {
+    const token = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
+    );
+    
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '30d' }
+    );
+  
+    return { token, refreshToken };
+};
+
 exports.signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
@@ -12,21 +28,12 @@ exports.signup = async (req, res) => {
             defaults: { name: 'user' }
         });
 
-        const user = await User.create({
-            name,
-            email,
-            password,
-            role_id: role.id
-        });
+        const user = await User.create({ name, email, password, role_id: role.id });
+        const { token, refreshToken } = generateTokens(user);
 
-        const token = jwt.sign(
-            { userId: user.id },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
-
-        res.status(201).json({ userId: user.id, token });
+        res.status(201).json({ token, userId: user.id, role: role.name });
     } catch (error) {
+        console.log(err);
         res.status(400).json({ error: error.message });
     }
 };
@@ -34,56 +41,34 @@ exports.signup = async (req, res) => {
 exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
-        const user = await req.db.User.findOne({
-            where: { email },
-            include: [req.db.Role]
-        });
 
+        const user = await req.db.User.findOne({ where: { email }, include: [req.db.Role] });
         if (!user || !user.validPassword(password)) {
-            throw new Error('Identifiants invalides');
+            return res.status(401).json({ error: 'Identifiants invalides' });
         }
 
-        const token = jwt.sign(
-            { userId: user.id },
-            process.env.JWT_SECRET,
-            { expiresIn: '24h' }
-        );
-
-        res.json({ userId: user.id, token, role: user.Role.name });
-    } catch (error) {
-        res.status(401).json({ error: error.message });
+        const { token, refreshToken } = generateTokens(user);
+        res.json({ 
+            token,
+            refreshToken,
+            userId: user.id,
+            role: user.Role.name,
+        });
+    } catch (err) {
+        console.error(err)
+        res.status(401).json({ error: err.message });
     }
 };
 
 exports.refreshToken = async (req, res) => {
     try {
-        const decoded = jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_SECRET);
-        const user = await User.findByPk(decoded.userId);
-
-        const newToken = jwt.sign(
-            { userId: user.id },
-            process.env.JWT_SECRET,
-            { expiresIn: process.env.JWT_EXPIRES_IN }
-        );
-
-        res.json({ token: newToken });
-    } catch (error) {
-        res.status(401).json({ error: "Refresh token invalide"});
-    }
-};
-
-const generateTokens = (user) => {
-    const token = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN }
-    );
-    
-    const refreshToken = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '30d' }
-    );
+      const decoded = jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_SECRET);
+      const user = await User.findByPk(decoded.userId, { include: [Role] });
+      if (!user) return res.status(401).json({ error: "Utilisateur non trouvé" });
   
-    return { token, refreshToken };
+      const { token, refreshToken } = generateTokens(user);
+      res.json({ token, refreshToken });
+    } catch (err) {
+      res.status(401).json({ error: "Refresh token invalide ou expiré" });
+    }
   };

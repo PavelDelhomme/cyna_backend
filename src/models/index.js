@@ -1,6 +1,6 @@
-const { Sequelize } = require('sequelize');
 const fs = require('fs');
 const path = require('path');
+const { Sequelize } = require('sequelize');
 const config = require('../config/database')[process.env.NODE_ENV || 'development'];
 
 const sequelize = new Sequelize(
@@ -12,6 +12,7 @@ const sequelize = new Sequelize(
     dialect: config.dialect,
     port: config.port,
     pool: config.pool,
+    logging: config.logging,
     define: {
       underscored: true,
       timestamps: true,
@@ -25,13 +26,23 @@ const sequelize = new Sequelize(
 
 const db = {};
 
-// Chargement automatique de tous les modèles du dossier 
-fs.readdirSync(__dirname)
-  .filter(file => file !== 'index.js' && file.endsWith('.js'))
-  .forEach(file => {
-    const model = require(path.join(__dirname, file))(sequelize);
-    db[model.name] = model;
+// Fonction récursive chargement de tout .js dans tout les sous dossier de models
+function loadModels(dirPath) {
+  fs.readdirSync(dirPath).forEach(file => {
+    const fullPath = path.join(dirPath, file);
+    const stat = fs.statSync(fullPath);
+
+    if (stat.isDirectory()) {
+      loadModels(fullPath);
+    } else if (file !== 'index.js' && file.endsWith('.js')) {
+      const model = require(fullPath)(sequelize);
+      db[model.name] = model;
+    }
   });
+}
+
+// Lancemet depuis le dossier courant
+loadModels(__dirname);
 
 // Appliquer les associations
 Object.keys(db).forEach(modelName => {
