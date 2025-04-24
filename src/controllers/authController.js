@@ -42,7 +42,7 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await req.db.User.findOne({ where: { email }, include: [req.db.Role] });
+        const user = await User.findOne({ where: { email }, include: [Role] });
         if (!user || !user.validPassword(password)) {
             return res.status(401).json({ error: 'Identifiants invalides' });
         }
