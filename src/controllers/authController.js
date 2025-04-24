@@ -1,6 +1,6 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
-const { User, Role } = require("../models");
+const { User, Role, UserProfile } = require("../models");
 
 const generateTokens = (user) => {
     const token = jwt.sign(
@@ -29,6 +29,10 @@ exports.signup = async (req, res) => {
         });
 
         const user = await User.create({ name, email, password, role_id: role.id });
+
+        // Créatoin de UserProfile
+        await UserProfile.create({ user_id: user.id });
+
         const { token, refreshToken } = generateTokens(user);
 
         res.status(201).json({ token, userId: user.id, role: role.name });
