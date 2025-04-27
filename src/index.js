@@ -12,11 +12,13 @@ const userRoutes = require("./routes/users");
 const roleRoutes = require('./routes/roles');
 const promoCodeRoutes = require('./routes/promo-codes');
 const addressRoutes = require('./routes/addresses');
+const devRoutes = require('./routes/dev');
 
 // Middleware
 app.use(express.json());
 
 // Routes
+app.use("/api/dev", devRoutes);
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);

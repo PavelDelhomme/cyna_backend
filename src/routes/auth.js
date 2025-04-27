@@ -2,14 +2,13 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { signup, login, refreshToken } = require('../controllers/authController');
+const { User, Role } = require('../models');
 
 router.post('/signup', signup);
 router.post('/login', login);
 router.post('/refresh', refreshToken);
 
-router.get('/dev-admin', async (req, res) => {
-    const { User, Role } = require('../models');
-  
+router.get('/dev-admin', async (req, res) => { 
     try {
       const [adminRole] = await Role.findOrCreate({ where: { name: 'admin' } });
   
@@ -22,8 +21,21 @@ router.get('/dev-admin', async (req, res) => {
         }
       });
   
-      const token = jwt.sign({ userId: user.id }, process.env.JWT_SECRET, { expiresIn: '24h' });
-      res.json({ token });
+
+      const token = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '365d' }
+      );
+
+      const refreshToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_REFRESH_SECRET,
+        { expiresIn: '365d' }
+      );
+
+      res.json({ token, refreshToken, userId: user.id });
+
     } catch (err) {
       console.error(err);
       res.status(500).json({ error: "Erreur création admin" });
