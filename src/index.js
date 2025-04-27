@@ -5,6 +5,10 @@ console.log(config);
 // DB
 const db = require('./models');
 
+// Vérification / création automatique de l'admin
+const jwt = require('jsonwebtoken');
+const { User, Role } = db;
+
 const app = express();
 
 const authRoutes = require('./routes/auth');
@@ -13,6 +17,10 @@ const roleRoutes = require('./routes/roles');
 const promoCodeRoutes = require('./routes/promo-codes');
 const addressRoutes = require('./routes/addresses');
 const devRoutes = require('./routes/dev');
+
+const path = require('path');
+// Servir le petit front-end de test
+app.use('/', express.static(path.join(__dirname, "../small_front_test")));
 
 // Middleware
 app.use(express.json());
@@ -99,6 +107,7 @@ const initializeApp = async () => {
       
       console.log("Synchronisation de la base de données terminée");
 
+      await createDevAdminIfNotExists();
 
       if (process.env.RESET_DB === 'true') {
         await db.Role.findOrCreate({
@@ -128,6 +137,44 @@ const initializeApp = async () => {
   }
 };
 
+
+
+const createDevAdminIfNotExists = async () => {
+  const [adminRole] = await Role.findOrCreate({ where: { name: 'admin' } });
+
+  const [adminUser, created] = await User.findOrCreate({
+    where: { email: 'admin@cyna.dev' },
+    defaults: {
+      name: 'Admin Dev',
+      password: 'azerty123',
+      role_id: adminRole.id
+    }
+  });
+
+  if (created) {
+    console.log("✅ Admin créé automatiquement !");
+  } else {
+    console.log("ℹ️ Admin existant utilisé.");
+  }
+
+  // Générer et afficher les nouveaux tokens
+  const token = jwt.sign(
+    { userId: adminUser.id },
+    process.env.JWT_SECRET,
+    { expiresIn: process.env.JWT_EXPIRES_IN || '365d' }
+  );
+
+  const refreshToken = jwt.sign(
+    { userId: adminUser.id },
+    process.env.JWT_REFRESH_SECRET,
+    { expiresIn: '365d' }
+  );
+
+  console.log("\n=== ADMIN DEV TOKENS ===");
+  console.log("Token :", token);
+  console.log("Refresh Token :", refreshToken);
+  console.log("========================\n");
+};
 
 // Démarrer l'application
 initializeApp().catch(err => {

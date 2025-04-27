@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CYNA Backend - Interface de test</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <header>
+    <h1>CYNA Test Interface</h1>
+    <div id="token-buttons">
+      <button onclick="useAdminToken()">Utiliser Token Admin</button>
+      <button onclick="disconnect()">Déconnexion</button>
+      <p id="current-token">Token : Aucun</p>
+    </div>
+  </header>
+
+  <main>
+    <section id="auth-section">
+      <h2>Connexion utilisateur</h2>
+      <form id="login-form">
+        <input type="email" id="email" placeholder="Email" required>
+        <input type="password" id="password" placeholder="Mot de passe" required>
+        <button type="submit">Se connecter</button>
+      </form>
+      <p id="login-result"></p>
+    </section>
+
+    <section id="user-section">
+      <h2>Utilisateurs (admin)</h2>
+      <button onclick="listUsers()">Lister les utilisateurs</button>
+      <table id="users-table" class="data-table"></table>
+
+      <!-- AJOUT IMPORTANT -->
+      <div id="users-pagination" class="pagination-controls"></div>
+    </section>
+
+    <section id="address-section">
+      <h2>Mes adresses (user)</h2>
+      <button onclick="getMyAddresses()">Voir mes adresses</button>
+      <table id="addresses-table" class="data-table"></table>
+
+      <h3>Ajouter une adresse</h3>
+      <form id="address-form">
+        <input type="text" id="address1" placeholder="Adresse" required>
+        <input type="text" id="city" placeholder="Ville" required>
+        <input type="text" id="postalCode" placeholder="Code postal" required>
+        <input type="text" id="region" placeholder="Région" required>
+        <input type="text" id="country" placeholder="Pays" required>
+        <input type="text" id="type" placeholder="Type (ex: principal)" required>
+        <input type="text" id="user-id-address" placeholder="User ID (admin uniquement)">
+        <button type="submit">Ajouter l'adresse</button>
+      </form>
+      <p id="address-result"></p>
+    </section>
+  </main>
+
+  <script src="app.js"></script>
+</body>
+</html>
