@@ -11,12 +11,13 @@
     <h1>CYNA Test Interface</h1>
     <div id="token-buttons">
       <button onclick="useAdminToken()">Utiliser Token Admin</button>
-      <button onclick="disconnect()">Déconnexion</button>
       <p id="current-token">Token : Aucun</p>
+      <pre id="decoded-token" class="token-info"></pre>
+      <button onclick="disconnect()">Déconnexion</button>
     </div>
   </header>
 
-  <main>
+  <main>    
     <section id="auth-section">
       <h2>Connexion utilisateur</h2>
       <form id="login-form">
@@ -34,6 +35,7 @@
 
       <!-- AJOUT IMPORTANT -->
       <div id="users-pagination" class="pagination-controls"></div>
+      <div id="pagination" class="pagination-controls"></div>
     </section>
 
     <section id="address-section">
@@ -53,6 +55,96 @@
         <button type="submit">Ajouter l'adresse</button>
       </form>
       <p id="address-result"></p>
+    </section>
+
+    <section id="product-section">
+      <h2>Produits (admin)</h2>
+      <button onclick="listProductCategories()">Lister les catégories de produits</button>
+      <table id="product-categories-table" class="data-table"></table>
+      <button onclick="listProducts()">Lister les produits</button>
+      <table id="products-table" class="data-table"></table>
+    
+      <h3>Ajouter un produit</h3>
+      <form id="product-form">
+        <input type="text" id="product-name" placeholder="Nom du produit" required>
+        <input type="text" id="product-category-name" placeholder="Nom de la catégorie" required>
+        <input type="text" id="product-description" placeholder="Description">
+        <input type="number" step="0.01" id="product-price" placeholder="Prix (€)" required>
+        <input type="number" id="product-stock" placeholder="Stock" required>
+        <input type="text" id="product-promotion" placeholder="Promotion (facultatif)">
+        <input type="number" id="product-category-id" placeholder="ID de catégorie">
+        <button type="submit">Ajouter le produit</button>
+      </form>
+    </section>
+    
+    <section id="service-section">
+      <h2>Services (admin)</h2>
+      <button onclick="listServices()">Lister les services</button>
+      <table id="services-table" class="data-table"></table>
+      <button onclick="listServiceTypes()">Lister les types de service</button>
+      <table id="service-types-table" class="data-table"></table>
+      
+      <h3>Ajouter un service</h3>
+      <form id="service-form">
+        <input type="text" id="service-name" placeholder="Nom du service" required>
+        <input type="text" id="service-description" placeholder="Description">
+        <input type="number" step="0.01" id="service-price" placeholder="Prix (€)" required>
+        <input type="text" id="service-status" placeholder="Statut (true/false)" required>
+        <input type="text" id="service-subscription" placeholder="Abonnement (true/false)" required>
+        <input type="text" id="service-subscriptionType" placeholder="Type d'abonnement">
+        <input type="number" id="service-userCount" placeholder="Nombre d'utilisateurs">
+        <input type="text" id="service-promotion" placeholder="Promotion (facultatif)">
+        <input type="number" id="service-type-id" placeholder="ID type service">
+        <button type="submit">Ajouter le service</button>
+      </form>
+    </section>
+
+    <section id="payments-section">
+      <h2>📄 Paiements (Payments)</h2>
+      <button onclick="listPayments()">Lister</button>
+      <table id="payments-table" class="data-table"></table>
+    </section>
+    
+    <section id="tickets-section">
+      <h2>🎟️ Tickets</h2>
+      <button onclick="listTickets()">Lister</button>
+      <table id="tickets-table" class="data-table"></table>
+    </section>
+    
+    <section id="orders-section">
+      <h2>🧾 Commandes (Orders)</h2>
+      <button onclick="listOrders()">Lister</button>
+      <table id="orders-table" class="data-table"></table>
+    </section>
+    
+    <section id="carts-section">
+      <h2>🛒 Carts</h2>
+      <button onclick="listCarts()">Lister</button>
+      <table id="carts-table" class="data-table"></table>
+    </section>
+    
+    <section id="promo_codes-section">
+      <h2>🎫 Promo Codes</h2>
+      <button onclick="listPromocodes()">Lister</button>
+      <table id="promo_codes-table" class="data-table"></table>
+    </section>
+    
+    <section id="reviews-section">
+      <h2>⭐ Avis (Reviews)</h2>
+      <button onclick="listReviews()">Lister</button>
+      <table id="reviews-table" class="data-table"></table>
+    </section>
+    
+    <section id="stats-section">
+      <h2>📊 Stats</h2>
+      <button onclick="listStats()">Lister</button>
+      <table id="stats-table" class="data-table"></table>
+    </section>
+    
+    
+    <section>
+      <h2>Résultat JSON brut</h2>
+      <pre id="result" class="json-output"></pre>
     </section>
   </main>
 
