@@ -38,6 +38,39 @@
       <div id="pagination" class="pagination-controls"></div>
     </section>
 
+    <section id="roles-section">
+      <h2>👤 Gestion des rôles</h2>
+      <form onsubmit="event.preventDefault(); assignRoleToUser();">
+        <input type="number" id="role-user-id" placeholder="User ID" required>
+        <input type="number" id="role-id" placeholder="Role ID à assigner" required>
+        <button type="submit">Assigner le rôle</button>
+      </form>
+    </section>
+    
+    <section>
+      <h3>🧩 Appliquer un code promo</h3>
+      <form onsubmit="event.preventDefault(); assignPromoToProduct();">
+        <input type="number" id="promo-id" placeholder="ID du code promo" required>
+        <input type="number" id="product-id" placeholder="ID du produit" required>
+        <button type="submit">Associer au produit</button>
+      </form>
+      <!-- Appliquer à un service -->
+      <h4>Associer à un service</h4>
+      <form onsubmit="event.preventDefault(); assignPromoToService();">
+        <input type="number" id="promo-id-service" placeholder="ID promo" required>
+        <input type="number" id="service-id" placeholder="ID service" required>
+        <button type="submit">Associer au service</button>
+      </form>
+
+      <!-- Appliquer à une catégorie -->
+      <h4>Associer à une catégorie de produit</h4>
+      <form onsubmit="event.preventDefault(); assignPromoToCategory();">
+        <input type="number" id="promo-id-category" placeholder="ID promo" required>
+        <input type="number" id="category-id" placeholder="ID catégorie" required>
+        <button type="submit">Associer à la catégorie</button>
+      </form>
+    </section>
+    
     <section id="address-section">
       <h2>Mes adresses (user)</h2>
       <button onclick="getMyAddresses()">Voir mes adresses</button>
@@ -105,10 +138,26 @@
       <table id="payments-table" class="data-table"></table>
     </section>
     
+    <section id="create-payment-section">
+      <h3>Créer un paiement</h3>
+      <form onsubmit="event.preventDefault(); createPayment();">
+        <input type="number" id="payment-amount" placeholder="Montant" required>
+        <input type="text" id="payment-method" placeholder="Méthode (carte, paypal...)" required>
+        <input type="text" id="payment-status" placeholder="Statut (pending, paid...)" required>
+        <button type="submit">Ajouter le paiement</button>
+      </form>
+    </section>
+
+
     <section id="tickets-section">
       <h2>🎟️ Tickets</h2>
       <button onclick="listTickets()">Lister</button>
       <table id="tickets-table" class="data-table"></table>
+      <form onsubmit="event.preventDefault(); addTicket();">
+        <input type="text" id="ticket-subject" placeholder="Objet">
+        <input type="text" id="ticket-description" placeholder="Description">
+        <button type="submit">Ajouter</button>
+      </form>      
     </section>
     
     <section id="orders-section">
@@ -122,11 +171,17 @@
       <button onclick="listCarts()">Lister</button>
       <table id="carts-table" class="data-table"></table>
     </section>
+    <section id="create-cart-section">
+      <h3>Créer un panier pour un utilisateur</h3>
+      <input type="number" id="cart-user-id" placeholder="ID utilisateur" required>
+      <button onclick="createCartForUser()">Créer panier</button>
+    </section>
     
+        
     <section id="promo_codes-section">
       <h2>🎫 Promo Codes</h2>
       <button onclick="listPromocodes()">Lister</button>
-      <table id="promo_codes-table" class="data-table"></table>
+      <table id="promocodes-table" class="data-table"></table>
     </section>
     
     <section id="reviews-section">
@@ -141,6 +196,21 @@
       <table id="stats-table" class="data-table"></table>
     </section>
     
+    <section id="add-to-cart">
+      <h3>Ajouter un élément dans un panier</h3>
+    
+      <form onsubmit="event.preventDefault(); addProductToCart();">
+        <input type="number" id="cart-id-product" placeholder="ID du panier">
+        <input type="number" id="product-id-to-add" placeholder="ID produit">
+        <button type="submit">Ajouter le produit</button>
+      </form>
+    
+      <form onsubmit="event.preventDefault(); addServiceToCart();">
+        <input type="number" id="cart-id-service" placeholder="ID du panier">
+        <input type="number" id="service-id-to-add" placeholder="ID service">
+        <button type="submit">Ajouter le service</button>
+      </form>
+    </section>
     
     <section>
       <h2>Résultat JSON brut</h2>

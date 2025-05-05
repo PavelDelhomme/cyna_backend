@@ -42,6 +42,26 @@ document.addEventListener('DOMContentLoaded', () => {
   listUsers();
 });
 
+async function safeJsonResponse(response) {
+  const text = await response.text();
+  console.log("[DEBUG] Réponse brute :", text);
+  try {
+    return JSON.parse(text);
+  } catch (e) {
+    console.error("Réponse JSON invalide :", text);
+    alert("Erreur côté serveur : réponse invalide.");
+    return null;
+  }
+}
+
+
+async function listUserTokens() {
+  const res = await fetch(`${API_URL}/api/dev/tokens`, {
+    headers: { Authorization: `Bearer ${userToken}` }
+  });
+  const data = await res.json();
+  document.getElementById('result').innerText = JSON.stringify(data, null, 2);
+}
 
 function useAdminToken() {
     userToken = ADMIN_TOKEN;
@@ -67,7 +87,8 @@ async function login() {
         body: JSON.stringify({ email, password })
       });
   
-      const data = await response.json();
+      const data = await safeJsonResponse(response);
+      if (!data) return;
       if (response.ok) {
         userToken = data.token;
         localStorage.setItem('token', data.token);
@@ -142,6 +163,45 @@ function renderUsersTable(users) {
     container.appendChild(table);
 }
 
+async function assignRoleToUser() {
+  const userId = document.getElementById('role-user-id').value;
+  const roleId = document.getElementById('role-id').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/assignRole/${userId}`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ roleId })
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Rôle assigné avec succès !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de l’assignation du rôle.");
+  }
+}
+
+async function assignPromoToProduct() {
+  const promoId = document.getElementById('promo-id').value;
+  const productId = document.getElementById('product-id').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/promo-codes/${promoId}/product/${productId}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` }
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Promo appliquée au produit !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de l’application de la promo.");
+  }
+}
 
 
 function renderPagination(totalItems, currentPage) {
@@ -187,7 +247,8 @@ async function fetchData(endpoint, resultElementId) {
             }
         });
 
-        const data = await response.json();
+        const data = await safeJsonResponse(response);
+        if (!data) return;
         document.getElementById(resultElementId).innerText = JSON.stringify(data, null, 2);
     } catch (error) {
         console.error(error);
@@ -219,7 +280,8 @@ async function fetchData(endpoint) {
       }
     });
 
-    const data = await response.json();
+    const data = await safeJsonResponse(response);
+    if (!data) return;
     document.getElementById('result').innerText = JSON.stringify(data, null, 2);
   } catch (error) {
     console.error(error);
@@ -254,7 +316,8 @@ async function addAddress() {
       body: JSON.stringify(addressData)
     });
 
-    const data = await response.json();
+    const data = await safeJsonResponse(response);
+    if (!data) return;
     document.getElementById('result').innerText = JSON.stringify(data, null, 2);
   } catch (error) {
     console.error(error);
@@ -662,7 +725,8 @@ async function listPayments() {
     const response = await fetch(`${API_URL}/api/dev/payments`, {
       headers: { 'Authorization': `Bearer ${userToken}` }
     });
-    const data = await response.json();
+    const data = await safeJsonResponse(response);
+    if (!data) return;
     renderPaymentsTable(data);
   } catch (error) {
     console.error(error);
@@ -697,7 +761,18 @@ async function listTickets() {
   if (!userToken) return alert("Connectez-vous d'abord.");
   try {
     const res = await fetch(`${API_URL}/api/dev/tickets`, { headers: { Authorization: `Bearer ${userToken}` }});
-    const data = await res.json();
+    // const data = await res.json();
+    const text =  await res.text();
+    console.log('[DEBUG] Réponse brute : ', text);
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch (err) {
+      console.error("La réponse n'était pas du JSON valide :", text);
+      alert("Erreur côté serveur : réponse invalide");
+      return;
+    }
+    
     renderTicketsTable(data);
   } catch (err) {
     console.error(err);
@@ -716,6 +791,63 @@ function renderTicketsTable(data) {
     </tbody>`;
   container.appendChild(table);
 }
+
+
+async function addTicket() {
+  const ticket = {
+    subject: document.getElementById('ticket-subject').value,
+    description: document.getElementById('ticket-description').value
+  };
+
+  const response = await fetch(`${API_URL}/api/dev/tickets`, {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${userToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(ticket)
+  });
+
+  const text = await response.text();
+  console.log(text);
+  let result;
+  try {
+    result = JSON.parse(text);
+  } catch (e) {
+    alert("Erreur inattendue lors de la création du ticket.");
+    return;
+  }
+
+  alert("Ticket ajouté !");
+  listTickets();
+}
+
+async function addOrder() {
+  const order = {
+    subject: document.getElementById('order-subject').value,
+    description: document.getElementById('order-description').value
+  };
+
+  const response = await fetch(`${API_URL}/api/dev/orders`, {  // <-- bonne route ?
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${userToken}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(order)  // <-- PAS `ticket`
+  });
+  
+  const text = await response.text();
+  console.log(text);
+  let result;
+  try {
+    result = JSON.parse(text);
+  } catch (e) {
+    alert("Erreur inattendue lors de la création de la commande.");
+    return;
+  }  
+}
+
 
 async function listOrders() {
   if (!userToken) return alert("Connectez-vous d'abord.");
@@ -887,3 +1019,131 @@ async function deleteService(id) {
     alert("Erreur lors de la suppression du service.");
   }
 }
+
+
+async function createCart() {
+  try {
+    const res = await fetch(`${API_URL}/api/dev/carts`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` }
+    });
+    const data = await safeJsonResponse(res);
+    if (data) alert("Panier créé !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur création panier.");
+  }
+}
+
+async function createPayment() {
+  const amount = parseFloat(document.getElementById('payment-amount').value);
+  const method = document.getElementById('payment-method').value;
+  const status = document.getElementById('payment-status').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/payments`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ amount, method, status })
+    });
+    const data = await safeJsonResponse(res);
+    if (data) alert("Paiement ajouté !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur création paiement.");
+  }
+}
+
+async function assignPromoToService() {
+  const promoId = document.getElementById('promo-id-service').value;
+  const serviceId = document.getElementById('service-id').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/promo-codes/${promoId}/service/${serviceId}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` }
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Promo appliquée au service !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de l’application de la promo.");
+  }
+}
+
+async function assignPromoToCategory() {
+  const promoId = document.getElementById('promo-id-category').value;
+  const categoryId = document.getElementById('category-id').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/promo-codes/${promoId}/category/${categoryId}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` }
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Promo appliquée à la catégorie !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de l’application de la promo.");
+  }
+}
+
+
+async function createCartForUser() {
+  const userId = document.getElementById('cart-user-id').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/carts/user/${userId}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` }
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Panier créé pour l'utilisateur !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur création panier.");
+  }
+}
+
+async function addProductToCart() {
+  const cartId = document.getElementById('cart-id-product').value;
+  const productId = document.getElementById('product-id-to-add').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/carts/${cartId}/product/${productId}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` }
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Produit ajouté au panier !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur ajout produit au panier.");
+  }
+}
+
+async function addServiceToCart() {
+  const cartId = document.getElementById('cart-id-service').value;
+  const serviceId = document.getElementById('service-id-to-add').value;
+
+  try {
+    const res = await fetch(`${API_URL}/api/dev/carts/${cartId}/service/${serviceId}`, {
+      method: 'POST',
+      headers: { 'Authorization': `Bearer ${userToken}` }
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Service ajouté au panier !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur ajout service au panier.");
+  }
+}
+

@@ -105,16 +105,50 @@ router.post('/service-types', authMiddleware(['admin']), async (req, res) => {
   }
 });
 
-
+// Payments
 router.get('/payments', authMiddleware(['admin']), devController.listPayments);
+router.post('/payments', authMiddleware(['admin']), devController.createPayment);
+
+// Tickets
 router.get('/tickets', authMiddleware(['admin']), devController.listTickets);
+router.post('/tickets', authMiddleware(['admin']), devController.createTicket);
+
+// Orders
 router.get('/orders', authMiddleware(['admin']), devController.listOrders);
+router.post('/orders', authMiddleware(['admin']), devController.createOrder);
+
+// Carts
 router.get('/carts', authMiddleware(['admin']), devController.listCarts);
+router.post('/carts', authMiddleware(['admin']), devController.createCart);
+router.post('/carts/:cartId/add-product/:productId', authMiddleware(['admin']), devController.addProductToCart);
+router.post('/carts/:cartId/add-service/:serviceId', authMiddleware(['admin']), devController.addServiceToCart);
+router.post('/carts/:cartId/product/:productId', authMiddleware(['admin']), devController.addProductToCart);
+router.post('/carts/:cartId/service/:serviceId', authMiddleware(['admin']), devController.addServiceToCart);
+router.post('/carts/user/:userId', authMiddleware(['admin']), devController.createCartForUser);
+
+// PromoCodes
 router.get('/promo-codes', authMiddleware(['admin']), devController.listPromoCodes);
+router.post('/promo-codes', authMiddleware(['admin']), devController.createPromoCode);
+
+// Associer un code promo à un produit
+router.post('/promo-codes/:promoId/product/:productId', authMiddleware(['admin']), devController.assignPromoToProduct);
+
+// Associer un code promo à un service
+router.post('/promo-codes/:promoId/service/:serviceId', authMiddleware(['admin']), devController.assignPromoToService);
+
+// Associer un code promo à une catégorie de produit
+router.post('/promo-codes/:promoId/product-category/:categoryId', authMiddleware(['admin']), devController.assignPromoToProductCategory);
+router.post('/promo-codes/:promoId/category/:categoryId', authMiddleware(['admin']), devController.assignPromoToProductCategory);
+
+// Reviews
 router.get('/reviews', authMiddleware(['admin']), devController.listReviews);
+router.post('/reviews', authMiddleware(['admin']), devController.createReview);
+
+// Stats
 router.get('/stats', authMiddleware(['admin']), devController.listStats);
+router.post('/stats', authMiddleware(['admin']), devController.createStat);
+
 router.get('/service-types', authMiddleware(['admin']), devController.listServiceTypes);
-router.get('/product-categories', authMiddleware(['admin']), devController.listProductCategories);
 
 // Addresses
 router.get('/addresses', authMiddleware(['admin']), devController.listAddresses);
@@ -142,8 +176,6 @@ router.post('/admin/profile', async (req, res) => {
   res.json({ message: "Profil admin créé", profile });
 });
 
-
-module.exports = router;
 
 
 // Supprimer un produit
@@ -175,3 +207,13 @@ router.delete('/services/:id', authMiddleware(['admin']), async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 });
+
+
+router.get('/tokens', authMiddleware(['admin']), devController.listUserTokens);
+
+router.get('/getUserAddresses/:userId', authMiddleware(['admin']), devController.getUserAddresses);
+router.post('/assignRole/:userId', authMiddleware(['admin']), devController.assignRoleToUser);
+
+
+
+module.exports = router;

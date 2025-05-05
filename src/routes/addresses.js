@@ -8,7 +8,7 @@ const loadUserProfile = require('../middlewares/loadUserProfile');
 router.post('/', authMiddleware(), loadUserProfile, addressController.addAddressToUser);
 
 // Voir ses adresses
-router.get('/me', authMiddleware(), loadUserProfile, addressController.getUserAddresses);
+router.get('/me', authMiddleware(['user', 'admin']), loadUserProfile, addressController.getUserAddresses);
 
 // Modifier une adresse
 router.patch('/:id', authMiddleware(), loadUserProfile, addressController.updateUserAddress);
