@@ -374,3 +374,58 @@ exports.assignRoleToUser = async (req, res) => {
     }
   };
   
+
+  // Créer un produit
+exports.createProduct = async (req, res) => {
+  try {
+    const { name, description, price, stock, promotion, category_id } = req.body;
+
+    if (!name || !price || !stock || !category_id) {
+      return res.status(400).json({ error: "Champs obligatoires manquants." });
+    }
+
+    const product = await Product.create({
+      name,
+      description,
+      price,
+      stock,
+      promotion,
+      category_id
+    });
+
+    res.status(201).json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+// Créer un service
+exports.createService = async (req, res) => {
+  try {
+    const {
+      name, description, price, status, subscription,
+      subscriptionType, userCount, promotion, service_type_id
+    } = req.body;
+
+    if (!name || !price || !service_type_id) {
+      return res.status(400).json({ error: "Champs obligatoires manquants." });
+    }
+
+    const service = await Service.create({
+      name,
+      description,
+      price,
+      status,
+      subscription,
+      subscriptionType,
+      userCount,
+      promotion,
+      service_type_id
+    });
+
+    res.status(201).json(service);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

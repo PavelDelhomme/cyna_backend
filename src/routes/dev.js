@@ -34,15 +34,7 @@ router.get('/profiles', authMiddleware(['admin']), devController.listProfiles);
 
 // --- Products
 router.get('/products', authMiddleware(['admin']), devController.listProducts);
-router.post('/products', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const { name, description, price, stock, promotion, category_id } = req.body;
-    const product = await require('../models').Product.create({ name, description, price, stock, promotion, category_id });
-    res.status(201).json(product);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
+router.post('/products', authMiddleware(['admin']), devController.createProduct);
 
 // Liste des catégories
 router.get('/product-categories', authMiddleware(['admin']), devController.listProductCategories);
@@ -64,31 +56,8 @@ router.post('/product-categories', authMiddleware(['admin']), async (req, res) =
 });
 
 router.get('/services', authMiddleware(['admin']), devController.listServices);
+router.post('/services', authMiddleware(['admin']), devController.createService);
 
-router.post('/services', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const {
-      name, description, price, status, subscription,
-      subscriptionType, userCount, promotion, service_type_id
-    } = req.body;
-
-    const service = await require('../models').Service.create({
-      name,
-      description,
-      price,
-      status,
-      subscription,
-      subscriptionType,
-      userCount,
-      promotion,
-      service_type_id
-    });
-
-    res.status(201).json(service);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
 
 router.post('/service-types', authMiddleware(['admin']), async (req, res) => {
   try {
