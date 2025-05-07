@@ -1,221 +1,233 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CYNA Backend - Interface de test</title>
   <link rel="stylesheet" href="styles.css">
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background-color: #f9f9f9;
+    }
+    header {
+      background: #222;
+      color: white;
+      padding: 10px 20px;
+      margin-bottom: 20px;
+    }
+    h1 { margin: 0; }
+    section {
+      background: white;
+      padding: 15px;
+      margin-bottom: 20px;
+      border-radius: 5px;
+    }
+    table.styled-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 10px;
+    }
+    table.styled-table th, table.styled-table td {
+      border: 1px solid #ddd;
+      padding: 8px;
+    }
+    table.styled-table th {
+      background-color: #f2f2f2;
+    }
+    .pagination-controls {
+      margin-top: 10px;
+    }
+    .json-output {
+      background: #eee;
+      padding: 10px;
+      max-height: 300px;
+      overflow-y: auto;
+    }
+    .token-info {
+      background: #444;
+      color: #0f0;
+      padding: 5px;
+      font-size: 12px;
+    }
+    button {
+      margin-top: 5px;
+    }
+    form input, form select {
+      margin: 5px;
+      padding: 5px;
+    }
+  </style>
 </head>
 <body>
   <header>
     <h1>CYNA Test Interface</h1>
     <div id="token-buttons">
       <button onclick="useAdminToken()">Utiliser Token Admin</button>
+      <button onclick="disconnect()">Déconnexion</button>
       <p id="current-token">Token : Aucun</p>
       <pre id="decoded-token" class="token-info"></pre>
-      <button onclick="disconnect()">Déconnexion</button>
     </div>
   </header>
 
-  <main>    
+  <main>
+
     <section id="auth-section">
-      <h2>Connexion utilisateur</h2>
+      <h2>🔐 Connexion utilisateur</h2>
       <form id="login-form">
-        <input type="email" id="email" placeholder="Email" required>
-        <input type="password" id="password" placeholder="Mot de passe" required>
+        <input type="email" id="email" placeholder="Email" required />
+        <input type="password" id="password" placeholder="Mot de passe" required />
         <button type="submit">Se connecter</button>
       </form>
-      <p id="login-result"></p>
     </section>
 
     <section id="user-section">
-      <h2>Utilisateurs (admin)</h2>
+      <h2>👥 Utilisateurs</h2>
       <button onclick="listUsers()">Lister les utilisateurs</button>
-      <table id="users-table" class="data-table"></table>
-
-      <!-- AJOUT IMPORTANT -->
-      <div id="users-pagination" class="pagination-controls"></div>
+      <div id="users-table"></div>
       <div id="pagination" class="pagination-controls"></div>
     </section>
 
+    <section id="create-user-section">
+      <h2>➕ Créer un utilisateur</h2>
+      <form onsubmit="event.preventDefault(); createUser();">
+        <input type="text" id="user-name" placeholder="Nom" required />
+        <input type="email" id="user-email" placeholder="Email" required />
+        <input type="password" id="user-password" placeholder="Mot de passe" required />
+        <button type="submit">Créer</button>
+      </form>
+    </section>
+
+    <section id="create-role-section">
+      <h2>🎭 Créer un rôle</h2>
+      <form onsubmit="event.preventDefault(); createRole();">
+        <input type="text" id="role-name" placeholder="Nom du rôle" required />
+        <button type="submit">Créer rôle</button>
+      </form>
+    </section>
+
     <section id="roles-section">
-      <h2>👤 Gestion des rôles</h2>
+      <h2>⚙️ Assigner un rôle à un utilisateur</h2>
       <form onsubmit="event.preventDefault(); assignRoleToUser();">
-        <input type="number" id="role-user-id" placeholder="User ID" required>
-        <input type="number" id="role-id" placeholder="Role ID à assigner" required>
-        <button type="submit">Assigner le rôle</button>
+        <select id="role-user-id" required></select>
+        <select id="role-id" required></select>
+        <button type="submit">Assigner</button>
       </form>
     </section>
-    
-    <section>
-      <h3>🧩 Appliquer un code promo</h3>
-      <form onsubmit="event.preventDefault(); assignPromoToProduct();">
-        <input type="number" id="promo-id" placeholder="ID du code promo" required>
-        <input type="number" id="product-id" placeholder="ID du produit" required>
-        <button type="submit">Associer au produit</button>
-      </form>
-      <!-- Appliquer à un service -->
-      <h4>Associer à un service</h4>
-      <form onsubmit="event.preventDefault(); assignPromoToService();">
-        <input type="number" id="promo-id-service" placeholder="ID promo" required>
-        <input type="number" id="service-id" placeholder="ID service" required>
-        <button type="submit">Associer au service</button>
-      </form>
 
-      <!-- Appliquer à une catégorie -->
-      <h4>Associer à une catégorie de produit</h4>
-      <form onsubmit="event.preventDefault(); assignPromoToCategory();">
-        <input type="number" id="promo-id-category" placeholder="ID promo" required>
-        <input type="number" id="category-id" placeholder="ID catégorie" required>
-        <button type="submit">Associer à la catégorie</button>
-      </form>
-    </section>
-    
     <section id="address-section">
-      <h2>Mes adresses (user)</h2>
+      <h2>🏠 Adresses</h2>
       <button onclick="getMyAddresses()">Voir mes adresses</button>
-      <table id="addresses-table" class="data-table"></table>
-
-      <h3>Ajouter une adresse</h3>
+      <pre id="addresses-list" class="json-output"></pre>
       <form id="address-form">
-        <input type="text" id="address1" placeholder="Adresse" required>
-        <input type="text" id="city" placeholder="Ville" required>
-        <input type="text" id="postalCode" placeholder="Code postal" required>
-        <input type="text" id="region" placeholder="Région" required>
-        <input type="text" id="country" placeholder="Pays" required>
-        <input type="text" id="type" placeholder="Type (ex: principal)" required>
-        <input type="text" id="user-id-address" placeholder="User ID (admin uniquement)">
-        <button type="submit">Ajouter l'adresse</button>
+        <input type="text" id="address1" placeholder="Adresse" required />
+        <input type="text" id="city" placeholder="Ville" required />
+        <input type="text" id="postalCode" placeholder="Code postal" required />
+        <input type="text" id="region" placeholder="Région" required />
+        <input type="text" id="country" placeholder="Pays" required />
+        <input type="text" id="type" placeholder="Type" required />
+        <input type="text" id="user-id-address" placeholder="ID utilisateur (optionnel)" />
+        <button type="submit">Ajouter adresse</button>
       </form>
-      <p id="address-result"></p>
     </section>
 
     <section id="product-section">
-      <h2>Produits (admin)</h2>
-      <button onclick="listProductCategories()">Lister les catégories de produits</button>
-      <table id="product-categories-table" class="data-table"></table>
+      <h2>🛍️ Produits</h2>
+      <button onclick="listProductCategories()">Lister les catégories</button>
+      <div id="product-categories-table"></div>
       <button onclick="listProducts()">Lister les produits</button>
-      <table id="products-table" class="data-table"></table>
-    
-      <h3>Ajouter un produit</h3>
+      <div id="products-table"></div>
       <form id="product-form">
-        <input type="text" id="product-name" placeholder="Nom du produit" required>
-        <input type="text" id="product-category-name" placeholder="Nom de la catégorie" required>
-        <input type="text" id="product-description" placeholder="Description">
-        <input type="number" step="0.01" id="product-price" placeholder="Prix (€)" required>
-        <input type="number" id="product-stock" placeholder="Stock" required>
-        <input type="text" id="product-promotion" placeholder="Promotion (facultatif)">
-        <input type="number" id="product-category-id" placeholder="ID de catégorie">
-        <button type="submit">Ajouter le produit</button>
+        <input type="text" id="product-name" placeholder="Nom" required />
+        <input type="text" id="product-category-name" placeholder="Catégorie" required />
+        <input type="text" id="product-description" placeholder="Description" />
+        <input type="number" step="0.01" id="product-price" placeholder="Prix (€)" required />
+        <input type="number" id="product-stock" placeholder="Stock" required />
+        <input type="text" id="product-promotion" placeholder="Promotion (optionnel)" />
+        <button type="submit">Ajouter produit</button>
       </form>
     </section>
-    
+
     <section id="service-section">
-      <h2>Services (admin)</h2>
+      <h2>💼 Services</h2>
       <button onclick="listServices()">Lister les services</button>
-      <table id="services-table" class="data-table"></table>
-      <button onclick="listServiceTypes()">Lister les types de service</button>
-      <table id="service-types-table" class="data-table"></table>
-      
-      <h3>Ajouter un service</h3>
+      <div id="services-table"></div>
+      <button onclick="listServiceTypes()">Lister les types</button>
+      <div id="service-types-table"></div>
       <form id="service-form">
-        <input type="text" id="service-name" placeholder="Nom du service" required>
-        <input type="text" id="service-description" placeholder="Description">
-        <input type="number" step="0.01" id="service-price" placeholder="Prix (€)" required>
-        <input type="text" id="service-status" placeholder="Statut (true/false)" required>
-        <input type="text" id="service-subscription" placeholder="Abonnement (true/false)" required>
-        <input type="text" id="service-subscriptionType" placeholder="Type d'abonnement">
-        <input type="number" id="service-userCount" placeholder="Nombre d'utilisateurs">
-        <input type="text" id="service-promotion" placeholder="Promotion (facultatif)">
-        <input type="number" id="service-type-id" placeholder="ID type service">
-        <button type="submit">Ajouter le service</button>
+        <input type="text" id="service-name" placeholder="Nom" required />
+        <input type="text" id="service-description" placeholder="Description" />
+        <input type="number" id="service-price" placeholder="Prix" required />
+        <input type="text" id="service-status" placeholder="Statut (true/false)" />
+        <input type="text" id="service-subscription" placeholder="Abonnement (true/false)" />
+        <input type="text" id="service-subscriptionType" placeholder="Type d'abonnement" />
+        <input type="number" id="service-userCount" placeholder="Nb utilisateurs" />
+        <input type="text" id="service-promotion" placeholder="Promotion (optionnel)" />
+        <button type="submit">Ajouter service</button>
       </form>
     </section>
 
     <section id="payments-section">
-      <h2>📄 Paiements (Payments)</h2>
+      <h2>💳 Paiements</h2>
       <button onclick="listPayments()">Lister</button>
-      <table id="payments-table" class="data-table"></table>
-    </section>
-    
-    <section id="create-payment-section">
-      <h3>Créer un paiement</h3>
+      <div id="payments-table"></div>
       <form onsubmit="event.preventDefault(); createPayment();">
-        <input type="number" id="payment-amount" placeholder="Montant" required>
-        <input type="text" id="payment-method" placeholder="Méthode (carte, paypal...)" required>
-        <input type="text" id="payment-status" placeholder="Statut (pending, paid...)" required>
-        <button type="submit">Ajouter le paiement</button>
+        <input type="number" id="payment-amount" placeholder="Montant" />
+        <input type="text" id="payment-method" placeholder="Méthode" />
+        <input type="text" id="payment-status" placeholder="Statut" />
+        <button type="submit">Créer paiement</button>
       </form>
     </section>
-
 
     <section id="tickets-section">
       <h2>🎟️ Tickets</h2>
       <button onclick="listTickets()">Lister</button>
-      <table id="tickets-table" class="data-table"></table>
+      <div id="tickets-table"></div>
       <form onsubmit="event.preventDefault(); addTicket();">
-        <input type="text" id="ticket-subject" placeholder="Objet">
-        <input type="text" id="ticket-description" placeholder="Description">
+        <input type="text" id="ticket-subject" placeholder="Objet" />
+        <input type="text" id="ticket-description" placeholder="Description" />
         <button type="submit">Ajouter</button>
-      </form>      
+      </form>
     </section>
-    
+
     <section id="orders-section">
-      <h2>🧾 Commandes (Orders)</h2>
+      <h2>🧾 Commandes</h2>
       <button onclick="listOrders()">Lister</button>
-      <table id="orders-table" class="data-table"></table>
+      <div id="orders-table"></div>
     </section>
-    
+
     <section id="carts-section">
-      <h2>🛒 Carts</h2>
+      <h2>🛒 Paniers</h2>
       <button onclick="listCarts()">Lister</button>
-      <table id="carts-table" class="data-table"></table>
-    </section>
-    <section id="create-cart-section">
-      <h3>Créer un panier pour un utilisateur</h3>
-      <input type="number" id="cart-user-id" placeholder="ID utilisateur" required>
+      <div id="carts-table"></div>
+      <input type="number" id="cart-user-id" placeholder="ID utilisateur" />
       <button onclick="createCartForUser()">Créer panier</button>
     </section>
-    
-        
-    <section id="promo_codes-section">
-      <h2>🎫 Promo Codes</h2>
+
+    <section id="promo-section">
+      <h2>🎫 Codes promo</h2>
       <button onclick="listPromocodes()">Lister</button>
-      <table id="promocodes-table" class="data-table"></table>
+      <div id="promocodes-table"></div>
     </section>
-    
+
     <section id="reviews-section">
-      <h2>⭐ Avis (Reviews)</h2>
+      <h2>⭐ Avis</h2>
       <button onclick="listReviews()">Lister</button>
-      <table id="reviews-table" class="data-table"></table>
+      <div id="reviews-table"></div>
     </section>
-    
+
     <section id="stats-section">
-      <h2>📊 Stats</h2>
+      <h2>📊 Statistiques</h2>
       <button onclick="listStats()">Lister</button>
-      <table id="stats-table" class="data-table"></table>
+      <div id="stats-table"></div>
     </section>
-    
-    <section id="add-to-cart">
-      <h3>Ajouter un élément dans un panier</h3>
-    
-      <form onsubmit="event.preventDefault(); addProductToCart();">
-        <input type="number" id="cart-id-product" placeholder="ID du panier">
-        <input type="number" id="product-id-to-add" placeholder="ID produit">
-        <button type="submit">Ajouter le produit</button>
-      </form>
-    
-      <form onsubmit="event.preventDefault(); addServiceToCart();">
-        <input type="number" id="cart-id-service" placeholder="ID du panier">
-        <input type="number" id="service-id-to-add" placeholder="ID service">
-        <button type="submit">Ajouter le service</button>
-      </form>
-    </section>
-    
+
     <section>
-      <h2>Résultat JSON brut</h2>
+      <h2>🧾 Résultat JSON brut</h2>
       <pre id="result" class="json-output"></pre>
     </section>
+
   </main>
 
   <script src="app.js"></script>

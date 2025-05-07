@@ -2,6 +2,7 @@ const express = require('express');
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
 const devController = require('../controllers/devController');
+const roleController = require("../controllers/roleController");
 
 // --- Routes existantes reset-users ---
 const { User, UserProfile } = require('../models');
@@ -183,6 +184,8 @@ router.get('/tokens', authMiddleware(['admin']), devController.listUserTokens);
 router.get('/getUserAddresses/:userId', authMiddleware(['admin']), devController.getUserAddresses);
 router.post('/assignRole/:userId', authMiddleware(['admin']), devController.assignRoleToUser);
 
+router.get('/roles', authMiddleware(['admin']), devController.listRoles);
 
+router.post('/roles', authMiddleware(['admin']), roleController.createRole);
 
 module.exports = router;

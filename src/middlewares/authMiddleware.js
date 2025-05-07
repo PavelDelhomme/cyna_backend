@@ -16,23 +16,22 @@ module.exports = (roles = []) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
+      const user = await User.findByPk(decoded.userId, { include: [Role] });
 
-      const user = await User.findByPk(decoded.userId, {
-        include: [{ model: Role, as: 'role', attributes: ['name'] }]
-      });
+      if (!user) return res.status(401).json({ error: "Utilisateur introuvable" });
 
-      if (!user) return res.status(404).json({ error: "Utilisateur introuvable" });
+      const userRole = user.Role?.name;
+      req.user = { id: user.id, role: userRole };
 
-      // Vérifie le rôle si précisé
-      if (roles.length > 0 && !roles.includes(user.role.name)) {
-        return res.status(403).json({ error: "Accès refusé : rôle insuffisant" });
+      console.log(`[AUTH] Utilisateur #${user.id}, rôle : ${userRole}`);
+
+      if (roles.length > 0 && !roles.includes(userRole)) {
+        return res.status(403).json({ error: "Accès interdit" });
       }
 
-      req.user = user;
       next();
-
     } catch (err) {
-      console.error(err);
+      console.error("[AUTH ERROR]", err.message);
       return res.status(401).json({ error: "Token invalide ou expiré" });
     }
   };

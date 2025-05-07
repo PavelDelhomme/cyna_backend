@@ -16,6 +16,8 @@ document.addEventListener('DOMContentLoaded', () => {
   if (savedToken) {
     userToken = savedToken;
     updateTokenDisplay();
+  } else {
+    useAdminToken(); // Test rapide
   }
 
   document.getElementById('login-form').addEventListener('submit', async (e) => {
@@ -39,6 +41,8 @@ document.addEventListener('DOMContentLoaded', () => {
   });
   
   // Charge les utilisateurs au chargement de page si admin
+  loadUsersIntoSelect("role-user-id");
+  loadRolesIntoSelect("role-id");
   listUsers();
 });
 
@@ -54,6 +58,9 @@ async function safeJsonResponse(response) {
   }
 }
 
+
+
+// User & Admin
 
 async function listUserTokens() {
   const res = await fetch(`${API_URL}/api/dev/tokens`, {
@@ -162,6 +169,61 @@ function renderUsersTable(users) {
 
     container.appendChild(table);
 }
+
+
+async function createUser() {
+  const name = document.getElementById('user-name').value;
+  const email = document.getElementById('user-email').value;
+  const password = document.getElementById('user-password').value;
+
+  try {
+    const response = await fetch(`${API_URL}/api/dev/users`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await safeJsonResponse(response);
+    if (data) {
+      alert("Utilisateur créé !");
+      loadUsersIntoSelect("role-user-id");
+      listUsers();
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la création de l'utilisateur.");
+  }
+}
+
+async function createRole() {
+  const name = document.getElementById('role-name').value;
+
+  try {
+    const response = await fetch(`${API_URL}/api/dev/roles`, {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${userToken}`,
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ name })
+    });
+
+    const data = await safeJsonResponse(response);
+    if (data) {
+      alert("Rôle créé !");
+      loadRolesIntoSelect("role-id");
+      loadUsersIntoSelect("role-user-id");
+      listUsers();
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la création du rôle.");
+  }
+}
+
 
 async function assignRoleToUser() {
   const userId = document.getElementById('role-user-id').value;
@@ -834,7 +896,7 @@ async function addOrder() {
       'Authorization': `Bearer ${userToken}`,
       'Content-Type': 'application/json'
     },
-    body: JSON.stringify(order)  // <-- PAS `ticket`
+    body: JSON.stringify(order)
   });
   
   const text = await response.text();
@@ -846,6 +908,9 @@ async function addOrder() {
     alert("Erreur inattendue lors de la création de la commande.");
     return;
   }  
+
+  alert("Commande ajoutée !");
+  listOrders();
 }
 
 
@@ -1146,4 +1211,68 @@ async function addServiceToCart() {
     alert("Erreur ajout service au panier.");
   }
 }
+
+async function loadUsersIntoSelect(selectId) {
+  const res = await fetch(`${API_URL}/api/dev/users`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+  const users = await res.json();
+  const select = document.getElementById(selectId);
+  select.innerHTML = users.map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join('');
+}
+
+async function loadRolesIntoSelect(selectId) {
+  const res = await fetch(`${API_URL}/api/dev/roles`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+  const roles = await res.json();
+  const select = document.getElementById(selectId);
+  select.innerHTML = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+}
+
+async function loadPromosIntoSelect(selectId) {
+  const res = await fetch(`${API_URL}/api/dev/promo-codes`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+  const promos = await res.json();
+  const select = document.getElementById(selectId);
+  select.innerHTML = promos.map(p => `<option value="${p.id}">${p.code}</option>`).join('');
+}
+
+async function loadProductsIntoSelect(selectId) {
+  const res = await fetch(`${API_URL}/api/dev/products`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+  const products = await res.json();
+  const select = document.getElementById(selectId);
+  select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+}
+
+async function loadServicesIntoSelect(selectId) {
+  const res = await fetch(`${API_URL}/api/dev/services`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+  const services = await res.json();
+  const select = document.getElementById(selectId);
+  select.innerHTML = services.map(s => `<option value="${s.id}">${s.name}</option>`).join('');
+}
+
+async function loadProductCategoriesIntoSelect(selectId) {
+  const res = await fetch(`${API_URL}/api/dev/product-categories`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+  const categories = await res.json();
+  const select = document.getElementById(selectId);
+  select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+}
+
+async function loadCartsIntoSelect(selectId) {
+  const res = await fetch(`${API_URL}/api/dev/carts`, {
+    headers: { 'Authorization': `Bearer ${userToken}` }
+  });
+  const carts = await res.json();
+  const select = document.getElementById(selectId);
+  select.innerHTML = carts.map(c => `<option value="${c.id}">Panier #${c.id}</option>`).join('');
+}
+
 

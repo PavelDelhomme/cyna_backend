@@ -9,6 +9,15 @@ exports.listUsers = async (req, res) => {
     res.json(users);
 };
 
+exports.listRoles = async (req, res) => {
+  try {
+    const roles = await Role.findAll();
+    res.json(roles);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
 exports.listProfiles = async (req, res) => {
     const profiles = await UserProfile.findAll();
     res.json(profiles);
