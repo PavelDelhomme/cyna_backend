@@ -1,9 +1,14 @@
 const db = require('../models');
-const User = db.User;
+const {User, Role, UserProfile} = db;
 
 exports.getAllUsers = async (req, res) => {
   try {
-    const users = await User.findAll({ include: ['role'] });
+    const users = await User.findAll({
+      include: [{
+        model: Role,
+        as: 'role'
+      }]
+    });
     res.json(users);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -41,7 +46,7 @@ exports.updateUser = async (req, res) => {
       return res.status(403).json({ error: "Accès interdit" });
     }
 
-    const user = await db.User.findByPk(userId);
+    const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ message: "Utilisateur non trouvé" });
 
     const { name, email } = req.body;
@@ -67,7 +72,7 @@ exports.updatePassword = async (req, res) => {
 
     const { currentPassword, newPassword } = req.body;
 
-    const user = await db.User.findByPk(userId);
+    const user = await User.findByPk(userId);
     if (!user) return res.status(404).json({ error: "Utilisateur introuvable" });
 
     if (!user.validPassword(currentPassword)) {
@@ -138,7 +143,7 @@ exports.deleteUserProfile = async (req, res) => {
       return res.status(403).json({ error: "Accès interdit" });
     }
 
-    const profile = await db.UserProfile.findOne({ where: { user_id: userId } });
+    const profile = await UserProfile.findOne({ where: { user_id: userId } });
     if (!profile) return res.status(404).json({ error: "Profil introuvable" });
 
     await profile.destroy();

@@ -20,7 +20,16 @@ router.get('/dev-admin', async (req, res) => {
           role_id: adminRole.id
         }
       });
+
+      // Création profil pour l'admin pour la suite des test
+      await UserProfile.findOrCreate({ where: { user_id: user.id } });
   
+      // 🔐 Sécurise le rôle même si le user existe déjà
+      if (!user.role_id || user.role_id !== adminRole.id) {
+        user.role_id = adminRole.id;
+        await user.save();
+        await user.reload({ include: [{ model: Role, as: 'role' }] });
+      }
 
       const token = jwt.sign(
         { userId: user.id },

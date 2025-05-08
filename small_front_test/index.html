@@ -5,73 +5,28 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CYNA Backend - Interface de test</title>
   <link rel="stylesheet" href="styles.css">
-  <style>
-    body {
-      font-family: Arial, sans-serif;
-      padding: 20px;
-      background-color: #f9f9f9;
-    }
-    header {
-      background: #222;
-      color: white;
-      padding: 10px 20px;
-      margin-bottom: 20px;
-    }
-    h1 { margin: 0; }
-    section {
-      background: white;
-      padding: 15px;
-      margin-bottom: 20px;
-      border-radius: 5px;
-    }
-    table.styled-table {
-      width: 100%;
-      border-collapse: collapse;
-      margin-top: 10px;
-    }
-    table.styled-table th, table.styled-table td {
-      border: 1px solid #ddd;
-      padding: 8px;
-    }
-    table.styled-table th {
-      background-color: #f2f2f2;
-    }
-    .pagination-controls {
-      margin-top: 10px;
-    }
-    .json-output {
-      background: #eee;
-      padding: 10px;
-      max-height: 300px;
-      overflow-y: auto;
-    }
-    .token-info {
-      background: #444;
-      color: #0f0;
-      padding: 5px;
-      font-size: 12px;
-    }
-    button {
-      margin-top: 5px;
-    }
-    form input, form select {
-      margin: 5px;
-      padding: 5px;
-    }
-  </style>
 </head>
 <body>
   <header>
     <h1>CYNA Test Interface</h1>
     <div id="token-buttons">
       <button onclick="useAdminToken()">Utiliser Token Admin</button>
+      <button onclick="getFreshAdminToken()">🔄 Nouveau Token Admin</button>
       <button onclick="disconnect()">Déconnexion</button>
       <p id="current-token">Token : Aucun</p>
+      <span id="role-badge" class="badge-role"></span>
       <pre id="decoded-token" class="token-info"></pre>
     </div>
   </header>
 
   <main>
+
+    <section id="test-auth">
+      <h2>🔍 Test d'autorisation</h2>
+      <button onclick="testProtectedRoute()">Tester accès /admin-only</button>
+      <pre id="test-result" class="json-output"></pre>
+    </section>
+    
 
     <section id="auth-section">
       <h2>🔐 Connexion utilisateur</h2>
@@ -84,9 +39,9 @@
 
     <section id="user-section">
       <h2>👥 Utilisateurs</h2>
-      <button onclick="listUsers()">Lister les utilisateurs</button>
       <div id="users-table"></div>
       <div id="pagination" class="pagination-controls"></div>
+      <button onclick="createAdminProfile()">Créer le profil Admin</button>
     </section>
 
     <section id="create-user-section">
@@ -99,6 +54,28 @@
       </form>
     </section>
 
+    <section id="signup-section">
+      <h2>📝 Inscription (publique)</h2>
+      <form onsubmit="event.preventDefault(); signupUser();">
+        <input type="text" id="user-name" placeholder="Nom" required />
+        <input type="email" id="user-email" placeholder="Email" required />
+        <input type="password" id="user-password" placeholder="Mot de passe" required />
+        <button type="submit">S'inscrire</button>
+      </form>
+    </section>
+    
+    <section id="profiles-section">
+      <h2>📂 Profils utilisateurs</h2>
+      <button onclick="listUserProfiles()">Afficher les profils</button>
+      <div id="user-profiles-table"></div>
+    </section>
+    
+    <section id="existing-roles-section">
+      <h2>📘 Rôles existants</h2>
+      <button onclick="displayRoles()">Afficher les rôles</button>
+      <pre id="roles-list" class="json-output"></pre>
+    </section>
+    
     <section id="create-role-section">
       <h2>🎭 Créer un rôle</h2>
       <form onsubmit="event.preventDefault(); createRole();">
@@ -118,7 +95,6 @@
 
     <section id="address-section">
       <h2>🏠 Adresses</h2>
-      <button onclick="getMyAddresses()">Voir mes adresses</button>
       <pre id="addresses-list" class="json-output"></pre>
       <form id="address-form">
         <input type="text" id="address1" placeholder="Adresse" required />
@@ -134,9 +110,7 @@
 
     <section id="product-section">
       <h2>🛍️ Produits</h2>
-      <button onclick="listProductCategories()">Lister les catégories</button>
       <div id="product-categories-table"></div>
-      <button onclick="listProducts()">Lister les produits</button>
       <div id="products-table"></div>
       <form id="product-form">
         <input type="text" id="product-name" placeholder="Nom" required />
@@ -151,9 +125,7 @@
 
     <section id="service-section">
       <h2>💼 Services</h2>
-      <button onclick="listServices()">Lister les services</button>
       <div id="services-table"></div>
-      <button onclick="listServiceTypes()">Lister les types</button>
       <div id="service-types-table"></div>
       <form id="service-form">
         <input type="text" id="service-name" placeholder="Nom" required />
@@ -170,7 +142,6 @@
 
     <section id="payments-section">
       <h2>💳 Paiements</h2>
-      <button onclick="listPayments()">Lister</button>
       <div id="payments-table"></div>
       <form onsubmit="event.preventDefault(); createPayment();">
         <input type="number" id="payment-amount" placeholder="Montant" />
@@ -182,7 +153,6 @@
 
     <section id="tickets-section">
       <h2>🎟️ Tickets</h2>
-      <button onclick="listTickets()">Lister</button>
       <div id="tickets-table"></div>
       <form onsubmit="event.preventDefault(); addTicket();">
         <input type="text" id="ticket-subject" placeholder="Objet" />
@@ -193,13 +163,11 @@
 
     <section id="orders-section">
       <h2>🧾 Commandes</h2>
-      <button onclick="listOrders()">Lister</button>
       <div id="orders-table"></div>
     </section>
 
     <section id="carts-section">
       <h2>🛒 Paniers</h2>
-      <button onclick="listCarts()">Lister</button>
       <div id="carts-table"></div>
       <input type="number" id="cart-user-id" placeholder="ID utilisateur" />
       <button onclick="createCartForUser()">Créer panier</button>
@@ -207,19 +175,52 @@
 
     <section id="promo-section">
       <h2>🎫 Codes promo</h2>
-      <button onclick="listPromocodes()">Lister</button>
       <div id="promocodes-table"></div>
+    </section>
+
+    <section id="advanced-cart-promo-section">
+      <h2>🧩 Promotions & Panier avancé</h2>
+
+      <h3>🎯 Appliquer un code promo</h3>
+      <form onsubmit="event.preventDefault(); assignPromoToProduct();">
+        <select id="promo-id" required></select>
+        <select id="product-id" required></select>
+        <button type="submit">Appliquer au produit</button>
+      </form>
+    
+      <form onsubmit="event.preventDefault(); assignPromoToService();">
+        <select id="promo-id-service" required></select>
+        <select id="service-id" required></select>
+        <button type="submit">Appliquer au service</button>
+      </form>
+    
+      <form onsubmit="event.preventDefault(); assignPromoToCategory();">
+        <select id="promo-id-category" required></select>
+        <select id="category-id" required></select>
+        <button type="submit">Appliquer à la catégorie</button>
+      </form>
+    
+      <h3>🛒 Ajouter au panier</h3>
+      <form onsubmit="event.preventDefault(); addProductToCart();">
+        <input type="number" id="cart-id-product" placeholder="ID panier" required />
+        <select id="product-id-to-add" required></select>
+        <button type="submit">Ajouter produit au panier</button>
+      </form>
+    
+      <form onsubmit="event.preventDefault(); addServiceToCart();">
+        <input type="number" id="cart-id-service" placeholder="ID panier" required />
+        <select id="service-id-to-add" required></select>
+        <button type="submit">Ajouter service au panier</button>
+      </form>
     </section>
 
     <section id="reviews-section">
       <h2>⭐ Avis</h2>
-      <button onclick="listReviews()">Lister</button>
       <div id="reviews-table"></div>
     </section>
 
     <section id="stats-section">
       <h2>📊 Statistiques</h2>
-      <button onclick="listStats()">Lister</button>
       <div id="stats-table"></div>
     </section>
 
@@ -230,6 +231,6 @@
 
   </main>
 
-  <script src="app.js"></script>
+  <script type="module" src="main.js"></script>
 </body>
 </html>

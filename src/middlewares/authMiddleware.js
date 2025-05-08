@@ -16,11 +16,13 @@ module.exports = (roles = []) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findByPk(decoded.userId, { include: [Role] });
-
+      const user = await User.findByPk(decoded.userId, {
+        include: [{ model: Role, as: 'role' }]
+      });
+      
       if (!user) return res.status(401).json({ error: "Utilisateur introuvable" });
 
-      const userRole = user.Role?.name;
+      const userRole = user.role?.name;
       req.user = { id: user.id, role: userRole };
 
       console.log(`[AUTH] Utilisateur #${user.id}, rôle : ${userRole}`);

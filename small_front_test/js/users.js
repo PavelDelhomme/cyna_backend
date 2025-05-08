@@ -1,0 +1,288 @@
+import { API_URL, authFetch } from "./tokenService.js";
+import { safeJsonResponse } from './utils.js';
+import { renderPagination } from "./pagination.js";
+
+const pageSize = 10;
+
+
+async function listUsers(page = 1) {
+  try {
+    const response = await authFetch(`${API_URL}/api/dev/users`);
+    const users = await response.json();
+
+    if (!Array.isArray(users)) {
+      console.warn(`⚠️ users attendu comme tableau mais reçu :`, users);
+      return;
+    }
+
+    const start = (page - 1) * pageSize;
+    const paginatedUsers = users.slice(start, start + pageSize);
+
+    renderUsersTable(paginatedUsers);
+    renderPagination(users.length, page);
+  } catch (error) {
+    console.error(error);
+    alert("Erreur lors du chargement des utilisateurs.");
+  }
+}
+
+
+function renderUsersTable(users) {
+  const container = document.getElementById('users-table');
+  container.innerHTML = '';
+
+  const table = document.createElement('table');
+  table.className = "styled-table";
+
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nom</th>
+        <th>Email</th>
+        <th>Rôle</th>
+        <th>Créé le</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${users.map(user => `
+        <tr>
+          <td>${user.id}</td>
+          <td>${user.name}</td>
+          <td>${user.email}</td>
+          <td>${user.role ? user.role.name : 'N/A'}</td>
+          <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
+        </tr>`).join('')}
+    </tbody>
+  `;
+
+  container.appendChild(table);
+}
+
+
+async function createUser() {
+  const name = document.getElementById('user-name').value;
+  const email = document.getElementById('user-email').value;
+  const password = document.getElementById('user-password').value;
+
+  try {
+    const response = await authFetch(`${API_URL}/api/dev/users`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name, email, password })
+    });
+
+    const data = await safeJsonResponse(response);
+    if (data) {
+      alert("Utilisateur créé !");
+      loadUsersIntoSelect("role-user-id");
+      listUsers();
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la création de l'utilisateur.");
+  }
+}
+
+
+async function createRole() {
+  const name = document.getElementById('role-name').value.trim();
+
+  // ✅ Validation sécurisée
+  if (name.length === 0 || name.length > 255) {
+    alert("Nom de rôle invalide (vide ou trop long).");
+    return;
+  }
+
+  try {
+    const response = await authFetch(`${API_URL}/api/dev/roles`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ name })
+    });
+
+    const data = await safeJsonResponse(response);
+    if (data) {
+      alert("Rôle créé !");
+      loadRolesIntoSelect("role-id");
+      loadUsersIntoSelect("role-user-id");
+      listUsers();
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la création du rôle.");
+  }
+}
+
+
+async function assignRoleToUser() {
+  const userId = document.getElementById('role-user-id').value;
+  const roleId = document.getElementById('role-id').value;
+
+  try {
+    const res = await authFetch(`${API_URL}/api/dev/assignRole/${userId}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ roleId })
+    });
+
+    const data = await safeJsonResponse(res);
+    if (data) alert("Rôle assigné avec succès !");
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de l’assignation du rôle.");
+  }
+}
+
+
+async function loadUsersIntoSelect(selectId) {
+  const res = await authFetch(`${API_URL}/api/dev/users`);
+  const users = await res.json();
+  if (!Array.isArray(users)) {
+    console.warn(`⚠️ users attendu comme tableau mais reçu :`, users);
+    return;
+  }
+  const select = document.getElementById(selectId);
+  select.innerHTML = users.map(u => `<option value="${u.id}">${u.name} (${u.email})</option>`).join('');
+}
+
+
+async function loadRolesIntoSelect(selectId) {
+  const res = await authFetch(`${API_URL}/api/dev/roles`);
+  const roles = await res.json();
+  if (!Array.isArray(roles)) {
+    console.warn(`⚠️ roles attendu comme tableau mais reçu :`, roles);
+    return;
+  }
+  const select = document.getElementById(selectId);
+  select.innerHTML = roles.map(r => `<option value="${r.id}">${r.name}</option>`).join('');
+}
+
+async function createAdminProfile() {
+  try {
+    const response = await authFetch(`${API_URL}/api/dev/admin/profile`, {
+      method: "POST"
+    });
+    const data = await safeJsonResponse(response);
+    if (data.message) {
+      alert(data.message);
+    }
+    console.log("Profil admin :", data.profile);
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors de la création du profil admin.");
+  }
+}
+
+async function listUserProfiles() {
+  try {
+    const response = await authFetch(`${API_URL}/api/dev/profiles`);
+    const profiles = await response.json();
+
+    const container = document.getElementById('user-profiles-table');
+    if (!Array.isArray(profiles) || profiles.length === 0) {
+      container.innerText = "Aucun profil utilisateur.";
+      return;
+    }
+
+    const table = document.createElement('table');
+    table.className = "styled-table";
+    table.innerHTML = `
+      <thead>
+        <tr><th>ID</th><th>ID Utilisateur</th><th>Créé</th><th>Modifié</th></tr>
+      </thead>
+      <tbody>
+        ${profiles.map(p => `
+          <tr>
+            <td>${p.id}</td>
+            <td>${p.user_id}</td>
+            <td>${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—'}</td>
+            <td>${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '—'}</td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+
+    container.innerHTML = '';
+    container.appendChild(table);
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors du chargement des profils.");
+  }
+}
+async function displayRoles() {
+  try {
+    const res = await authFetch(`${API_URL}/api/dev/roles`);
+    const roles = await res.json();
+
+    if (!Array.isArray(roles)) {
+      console.warn("Réponse inattendue :", roles);
+      return;
+    }
+
+    const container = document.getElementById("roles-list");
+    container.innerHTML = '';
+
+    const table = document.createElement('table');
+    table.className = "styled-table";
+    table.innerHTML = `
+      <thead>
+        <tr><th>ID</th><th>Nom</th><th>Créé le</th><th>Actions</th></tr>
+      </thead>
+      <tbody>
+        ${roles.map(r => `
+          <tr>
+            <td>${r.id}</td>
+            <td>${r.name}</td>
+            <td>${new Date(r.created_at).toLocaleDateString()}</td>
+            <td>
+              <button onclick="deleteRole(${r.id})">🗑 Supprimer</button>
+            </td>
+          </tr>
+        `).join('')}
+      </tbody>
+    `;
+
+    container.appendChild(table);
+
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de l'affichage des rôles.");
+  }
+}
+
+async function deleteRole(roleId) {
+  if (!confirm("Supprimer ce rôle ?")) return;
+
+  try {
+    const res = await authFetch(`${API_URL}/api/dev/roles/${roleId}`, {
+      method: 'DELETE'
+    });
+
+    const data = await res.json();
+    if (res.ok) {
+      alert("Rôle supprimé !");
+      displayRoles();
+      loadRolesIntoSelect("role-id");
+    } else {
+      alert("Erreur : " + (data.error || "Échec suppression."));
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la suppression du rôle.");
+  }
+}
+
+
+export {
+  listUsers,
+  createUser,
+  createRole,
+  assignRoleToUser,
+  loadRolesIntoSelect,
+  loadUsersIntoSelect,
+  createAdminProfile,
+  listUserProfiles,
+  displayRoles,
+  deleteRole,
+};

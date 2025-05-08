@@ -5,8 +5,18 @@ const {
 } = require('../models');
 
 exports.listUsers = async (req, res) => {
-    const users = await User.findAll({ include: ['role'] });
+  try {
+    const users = await User.findAll({
+      include: [{
+        model: Role,
+        as: 'role'
+      }]
+    });
     res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
 };
 
 exports.listRoles = async (req, res) => {
@@ -172,7 +182,7 @@ exports.listUserTokens = async (req, res) => {
       id: u.id,
       name: u.name,
       email: u.email,
-      role: u.Role.name,
+      role: u.role?.name || 'N/A',
       token: jwt.sign({ userId: u.id }, process.env.JWT_SECRET, { expiresIn: "1d" })
     }));
     res.json(tokens);
@@ -247,7 +257,7 @@ exports.assignRoleToUser = async (req, res) => {
   exports.createOrder = async (req, res) => {
     try {
       const { user_id, totalPrice, status } = req.body;
-      const order = await Order.create({ user_id, total, status });
+      const order = await Order.create({ user_id, totalPrice, status });
       res.status(201).json(order);
     } catch (err) {
       res.status(500).json({ error: err.message });

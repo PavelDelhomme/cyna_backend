@@ -2,9 +2,12 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const { User, Role, UserProfile } = require("../models");
 
-const generateTokens = (user) => {
+const generateTokens = (user, roleName = null) => {
     const token = jwt.sign(
-      { userId: user.id },
+      { 
+        userId: user.id,
+        role: roleName || (user.role?.name ?? 'user'),
+    },
       process.env.JWT_SECRET,
       { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
     );
@@ -31,13 +34,13 @@ exports.signup = async (req, res) => {
         const user = await User.create({ name, email, password, role_id: role.id });
 
         // Créatoin de UserProfile
-        await UserProfile.create({ user_id: user.id });
+        const profile = await UserProfile.findOrCreate({ where: { user_id: user.id } });
 
         const { token, refreshToken } = generateTokens(user);
 
         res.status(201).json({ token, userId: user.id, role: role.name });
     } catch (error) {
-        console.log(err);
+        console.log(error);
         res.status(400).json({ error: error.message });
     }
 };
@@ -46,17 +49,25 @@ exports.login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
-        const user = await User.findOne({ where: { email }, include: [Role] });
+        const user = await User.findOne({
+            where: { email },
+            include: [{ model: Role, as: 'role' }]
+        });
+
         if (!user || !user.validPassword(password)) {
             return res.status(401).json({ error: 'Identifiants invalides' });
         }
 
-        const { token, refreshToken } = generateTokens(user);
+        // 🔐 Création du profil si inexistant
+        await UserProfile.findOrCreate({ where: { user_id: user.id } });
+
+        const { token, refreshToken } = generateTokens(user, user.role?.name);
+
         res.json({ 
             token,
             refreshToken,
             userId: user.id,
-            role: user.Role.name,
+            role: user.role.name,
         });
     } catch (err) {
         console.error(err)
@@ -67,7 +78,9 @@ exports.login = async (req, res) => {
 exports.refreshToken = async (req, res) => {
     try {
       const decoded = jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_SECRET);
-      const user = await User.findByPk(decoded.userId, { include: [Role] });
+      const user = await User.findByPk(decoded.userId, {
+        include: [{ model: Role, as: 'role' }]
+      });      
       if (!user) return res.status(401).json({ error: "Utilisateur non trouvé" });
   
       const { token, refreshToken } = generateTokens(user);

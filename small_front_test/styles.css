@@ -22,6 +22,29 @@ h1, h2, h3 {
   margin-bottom: 10px;
 }
 
+.badge-role {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: bold;
+  margin-left: 10px;
+  text-transform: uppercase;
+  background-color: #ccc;
+  color: #fff;
+}
+
+.badge-role.admin {
+  background-color: #16a34a;
+}
+.badge-role.user {
+  background-color: #2563eb;
+}
+.badge-role.unknown {
+  background-color: #6b7280;
+}
+
+
 button {
   background-color: #2563eb;
   color: white;
@@ -144,4 +167,59 @@ pre {
   input, select, button {
     width: 100%;
   }
+}
+
+
+
+body {
+  font-family: Arial, sans-serif;
+  padding: 20px;
+  background-color: #f9f9f9;
+}
+header {
+  background: #222;
+  color: white;
+  padding: 10px 20px;
+  margin-bottom: 20px;
+}
+h1 { margin: 0; }
+section {
+  background: white;
+  padding: 15px;
+  margin-bottom: 20px;
+  border-radius: 5px;
+}
+table.styled-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 10px;
+}
+table.styled-table th, table.styled-table td {
+  border: 1px solid #ddd;
+  padding: 8px;
+}
+table.styled-table th {
+  background-color: #f2f2f2;
+}
+.pagination-controls {
+  margin-top: 10px;
+}
+.json-output {
+  background: #eee;
+  padding: 10px;
+  max-height: 300px;
+  overflow-y: auto;
+}
+.token-info {
+  background: #444;
+  color: #0f0;
+  padding: 5px;
+  font-size: 12px;
+}
+button {
+  margin-top: 5px;
+}
+form input, form select {
+  margin: 5px;
+  padding: 5px;
 }

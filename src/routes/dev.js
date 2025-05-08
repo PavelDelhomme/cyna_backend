@@ -1,11 +1,65 @@
 const express = require('express');
 const router = express.Router();
 const authMiddleware = require("../middlewares/authMiddleware");
+const { signup, login, refreshToken } = require('../controllers/authController');
 const devController = require('../controllers/devController');
 const roleController = require("../controllers/roleController");
 
 // --- Routes existantes reset-users ---
-const { User, UserProfile } = require('../models');
+const { User, Role, UserProfile } = require('../models');
+
+
+router.post('/signup', signup);
+router.post('/login', login);
+router.post('/refresh', refreshToken);
+
+
+// ✅ ROUTE DE CRÉATION AUTOMATIQUE D'ADMIN + PROFIL + TOKEN AVEC RÔLE
+router.get('/dev-admin', async (req, res) => { 
+  try {
+    const [adminRole] = await Role.findOrCreate({ where: { name: 'admin' } });
+
+    const [user] = await User.findOrCreate({
+      where: { email: 'admin@cyna.dev' },
+      defaults: {
+        name: 'Admin Dev',
+        password: 'azerty123',
+        role_id: adminRole.id
+      }
+    });
+
+    // Forcer le rôle si manquant ou incohérent
+    if (!user.role_id || user.role_id !== adminRole.id) {
+      user.role_id = adminRole.id;
+      await user.save();
+    }
+
+    await user.reload({ include: [{ model: Role, as: 'role' }] });
+
+    // ✅ Crée le profil admin s'il n'existe pas
+    await UserProfile.findOrCreate({ where: { user_id: user.id } });
+
+    // ✅ Inclut le rôle dans le token JWT
+    const token = jwt.sign(
+      { userId: user.id, role: user.role?.name || 'admin' },
+      process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_EXPIRES_IN || '365d' }
+    );
+
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET,
+      { expiresIn: '365d' }
+    );
+
+    res.json({ token, refreshToken, userId: user.id });
+
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Erreur création admin" });
+  }
+});
+
 
 router.delete('/reset-users', async (req, res) => {
   try {
@@ -29,8 +83,26 @@ router.delete('/reset-users', async (req, res) => {
 });
 
 // --- Nouvelles routes liste Admin ---
+// Ajouter route POST pour création utilisateur (admin)
+router.post('/users', authMiddleware(['admin']), async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
 
-router.get('/users', authMiddleware(['admin']), devController.listUsers);
+    const [role] = await Role.findOrCreate({ where: { name: 'user' } });
+
+    const user = await User.create({
+      name, email, password, role_id: role.id
+    });
+
+    await UserProfile.create({ user_id: user.id });
+
+    res.status(201).json(user);
+  } catch (e) {
+    console.error(e);
+    res.status(500).json({ error: "Erreur création utilisateur admin" });
+  }
+});
+
 router.get('/profiles', authMiddleware(['admin']), devController.listProfiles);
 
 // --- Products
@@ -187,5 +259,46 @@ router.post('/assignRole/:userId', authMiddleware(['admin']), devController.assi
 router.get('/roles', authMiddleware(['admin']), devController.listRoles);
 
 router.post('/roles', authMiddleware(['admin']), roleController.createRole);
+router.delete('/roles/:id', authMiddleware(['admin']), async (req, res) => {
+  try {
+    const roleId = req.params.id;
+
+    const { Role } = require('../models');
+    const deleted = await Role.destroy({ where: { id: roleId } });
+
+    if (deleted) {
+      res.json({ message: "Rôle supprimé." });
+    } else {
+      res.status(404).json({ error: "Rôle introuvable." });
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
+});
+
+
+// Route de test protégée (admin only)
+router.get('/admin-only', authMiddleware(['admin']), (req, res) => {
+  res.json({
+    message: "Accès autorisé (admin)",
+    user: req.user
+  });
+});
+
+
+router.post('/fix-profiles', async (req, res) => {
+  const users = await require('../models').User.findAll();
+  const created = [];
+
+  for (const user of users) {
+    const [profile, isNew] = await UserProfile.findOrCreate({
+      where: { user_id: user.id }
+    });
+    if (isNew) created.push(user.email);
+  }
+
+  res.json({ message: "Profils vérifiés", newlyCreated: created });
+});
 
 module.exports = router;
