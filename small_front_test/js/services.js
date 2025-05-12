@@ -1,9 +1,9 @@
-import { API_URL, authFetch } from "./tokenService.js";
+import { API_URL, TokenService } from "./tokenService.js";
 
 
 async function listServices() {
     try {
-      const response = await authFetch(`${API_URL}/api/dev/services`);
+      const response = await TokenService.authFetch(`${API_URL}/api/dev/services`);
       const services = await response.json();
   
       if (!Array.isArray(services)) {
@@ -60,14 +60,14 @@ async function addService() {
     let serviceTypeId = null;
   
     try {
-      const res = await authFetch(`${API_URL}/api/dev/service-types`);
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/service-types`);
       const types = await res.json();
       const existing = types.find(t => t.name.toLowerCase() === typeName.toLowerCase());
   
       if (existing) {
         serviceTypeId = existing.id;
       } else {
-        const resCreate = await authFetch(`${API_URL}/api/dev/service-types`, {
+        const resCreate = await TokenService.authFetch(`${API_URL}/api/dev/service-types`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ name: typeName, description: `Type auto : ${typeName}` })
@@ -88,7 +88,7 @@ async function addService() {
         service_type_id: serviceTypeId
       };
   
-      const resService = await authFetch(`${API_URL}/api/dev/services`, {
+      const resService = await TokenService.authFetch(`${API_URL}/api/dev/services`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(serviceData)
@@ -106,7 +106,7 @@ async function addService() {
 
 async function listServiceTypes() {
     try {
-      const res = await authFetch(`${API_URL}/api/dev/service-types`);
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/service-types`);
       const types = await res.json();
       renderServiceTypesTable(types);
     } catch (error) {
@@ -147,7 +147,7 @@ async function deleteService(id) {
     if (!confirm("Confirmer la suppression de ce service ?")) return;
   
     try {
-      const res = await authFetch(`${API_URL}/api/dev/services/${id}`, {
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/services/${id}`, {
         method: 'DELETE'
       });
   
@@ -164,7 +164,7 @@ async function deleteService(id) {
 
 async function loadServicesIntoSelect(selectId) {
     try {
-      const res = await authFetch(`${API_URL}/api/dev/services`);
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/services`);
       const services = await res.json();
       if (!Array.isArray(services)) {
         console.warn(`⚠️ services attendu comme tableau mais reçu :`, services);

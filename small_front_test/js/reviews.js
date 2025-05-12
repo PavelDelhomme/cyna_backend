@@ -1,9 +1,9 @@
-import { API_URL, authFetch } from "./tokenService.js";
+import { API_URL, TokenService } from "./tokenService.js";
 
 
 async function listReviews() {
     try {
-      const res = await authFetch(`${API_URL}/api/dev/reviews`);
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/reviews`);
       const data = await res.json();
   
       if (!Array.isArray(data)) {
@@ -44,4 +44,28 @@ function renderReviewsTable(data) {
     container.appendChild(table);
 }
 
-export { listReviews };
+async function createReview() {
+  try {
+    const rating = parseInt(document.getElementById('review-rating').value);
+    const comment = document.getElementById('review-comment').value;
+
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/reviews`, {
+      method: "POST",
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ rating, comment })
+    });
+
+    const data = await TokenService.safeJsonResponse(res);
+    if (!data) return;
+    alert("Avis créé !");
+    console.log(data);
+
+    listReviews(); // Recharge les avis après création
+  } catch (e) {
+    console.error("Erreur création avis:", e);
+    alert("Erreur création avis.");
+  }
+}
+
+
+export { listReviews, createReview };

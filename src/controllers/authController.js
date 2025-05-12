@@ -21,7 +21,7 @@ const generateTokens = (user, roleName = null) => {
     return { token, refreshToken };
 };
 
-exports.signup = async (req, res) => {
+const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
@@ -45,7 +45,7 @@ exports.signup = async (req, res) => {
     }
 };
 
-exports.login = async (req, res) => {
+const login = async (req, res) => {
     try {
         const { email, password } = req.body;
 
@@ -75,7 +75,7 @@ exports.login = async (req, res) => {
     }
 };
 
-exports.refreshToken = async (req, res) => {
+const refreshToken = async (req, res) => {
     try {
       const decoded = jwt.verify(req.body.refreshToken, process.env.JWT_REFRESH_SECRET);
       const user = await User.findByPk(decoded.userId, {
@@ -89,3 +89,10 @@ exports.refreshToken = async (req, res) => {
       res.status(401).json({ error: "Refresh token invalide ou expiré" });
     }
   };
+
+
+module.exports = {
+  signup,
+  login,
+  refreshToken
+};

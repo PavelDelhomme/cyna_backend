@@ -1,8 +1,8 @@
-import { API_URL, authFetch } from "./tokenService.js";
+import { API_URL, TokenService } from "./tokenService.js";
 
 async function listStats() {
     try {
-      const res = await authFetch(`${API_URL}/api/dev/stats`);
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/stats`);
       const data = await res.json();
   
       if (!Array.isArray(data)) {

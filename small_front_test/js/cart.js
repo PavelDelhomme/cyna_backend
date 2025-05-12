@@ -1,9 +1,8 @@
-import { API_URL, authFetch  } from "./tokenService.js";
-import { safeJsonResponse } from './utils.js';
+import { API_URL, TokenService  } from "./tokenService.js";
 
 async function listCarts() {
   try {
-    const res = await authFetch(`${API_URL}/api/dev/carts`);
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/carts`);
     const data = await res.json();
     renderCartsTable(data);
   } catch (err) {
@@ -27,8 +26,8 @@ function renderCartsTable(data) {
 
 async function createCart() {
   try {
-    const res = await authFetch(`${API_URL}/api/dev/carts`, { method: 'POST' });
-    const data = await safeJsonResponse(res);
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/carts`, { method: 'POST' });
+    const data = await TokenService.safeJsonResponse(res);
     if (data) alert("Panier créé !");
   } catch (e) {
     console.error(e);
@@ -39,8 +38,8 @@ async function createCart() {
 async function createCartForUser() {
   const userId = document.getElementById('cart-user-id').value;
   try {
-    const res = await authFetch(`${API_URL}/api/dev/carts/user/${userId}`, { method: 'POST' });
-    const data = await safeJsonResponse(res);
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/carts/user/${userId}`, { method: 'POST' });
+    const data = await TokenService.safeJsonResponse(res);
     if (data) alert("Panier créé pour l'utilisateur !");
   } catch (e) {
     console.error(e);
@@ -53,8 +52,8 @@ async function addProductToCart() {
   const productId = document.getElementById('product-id-to-add').value;
 
   try {
-    const res = await authFetch(`${API_URL}/api/dev/carts/${cartId}/product/${productId}`, { method: 'POST' });
-    const data = await safeJsonResponse(res);
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/carts/${cartId}/product/${productId}`, { method: 'POST' });
+    const data = await TokenService.safeJsonResponse(res);
     if (data) alert("Produit ajouté au panier !");
   } catch (e) {
     console.error(e);
@@ -67,8 +66,8 @@ async function addServiceToCart() {
   const serviceId = document.getElementById('service-id-to-add').value;
 
   try {
-    const res = await authFetch(`${API_URL}/api/dev/carts/${cartId}/service/${serviceId}`, { method: 'POST' });
-    const data = await safeJsonResponse(res);
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/carts/${cartId}/service/${serviceId}`, { method: 'POST' });
+    const data = await TokenService.safeJsonResponse(res);
     if (data) alert("Service ajouté au panier !");
   } catch (e) {
     console.error(e);
@@ -78,7 +77,7 @@ async function addServiceToCart() {
 
 async function loadCartsIntoSelect(selectId) {
   try {
-    const res = await authFetch(`${API_URL}/api/dev/carts`);
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/carts`);
     const carts = await res.json();
     if (!Array.isArray(carts)) {
       console.warn(`⚠️ carts attendu comme tableau mais reçu :`, carts);

@@ -1,307 +1,112 @@
 const express = require('express');
+const jwt = require('jsonwebtoken');
 const router = express.Router();
-const authMiddleware = require("../middlewares/authMiddleware");
 const { signup, login, refreshToken } = require('../controllers/authController');
+const refreshTokenAuth = refreshToken;
+const authMiddleware = require("../middlewares/authMiddleware");
 const devController = require('../controllers/devController');
 const roleController = require("../controllers/roleController");
 
-// --- Routes existantes reset-users ---
 const { User, Role, UserProfile } = require('../models');
 
+// --- Helper Token ---
+function generateTokens(user) {
+  const token = jwt.sign({ userId: user.id, role: user.role?.name || 'admin' }, process.env.JWT_SECRET, { expiresIn: process.env.JWT_EXPIRES_IN || '365d' });
+  const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '365d' });
+  console.log(`[TOKEN] ${user.email} | Rôle: ${user.role?.name || 'admin'}`);
+  return { token, refreshToken };
+}
 
+// --- Auth ---
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/refresh', refreshToken);
+router.post('/refresh', refreshTokenAuth);
 
 
-// ✅ ROUTE DE CRÉATION AUTOMATIQUE D'ADMIN + PROFIL + TOKEN AVEC RÔLE
+// ✅ Dev admin auto
 router.get('/dev-admin', async (req, res) => { 
   try {
+    console.log("[/dev-admin] Initialisation admin...");
     const [adminRole] = await Role.findOrCreate({ where: { name: 'admin' } });
-
     const [user] = await User.findOrCreate({
       where: { email: 'admin@cyna.dev' },
-      defaults: {
-        name: 'Admin Dev',
-        password: 'azerty123',
-        role_id: adminRole.id
-      }
+      defaults: { name: 'Admin Dev', password: 'azerty123', role_id: adminRole.id }
     });
-
-    // Forcer le rôle si manquant ou incohérent
-    if (!user.role_id || user.role_id !== adminRole.id) {
+    
+    if (user.role_id !== adminRole.id) {
+      console.log("[/dev-admin] Correction du rôle admin sur user existant...");
       user.role_id = adminRole.id;
       await user.save();
     }
 
     await user.reload({ include: [{ model: Role, as: 'role' }] });
-
-    // ✅ Crée le profil admin s'il n'existe pas
     await UserProfile.findOrCreate({ where: { user_id: user.id } });
 
-    // ✅ Inclut le rôle dans le token JWT
-    const token = jwt.sign(
-      { userId: user.id, role: user.role?.name || 'admin' },
-      process.env.JWT_SECRET,
-      { expiresIn: process.env.JWT_EXPIRES_IN || '365d' }
-    );
-
-    const refreshToken = jwt.sign(
-      { userId: user.id },
-      process.env.JWT_REFRESH_SECRET,
-      { expiresIn: '365d' }
-    );
-
+    const { token, refreshToken } = generateTokens(user);
     res.json({ token, refreshToken, userId: user.id });
-
   } catch (err) {
-    console.error(err);
-    console.error("[DEV-ADMIN ERROR dans src/routes/dev.js]", err);
+    console.error("[/dev-admin] ERREUR :", err);
     res.status(500).json({ error: "Erreur création admin" });
   }
 });
 
+router.get('/admin-only', authMiddleware(['admin']), (req, res) => res.json({ message: "Accès autorisé", user: req.user }));
 
-console.log("✅ Route GET /api/dev/dev-admin active");
 
-router.delete('/reset-users', async (req, res) => {
-  try {
-    const adminUser = await User.findOne({ where: { email: 'admin@cyna.dev' } });
 
-    if (!adminUser) return res.status(404).json({ error: "Admin introuvable." });
-
-    await UserProfile.destroy({
-      where: { user_id: { [require('sequelize').Op.ne]: adminUser.id } }
-    });
-
-    await User.destroy({
-      where: { id: { [require('sequelize').Op.ne]: adminUser.id } }
-    });
-
-    res.json({ message: "Tous les utilisateurs (sauf admin) supprimés." });
-  } catch (error) {
-    console.error(error);
-    res.status(500).json({ error: "Erreur lors du reset" });
-  }
-});
-
-// --- Nouvelles routes liste Admin ---
-// Ajouter route POST pour création utilisateur (admin)
-router.post('/users', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-
-    const [role] = await Role.findOrCreate({ where: { name: 'user' } });
-
-    const user = await User.create({
-      name, email, password, role_id: role.id
-    });
-
-    await UserProfile.create({ user_id: user.id });
-
-    res.status(201).json(user);
-  } catch (e) {
-    console.error(e);
-    res.status(500).json({ error: "Erreur création utilisateur admin" });
-  }
-});
-
+// --- Gestion utilisateurs & rôles ---
+router.post('/users', authMiddleware(['admin']), devController.createUser);
+router.get('/users', authMiddleware(['admin']), devController.listUsers);
 router.get('/profiles', authMiddleware(['admin']), devController.listProfiles);
+router.post('/admin/profile', authMiddleware(['admin']), devController.createAdminProfile);
 
-// --- Products
-router.get('/products', authMiddleware(['admin']), devController.listProducts);
-router.post('/products', authMiddleware(['admin']), devController.createProduct);
+router.get('/roles', authMiddleware(['admin']), devController.listRoles);
+router.post('/roles', authMiddleware(['admin']), roleController.createRole);
+router.delete('/roles/:id', authMiddleware(['admin']), devController.deleteRole);
+router.post('/assignRole/:userId', authMiddleware(['admin']), devController.assignRoleToUser);
 
-// Liste des catégories
-router.get('/product-categories', authMiddleware(['admin']), devController.listProductCategories);
+// --- Génériques GET + POST + DELETE ---
+const resources = [
+  'products', 'services', 'payments', 'tickets', 'orders', 'carts',
+  'promoCodes', 'reviews', 'stats', 'serviceTypes', 'productCategories',
+  'addresses', 'invoices', 'chatbots', 'chatbotHistories'
+];
 
-// Création d'une catégorie
-router.post('/product-categories', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    const { ProductCategory } = require('../models');
-    const existing = await ProductCategory.findOne({ where: { name } });
-
-    if (existing) return res.status(200).json(existing);
-
-    const newCat = await ProductCategory.create({ name, description });
-    res.status(201).json(newCat);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
+resources.forEach(resource => {
+  const kebabRoute = resource.replace(/[A-Z]/g, m => '-' + m.toLowerCase());
+  const ucResource = resource.charAt(0).toUpperCase() + resource.slice(1);
+  if (devController[`list${ucResource}`]) router.get(`/${kebabRoute}`, authMiddleware(['admin']), devController[`list${ucResource}`]);
+  if (devController[`create${ucResource}`]) router.post(`/${kebabRoute}`, authMiddleware(['admin']), devController[`create${ucResource}`]);
+  if (devController[`delete${ucResource}`]) router.delete(`/${kebabRoute}/:id`, authMiddleware(['admin']), devController[`delete${ucResource}`]);
 });
 
-router.get('/services', authMiddleware(['admin']), devController.listServices);
-router.post('/services', authMiddleware(['admin']), devController.createService);
-
-
-router.post('/service-types', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const { name, description } = req.body;
-    const { ServiceType } = require('../models');
-    const existing = await ServiceType.findOne({ where: { name } });
-
-    if (existing) return res.status(200).json(existing);
-
-    const newType = await ServiceType.create({ name, description });
-    res.status(201).json(newType);
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Payments
-router.get('/payments', authMiddleware(['admin']), devController.listPayments);
-router.post('/payments', authMiddleware(['admin']), devController.createPayment);
-
-// Tickets
-router.get('/tickets', authMiddleware(['admin']), devController.listTickets);
-router.post('/tickets', authMiddleware(['admin']), devController.createTicket);
-
-// Orders
-router.get('/orders', authMiddleware(['admin']), devController.listOrders);
-router.post('/orders', authMiddleware(['admin']), devController.createOrder);
-
-// Carts
-router.get('/carts', authMiddleware(['admin']), devController.listCarts);
-router.post('/carts', authMiddleware(['admin']), devController.createCart);
-router.post('/carts/:cartId/add-product/:productId', authMiddleware(['admin']), devController.addProductToCart);
-router.post('/carts/:cartId/add-service/:serviceId', authMiddleware(['admin']), devController.addServiceToCart);
-router.post('/carts/:cartId/product/:productId', authMiddleware(['admin']), devController.addProductToCart);
-router.post('/carts/:cartId/service/:serviceId', authMiddleware(['admin']), devController.addServiceToCart);
-router.post('/carts/user/:userId', authMiddleware(['admin']), devController.createCartForUser);
-
-// PromoCodes
-router.get('/promo-codes', authMiddleware(['admin']), devController.listPromoCodes);
-router.post('/promo-codes', authMiddleware(['admin']), devController.createPromoCode);
-
-// Associer un code promo à un produit
+// --- Routes métiers spéciales ---
+// Promo -> Produit / Service / Catégorie
 router.post('/promo-codes/:promoId/product/:productId', authMiddleware(['admin']), devController.assignPromoToProduct);
-
-// Associer un code promo à un service
 router.post('/promo-codes/:promoId/service/:serviceId', authMiddleware(['admin']), devController.assignPromoToService);
-
-// Associer un code promo à une catégorie de produit
 router.post('/promo-codes/:promoId/product-category/:categoryId', authMiddleware(['admin']), devController.assignPromoToProductCategory);
 router.post('/promo-codes/:promoId/category/:categoryId', authMiddleware(['admin']), devController.assignPromoToProductCategory);
 
-// Reviews
-router.get('/reviews', authMiddleware(['admin']), devController.listReviews);
-router.post('/reviews', authMiddleware(['admin']), devController.createReview);
+// Carts -> Ajout spécifique
+router.post('/carts/:cartId/add-product/:productId', authMiddleware(['admin']), devController.addProductToCart);
+router.post('/carts/:cartId/add-service/:serviceId', authMiddleware(['admin']), devController.addServiceToCart);
+router.post('/carts/user/:userId', authMiddleware(['admin']), devController.createCartForUser);
 
-// Stats
-router.get('/stats', authMiddleware(['admin']), devController.listStats);
-router.post('/stats', authMiddleware(['admin']), devController.createStat);
-
-router.get('/service-types', authMiddleware(['admin']), devController.listServiceTypes);
-
-// Addresses
-router.get('/addresses', authMiddleware(['admin']), devController.listAddresses);
-// Créer une adresse pour un user spécifique
+// Addresses -> Ajout / Update
 router.post('/addresses/:userId', authMiddleware(['admin']), devController.createAddressForUser);
-// Modifier une adresse
 router.patch('/addresses/:id', authMiddleware(['admin']), devController.updateAddress);
-// Supprimer une adresse
-router.delete('/addresses/:id', authMiddleware(['admin']), devController.deleteAddress);
 
-router.get('/invoices', authMiddleware(['admin']), devController.listInvoices);
-router.get('/chatbots', authMiddleware(['admin']), devController.listChatbots);
-router.get('/chatbot-histories', authMiddleware(['admin']), devController.listChatbotHistories);
-
-
-// Ajoute dans dev.js temporairement :
-router.post('/admin/profile', async (req, res) => {
-  const admin = await User.findOne({ where: { email: 'admin@cyna.dev' } });
-  if (!admin) return res.status(404).json({ error: 'Admin introuvable' });
-
-  const existingProfile = await UserProfile.findOne({ where: { user_id: admin.id } });
-  if (existingProfile) return res.json({ message: "Profil déjà existant" });
-
-  const profile = await UserProfile.create({ user_id: admin.id });
-  res.json({ message: "Profil admin créé", profile });
-});
-
-
-
-// Supprimer un produit
-router.delete('/products/:id', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const { Product } = require('../models');
-    const deleted = await Product.destroy({ where: { id: req.params.id } });
-    if (deleted) {
-      res.json({ message: "Produit supprimé avec succès." });
-    } else {
-      res.status(404).json({ error: "Produit non trouvé." });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-// Supprimer un service
-router.delete('/services/:id', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const { Service } = require('../models');
-    const deleted = await Service.destroy({ where: { id: req.params.id } });
-    if (deleted) {
-      res.json({ message: "Service supprimé avec succès." });
-    } else {
-      res.status(404).json({ error: "Service non trouvé." });
-    }
-  } catch (err) {
-    res.status(500).json({ error: err.message });
-  }
-});
-
-
+// --- Divers ---
 router.get('/tokens', authMiddleware(['admin']), devController.listUserTokens);
-
 router.get('/getUserAddresses/:userId', authMiddleware(['admin']), devController.getUserAddresses);
-router.post('/assignRole/:userId', authMiddleware(['admin']), devController.assignRoleToUser);
+router.post('/fix-profiles', authMiddleware(['admin']), devController.fixProfiles);
 
-router.get('/roles', authMiddleware(['admin']), devController.listRoles);
-
-router.post('/roles', authMiddleware(['admin']), roleController.createRole);
-router.delete('/roles/:id', authMiddleware(['admin']), async (req, res) => {
-  try {
-    const roleId = req.params.id;
-
-    const { Role } = require('../models');
-    const deleted = await Role.destroy({ where: { id: roleId } });
-
-    if (deleted) {
-      res.json({ message: "Rôle supprimé." });
-    } else {
-      res.status(404).json({ error: "Rôle introuvable." });
-    }
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
-  }
-});
+// --- Nettoyage utilisateurs ---
+router.delete('/reset-users', authMiddleware(['admin']), devController.resetUsers);
 
 
-// Route de test protégée (admin only)
-router.get('/admin-only', authMiddleware(['admin']), (req, res) => {
-  res.json({
-    message: "Accès autorisé (admin)",
-    user: req.user
-  });
-});
+// --- Reviews ---
+router.post('/reviews', authMiddleware(['admin', 'user']), devController.createReview);
 
-
-router.post('/fix-profiles', async (req, res) => {
-  const users = await require('../models').User.findAll();
-  const created = [];
-
-  for (const user of users) {
-    const [profile, isNew] = await UserProfile.findOrCreate({
-      where: { user_id: user.id }
-    });
-    if (isNew) created.push(user.email);
-  }
-
-  res.json({ message: "Profils vérifiés", newlyCreated: created });
-});
 
 module.exports = router;

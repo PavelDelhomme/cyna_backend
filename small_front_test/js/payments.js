@@ -1,12 +1,10 @@
-import { API_URL, authFetch } from "./tokenService.js";
-import { safeJsonResponse } from './utils.js';
-
+import { API_URL, TokenService } from "./tokenService.js";
 
 
 async function listPayments() {
     try {
-      const response = await authFetch(`${API_URL}/api/dev/payments`);
-      const data = await safeJsonResponse(response);
+      const response = await TokenService.authFetch(`${API_URL}/api/dev/payments`);
+      const data = await TokenService.safeJsonResponse(response);
       if (!data) return;
       renderPaymentsTable(data);
     } catch (error) {
@@ -43,12 +41,12 @@ async function createPayment() {
     const status = document.getElementById('payment-status').value;
   
     try {
-      const res = await authFetch(`${API_URL}/api/dev/payments`, {
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/payments`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ amount, method, status })
       });
-      const data = await safeJsonResponse(res);
+      const data = await TokenService.safeJsonResponse(res);
       if (data) alert("Paiement ajouté !");
     } catch (e) {
       console.error(e);

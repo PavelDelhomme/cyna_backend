@@ -2,11 +2,12 @@ const express = require('express');
 const router = express.Router();
 const jwt = require('jsonwebtoken');
 const { signup, login, refreshToken } = require('../controllers/authController');
+const refreshTokenAuth = refreshToken;
 const { User, Role } = require('../models');
 
 router.post('/signup', signup);
 router.post('/login', login);
-router.post('/refresh', refreshToken);
+router.post('/refresh', refreshTokenAuth);
 
 router.get('/dev-admin', async (req, res) => { 
     try {

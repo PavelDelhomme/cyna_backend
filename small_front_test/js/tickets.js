@@ -1,8 +1,8 @@
-import { API_URL, authFetch } from "./tokenService.js";
+import { API_URL, TokenService } from "./tokenService.js";
 
 async function listTickets() {
     try {
-      const res = await authFetch(`${API_URL}/api/dev/tickets`);
+      const res = await TokenService.authFetch(`${API_URL}/api/dev/tickets`);
       const text = await res.text();
       console.log('[DEBUG] Réponse brute :', text);
   
@@ -63,7 +63,7 @@ async function addTicket() {
     };
   
     try {
-      const response = await authFetch(`${API_URL}/api/dev/tickets`, {
+      const response = await TokenService.authFetch(`${API_URL}/api/dev/tickets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(ticket)

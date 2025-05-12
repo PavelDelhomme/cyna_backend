@@ -9,6 +9,7 @@ module.exports = (roles = []) => {
     const authHeader = req.headers.authorization;
 
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
+      console.warn("[AUTH] Token manquant ou mal formé.");
       return res.status(401).json({ error: "Token manquant ou invalide" });
     }
 
@@ -16,24 +17,24 @@ module.exports = (roles = []) => {
 
     try {
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      const user = await User.findByPk(decoded.userId, {
-        include: [{ model: Role, as: 'role' }]
-      });
-      
-      if (!user) return res.status(401).json({ error: "Utilisateur introuvable" });
+      const user = await User.findByPk(decoded.userId, { include: [{ model: Role, as: 'role' }] });
 
-      const userRole = user.role?.name;
-      req.user = { id: user.id, role: userRole };
+      if (!user) {
+        console.warn("[AUTH] Utilisateur introuvable avec l'ID:", decoded.userId);
+        return res.status(401).json({ error: "Utilisateur introuvable" });
+      }
 
-      console.log(`[AUTH] Utilisateur #${user.id}, rôle : ${userRole}`);
+      req.user = { id: user.id, role: user.role?.name || 'inconnu' };
+      console.log(`[AUTH] Utilisateur: ${user.email} | Rôle: ${req.user.role}`);
 
-      if (roles.length > 0 && !roles.includes(userRole)) {
+      if (roles.length > 0 && !roles.includes(req.user.role)) {
+        console.warn(`[AUTH] Accès interdit - Rôle requis: ${roles.join(', ')} | Rôle actuel: ${req.user.role}`);
         return res.status(403).json({ error: "Accès interdit" });
       }
 
       next();
     } catch (err) {
-      console.error("[AUTH ERROR]", err.message);
+      console.error("[AUTH ERROR] Vérification token échouée:", err.message);
       return res.status(401).json({ error: "Token invalide ou expiré" });
     }
   };

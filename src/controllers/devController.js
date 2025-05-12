@@ -286,10 +286,23 @@ exports.assignRoleToUser = async (req, res) => {
   
   exports.createReview = async (req, res) => {
     try {
-      const { user_id, rating, comment } = req.body;
-      const review = await Review.create({ user_id, rating, comment });
+      const { rating, comment } = req.body;
+      const userId = req.user.id;
+
+      if (!rating || !comment) {
+        return res.status(400).json({ error: "Note et commentaire requis." });
+      }
+      
+      const review = await Review.create({
+        user_id: userId,
+        rating,
+        comment,
+        reviewDate: new Date()
+      });
+
       res.status(201).json(review);
     } catch (err) {
+      console.error("Erreur création review :", err);
       res.status(500).json({ error: err.message });
     }
   };
@@ -445,6 +458,81 @@ exports.createService = async (req, res) => {
 
     res.status(201).json(service);
   } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.createUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    const [role] = await Role.findOrCreate({ where: { name: 'user' } });
+    const user = await User.create({ name, email, password, role_id: role.id });
+    await UserProfile.create({ user_id: user.id });
+    res.status(201).json(user);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+    console.error("[devController.js] Erreur lors de la création de l'utilisateur : ", e);
+  }
+};
+
+
+exports.deleteRole = async (req, res) => {
+  try {
+    const role = await Role.findByPk(req.params.id);
+    if (!role) {
+      console.error("[devController.js] Rôle non trouvé");
+      return res.status(404).json({ error: "Rôle non trouvé" });
+    };
+    await role.destroy();
+    res.json({ message: "Rôle supprimé" });
+    console.log("[devController.js] Rôle supprimé");
+  } catch (err) {
+    console.error("[devController.js] Erreur lors de la suppression du rôle", err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+
+exports.fixProfiles = async (req, res) => {
+  try {
+    const users = await User.findAll();
+    const created = [];
+    for (const user of users) {
+      const [profile, isNew] = await UserProfile.findOrCreate({ where: { user_id: user.id } });
+      if (isNew) created.push(user.email);
+    }
+    res.json({ message: "Profils vérifiés/Créés", newlyCreated: created});
+  } catch (error) {
+    console.error("[devController.js] Erreur lors de la tentative de fix de profiles", error);
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.resetUsers = async (req, res) => {
+  try {
+    const adminUser = await User.findOne({ where: { email: 'admin@cyna.dev' } });
+    if (!adminUser) return res.status(404).json({ error: "Admin introuvable." });
+
+    await UserProfile.destroy({ where: { user_id: { [require('sequelize').Op.ne]: adminUser.id } } });
+    await User.destroy({ where: { id: { [require('sequelize').Op.ne]: adminUser.id } } });
+
+    res.json({ message: "Tous les utilisateurs (sauf admin) supprimés." });
+  } catch (error) {
+    console.error("[devController.js] Erreur lors du reset ", error);
+    res.status(500).json({ error: "Erreur lors du reset" });
+  }
+};
+
+
+exports.createAdminProfile = async (req, res) => {
+  try {
+    const admin = await User.findOne({ where: { email: 'admin@cyna.dev' } });
+    if (!admin) return res.status(404).json({ error: 'Admin introuvable' });
+
+    const [profile, created] = await UserProfile.findOrCreate({ where: { user_id: admin.id } });
+    res.json({ message: created ? "Profil admin créé" : "Profil déjà existant", profile });
+  } catch (err) {
+    console.error("[devController.js] Erreur lors de la tentative de création du profil pour l'administrateur", error);
     res.status(500).json({ error: err.message });
   }
 };

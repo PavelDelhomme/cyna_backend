@@ -1,18 +1,14 @@
-import { updateTokenDisplay, decodeJWT, getUserToken, TokenService, API_URL } from "./tokenService.js";
-import { safeJsonResponse } from './utils.js';
+import { TokenService, API_URL } from "./tokenService.js";
 
 async function useAdminToken() {
+  TokenService.forcedAdmin = true;
   await TokenService.getFreshAdminToken();
-  updateTokenDisplay();
 }
 
 
 function disconnect() {
-  localStorage.removeItem('token');
-  localStorage.removeItem('refreshToken');
-  document.getElementById('current-token').innerText = "Déconnecté";
-  updateTokenDisplay();
-  // "Reset Complet"
+  TokenService.clearTokens();
+  TokenService.updateTokenDisplay();
   location.reload();
 }
 
@@ -27,7 +23,7 @@ async function login() {
         body: JSON.stringify({ email, password })
       });
   
-      const data = await safeJsonResponse(res);
+      const data = await TokenService.safeJsonResponse(res);
       if (!data) return;
 
       if (res.ok && data.token) {
@@ -35,7 +31,7 @@ async function login() {
         if (data.refreshToken) {
           localStorage.setItem("refreshToken", data.refreshToken);
         }
-        updateTokenDisplay();
+        TokenService.updateTokenDisplay();
         alert("Connexion réussie !");
       } else {
         alert("Erreur de connexion: " + (data.error || 'Inconnue'));
@@ -50,14 +46,14 @@ async function login() {
 function setAdminToken(token) {
   localStorage.setItem('token', token);
   document.getElementById('current-token').innerText = "Token Admin utilisé";
-  updateTokenDisplay();
+  TokenService.updateTokenDisplay();
 }
 
 // MAJ manuelle du token (optionnel)
 function updateToken(token) {
   localStorage.setItem('token', token);
   document.getElementById('current-token').innerText = "Token User actif";
-  updateTokenDisplay();
+  TokenService.updateTokenDisplay();
 }
 
 
@@ -67,7 +63,7 @@ function reconnect() {
     alert("Aucun token stocké. Cliquez sur 'Utiliser Token Admin'");
     return;
   }
-  updateTokenDisplay();
+  TokenService.updateTokenDisplay();
   alert("Session restaurée !");
 }
 
@@ -83,7 +79,7 @@ async function signupUser() {
       body: JSON.stringify({ name, email, password })
     });
 
-    const data = await safeJsonResponse(res);
+    const data = await TokenService.safeJsonResponse(res);
     if (!data) return;
 
     if (data.token) {

@@ -1,8 +1,7 @@
-import { API_URL, authFetch } from "./tokenService.js";
-import { fetchData, safeJsonResponse } from './utils.js';
+import { API_URL, TokenService } from "./tokenService.js";
 
 async function addAddress() {
-    const userId = document.getElementById('user-id-address').value;
+  const userId = document.getElementById('user-id-address-select').value;
   
     const addressData = {
       address1: document.getElementById('address1').value,
@@ -14,7 +13,7 @@ async function addAddress() {
     };
   
     try {
-        const response = await authFetch(`${API_URL}/api/dev/addresses/${userId}`, {
+        const response = await TokenService.authFetch(`${API_URL}/api/dev/addresses/${userId}`, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -22,7 +21,7 @@ async function addAddress() {
             body: JSON.stringify(addressData)
         });
   
-        const data = await safeJsonResponse(response);
+        const data = await TokenService.safeJsonResponse(response);
         if (!data) return;
         document.getElementById('result').innerText = JSON.stringify(data, null, 2);
     } catch (error) {
@@ -34,8 +33,8 @@ async function addAddress() {
   
 async function getMyAddresses() {
     try {
-        const response = await authFetch(`${API_URL}/api/addresses/me`);
-        const data = await safeJsonResponse(response);
+        const response = await TokenService.authFetch(`${API_URL}/api/addresses/me`);
+        const data = await TokenService.safeJsonResponse(response);
     
         const container = document.getElementById('addresses-list');
         if (!data || !Array.isArray(data)) {

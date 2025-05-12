@@ -1,5 +1,4 @@
-import { API_URL, authFetch } from "./tokenService.js";
-import { safeJsonResponse } from './utils.js';
+import { API_URL, TokenService } from "./tokenService.js";
 import { renderPagination } from "./pagination.js";
 
 const pageSize = 10;
@@ -7,7 +6,7 @@ const pageSize = 10;
 
 async function listUsers(page = 1) {
   try {
-    const response = await authFetch(`${API_URL}/api/dev/users`);
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/users`);
     const users = await response.json();
 
     if (!Array.isArray(users)) {
@@ -66,13 +65,13 @@ async function createUser() {
   const password = document.getElementById('user-password').value;
 
   try {
-    const response = await authFetch(`${API_URL}/api/dev/users`, {
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/users`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name, email, password })
     });
 
-    const data = await safeJsonResponse(response);
+    const data = await TokenService.safeJsonResponse(response);
     if (data) {
       alert("Utilisateur créé !");
       loadUsersIntoSelect("role-user-id");
@@ -95,13 +94,13 @@ async function createRole() {
   }
 
   try {
-    const response = await authFetch(`${API_URL}/api/dev/roles`, {
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/roles`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ name })
     });
 
-    const data = await safeJsonResponse(response);
+    const data = await TokenService.safeJsonResponse(response);
     if (data) {
       alert("Rôle créé !");
       loadRolesIntoSelect("role-id");
@@ -120,13 +119,13 @@ async function assignRoleToUser() {
   const roleId = document.getElementById('role-id').value;
 
   try {
-    const res = await authFetch(`${API_URL}/api/dev/assignRole/${userId}`, {
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/assignRole/${userId}`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ roleId })
     });
 
-    const data = await safeJsonResponse(res);
+    const data = await TokenService.safeJsonResponse(res);
     if (data) alert("Rôle assigné avec succès !");
   } catch (e) {
     console.error(e);
@@ -136,7 +135,7 @@ async function assignRoleToUser() {
 
 
 async function loadUsersIntoSelect(selectId) {
-  const res = await authFetch(`${API_URL}/api/dev/users`);
+  const res = await TokenService.authFetch(`${API_URL}/api/dev/users`);
   const users = await res.json();
   if (!Array.isArray(users)) {
     console.warn(`⚠️ users attendu comme tableau mais reçu :`, users);
@@ -148,7 +147,7 @@ async function loadUsersIntoSelect(selectId) {
 
 
 async function loadRolesIntoSelect(selectId) {
-  const res = await authFetch(`${API_URL}/api/dev/roles`);
+  const res = await TokenService.authFetch(`${API_URL}/api/dev/roles`);
   const roles = await res.json();
   if (!Array.isArray(roles)) {
     console.warn(`⚠️ roles attendu comme tableau mais reçu :`, roles);
@@ -160,7 +159,7 @@ async function loadRolesIntoSelect(selectId) {
 
 async function createAdminProfile() {
   try {
-    const response = await authFetch(`${API_URL}/api/dev/admin/profile`, {
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/admin/profile`, {
       method: "POST"
     });
     const data = await safeJsonResponse(response);
@@ -176,7 +175,7 @@ async function createAdminProfile() {
 
 async function listUserProfiles() {
   try {
-    const response = await authFetch(`${API_URL}/api/dev/profiles`);
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/profiles`);
     const profiles = await response.json();
 
     const container = document.getElementById('user-profiles-table');
@@ -212,7 +211,7 @@ async function listUserProfiles() {
 }
 async function displayRoles() {
   try {
-    const res = await authFetch(`${API_URL}/api/dev/roles`);
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/roles`);
     const roles = await res.json();
 
     if (!Array.isArray(roles)) {
@@ -255,7 +254,7 @@ async function deleteRole(roleId) {
   if (!confirm("Supprimer ce rôle ?")) return;
 
   try {
-    const res = await authFetch(`${API_URL}/api/dev/roles/${roleId}`, {
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/roles/${roleId}`, {
       method: 'DELETE'
     });
 

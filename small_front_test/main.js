@@ -10,9 +10,8 @@ import * as Promo from './js/promo.js';
 import * as Reviews from './js/reviews.js';
 import * as Stats from './js/stats.js';
 import * as Tickets from './js/tickets.js';
-import * as Utils from './js/utils.js';
 
-import { TokenService, getUserToken, updateTokenDisplay } from './js/tokenService.js';
+import { TokenService } from './js/tokenService.js';
 
 export const API_URL = window.location.origin;
 
@@ -59,6 +58,7 @@ window.assignPromoToService = Promo.assignPromoToService;
 window.assignPromoToCategory = Promo.assignPromoToCategory;
 
 window.listReviews = Reviews.listReviews;
+window.createReview = Reviews.createReview;
 
 window.listStats = Stats.listStats;
 
@@ -72,7 +72,7 @@ window.displayRoles = Users.displayRoles;
 window.testProtectedRoute = async () => {
   const res = await fetch(`${API_URL}/api/dev/admin-only`, {
     headers: {
-      Authorization: `Bearer ${getUserToken()}`
+      Authorization: `Bearer ${TokenService.getUserToken()}`
     }
   });
   const text = await res.text();
@@ -84,13 +84,14 @@ window.testProtectedRoute = async () => {
 document.addEventListener('DOMContentLoaded', async () => {
   console.log("[main] Initialisation session admin...");
   await TokenService.initAdminSession();
+  await TokenService.validateAndAutoFixSession();
   console.log("[main] Session prête.");
 
   await new Promise(r => setTimeout(r, 300)); // Laisse le temps au token d’être bien propagé
 
 
   setInterval(() => {
-    const token = getUserToken();
+    const token = TokenService.getUserToken();
     if (token && TokenService.isExpired(token)) {
       console.log("[Auto Refresh] Token expiré, tentative de refresh...");
       const refresh = localStorage.getItem('refreshToken');
@@ -98,7 +99,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         TokenService.refreshToken(refresh);
       }
     }
-    updateTokenDisplay();
+    TokenService.updateTokenDisplay();
   }, 15000); // toutes les 15 secondes
   
 
@@ -126,6 +127,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   await new Promise(r => setTimeout(r, 100));
 
   await Promise.all([
+    await populateUserSelect(),
     Promo.loadPromosIntoSelect("promo-id"),
     Promo.loadPromosIntoSelect("promo-id-service"),
     Promo.loadPromosIntoSelect("promo-id-category"),
@@ -152,3 +154,22 @@ document.addEventListener('DOMContentLoaded', async () => {
   Carts.listCarts();
   Promo.listPromocodes();
 });
+
+
+async function populateUserSelect() {
+  try {
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/users`);
+    const users = await TokenService.safeJsonResponse(res);
+    const select = document.getElementById('user-id-address-select');
+    select.innerHTML = '';
+
+    users.forEach(user => {
+      const option = document.createElement('option');
+      option.value = user.id;
+      option.text = `${user.name} (${user.email})`;
+      select.appendChild(option);
+    });
+  } catch (e) {
+    console.error("Erreur chargement utilisateurs:", e);
+  }
+}

@@ -14,6 +14,7 @@
       <button onclick="getFreshAdminToken()">🔄 Nouveau Token Admin</button>
       <button onclick="disconnect()">Déconnexion</button>
       <p id="current-token">Token : Aucun</p>
+      <p id="token-status">Mode : inconnu</p>
       <span id="role-badge" class="badge-role"></span>
       <pre id="decoded-token" class="token-info"></pre>
     </div>
@@ -103,7 +104,7 @@
         <input type="text" id="region" placeholder="Région" required />
         <input type="text" id="country" placeholder="Pays" required />
         <input type="text" id="type" placeholder="Type" required />
-        <input type="text" id="user-id-address" placeholder="ID utilisateur (optionnel)" />
+        <select id="user-id-address-select" required></select>
         <button type="submit">Ajouter adresse</button>
       </form>
     </section>
@@ -218,6 +219,15 @@
       <h2>⭐ Avis</h2>
       <div id="reviews-table"></div>
     </section>
+    <section id="create-review-section">
+      <h2>⭐ Laisser un avis</h2>
+      <form onsubmit="event.preventDefault(); createReview();">
+        <input type="number" id="review-rating" placeholder="Note (1-5)" min="1" max="5" required />
+        <textarea id="review-comment" placeholder="Votre commentaire" required></textarea>
+        <button type="submit">Envoyer avis</button>
+      </form>
+    </section>
+    
 
     <section id="stats-section">
       <h2>📊 Statistiques</h2>

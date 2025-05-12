@@ -1,9 +1,8 @@
-import { API_URL, getUserToken, authFetch } from "./tokenService.js";
-import { safeJsonResponse } from "./utils.js";
+import { API_URL, TokenService } from "./tokenService.js";
 
 async function listPromocodes() {
     try {
-        const res = await authFetch(`${API_URL}/api/dev/promo-codes`);
+        const res = await TokenService.authFetch(`${API_URL}/api/dev/promo-codes`);
         const data = await res.json();
         renderPromocodesTable(data);
     } catch (err) {
@@ -35,11 +34,11 @@ async function assignPromoToProduct() {
     const productId = document.getElementById('product-id').value;
 
     try {
-        const res = await authFetch(`${API_URL}/api/dev/promo-codes/${promoId}/product/${productId}`, {
+        const res = await TokenService.authFetch(`${API_URL}/api/dev/promo-codes/${promoId}/product/${productId}`, {
             method: 'POST'
         });
 
-        const data = await safeJsonResponse(res);
+        const data = await TokenService.safeJsonResponse(res);
         if (data) alert("Promo appliquée au produit !");
     } catch (e) {
         console.error(e);
@@ -53,11 +52,11 @@ async function assignPromoToService() {
     const serviceId = document.getElementById('service-id').value;
 
     try {
-        const res = await authFetch(`${API_URL}/api/dev/promo-codes/${promoId}/service/${serviceId}`, {
+        const res = await TokenService.authFetch(`${API_URL}/api/dev/promo-codes/${promoId}/service/${serviceId}`, {
             method: 'POST'
         });
 
-        const data = await safeJsonResponse(res);
+        const data = await TokenService.safeJsonResponse(res);
         if (data) alert("Promo appliquée au service !");
     } catch (e) {
         console.error(e);
@@ -71,11 +70,11 @@ async function assignPromoToCategory() {
     const categoryId = document.getElementById('category-id').value;
 
     try {
-        const res = await authFetch(`${API_URL}/api/dev/promo-codes/${promoId}/category/${categoryId}`, {
+        const res = await TokenService.authFetch(`${API_URL}/api/dev/promo-codes/${promoId}/category/${categoryId}`, {
             method: 'POST'
         });
 
-        const data = await safeJsonResponse(res);
+        const data = await TokenService.safeJsonResponse(res);
         if (data) alert("Promo appliquée à la catégorie !");
     } catch (e) {
         console.error(e);
@@ -86,7 +85,7 @@ async function assignPromoToCategory() {
 
 async function loadPromosIntoSelect(selectId) {
     try {
-        const res = await authFetch(`${API_URL}/api/dev/promo-codes`);
+        const res = await TokenService.authFetch(`${API_URL}/api/dev/promo-codes`);
         const promos = await res.json();
         if (!Array.isArray(promos)) {
             console.warn(`⚠️ promos attendu comme tableau mais reçu :`, promos);

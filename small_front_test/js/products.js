@@ -1,10 +1,9 @@
-import { API_URL, authFetch } from "./tokenService.js";
-import { safeJsonResponse } from "./utils.js";
+import { API_URL, TokenService } from "./tokenService.js";
 
 async function listProducts() {
   try {
-    const response = await authFetch(`${API_URL}/api/dev/products`);
-    const products = await safeJsonResponse(response);
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/products`);
+    const products = await TokenService.safeJsonResponse(response);
     if (!products) return;
     renderProductsTable(products);
   } catch (error) {
@@ -58,7 +57,7 @@ async function addProduct() {
   let categoryId = null;
 
   try {
-    const response = await authFetch(`${API_URL}/api/dev/product-categories`);
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`);
     const categories = await response.json();
 
     const existingCategory = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
@@ -66,7 +65,7 @@ async function addProduct() {
     if (existingCategory) {
       categoryId = existingCategory.id;
     } else {
-      const createCatResponse = await authFetch(`${API_URL}/api/dev/product-categories`, {
+      const createCatResponse = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
@@ -87,7 +86,7 @@ async function addProduct() {
       category_id: categoryId
     };
 
-    const productRes = await authFetch(`${API_URL}/api/dev/products`, {
+    const productRes = await TokenService.authFetch(`${API_URL}/api/dev/products`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(productData)
@@ -105,7 +104,7 @@ async function addProduct() {
 
 async function listProductCategories() {
   try {
-    const response = await authFetch(`${API_URL}/api/dev/product-categories`);
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`);
     const categories = await response.json();
     renderProductCategoriesTable(categories);
   } catch (error) {
@@ -141,7 +140,7 @@ function renderProductCategoriesTable(categories) {
 
 
 async function loadProductsIntoSelect(selectId) {
-  const res = await authFetch(`${API_URL}/api/dev/products`);
+  const res = await TokenService.authFetch(`${API_URL}/api/dev/products`);
   const products = await res.json();
   if (!Array.isArray(products)) {
     console.warn(`⚠️ products attendu comme tableau mais reçu :`, products);
@@ -153,7 +152,7 @@ async function loadProductsIntoSelect(selectId) {
 
 
 async function loadProductCategoriesIntoSelect(selectId) {
-  const res = await authFetch(`${API_URL}/api/dev/product-categories`);
+  const res = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`);
   const categories = await res.json();
   if (!Array.isArray(categories)) {
     console.warn(`⚠️ categories attendu comme tableau mais reçu :`, categories);
@@ -168,7 +167,7 @@ async function deleteProduct(id) {
   if (!confirm("Confirmer la suppression de ce produit ?")) return;
 
   try {
-    const response = await authFetch(`${API_URL}/api/dev/products/${id}`, {
+    const response = await TokenService.authFetch(`${API_URL}/api/dev/products/${id}`, {
       method: 'DELETE'
     });
 
