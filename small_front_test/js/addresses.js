@@ -51,7 +51,18 @@ async function getMyAddresses() {
       } catch (err) {
         console.error(err);
         document.getElementById('addresses-list').innerText = "Erreur réseau ou serveur.";
-      }}
+      }
+}
+
+async function listAllAddresses() {
+  try {
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/addresses`);
+    const data = await TokenService.safeJsonResponse(res);
+    document.getElementById('addresses-list').innerText = JSON.stringify(data, null, 2);
+  } catch (e) {
+    console.error("Erreur chargement adresses admin :", e);
+  }
+}
 
 
-export { addAddress, getMyAddresses }
+export { addAddress, getMyAddresses, listAllAddresses }

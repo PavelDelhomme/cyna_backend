@@ -11,6 +11,17 @@ function disconnect() {
   TokenService.updateTokenDisplay();
   location.reload();
 }
+function forceAdmin() {
+  TokenService.forcedAdmin = true;
+  TokenService.forcedUser = false;
+  TokenService.updateTokenDisplay();
+}
+
+function forceUser() {
+  TokenService.forcedUser = true;
+  TokenService.forcedAdmin = false;
+  TokenService.updateTokenDisplay();
+}
 
 async function login() {
     const email = document.getElementById('email').value;
@@ -102,5 +113,7 @@ export {
   updateToken,
   setAdminToken,
   reconnect,
-  signupUser
+  signupUser,
+  forceAdmin,
+  forceUser
 };

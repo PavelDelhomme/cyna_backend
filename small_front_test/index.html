@@ -10,6 +10,8 @@
   <header>
     <h1>CYNA Test Interface</h1>
     <div id="token-buttons">
+      <button onclick="forceAdmin()">Forcer Mode Admin</button>
+      <button onclick="forceUser()">Forcer Mode Utilisateur Connecté</button>      
       <button onclick="useAdminToken()">Utiliser Token Admin</button>
       <button onclick="getFreshAdminToken()">🔄 Nouveau Token Admin</button>
       <button onclick="disconnect()">Déconnexion</button>
@@ -96,6 +98,7 @@
 
     <section id="address-section">
       <h2>🏠 Adresses</h2>
+      <button onclick="listAllAddresses()">Lister toutes les adresses (Admin)</button>
       <pre id="addresses-list" class="json-output"></pre>
       <form id="address-form">
         <input type="text" id="address1" placeholder="Adresse" required />

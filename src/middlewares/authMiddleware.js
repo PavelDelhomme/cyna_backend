@@ -24,7 +24,7 @@ module.exports = (roles = []) => {
         return res.status(401).json({ error: "Utilisateur introuvable" });
       }
 
-      req.user = { id: user.id, role: user.role?.name || 'inconnu' };
+      req.user = { id: user.id, role: user.role?.name || 'inconnu', isAdmin: user.role?.name === 'admin', isUser: user.role?.name === 'user' };
       console.log(`[AUTH] Utilisateur: ${user.email} | Rôle: ${req.user.role}`);
 
       if (roles.length > 0 && !roles.includes(req.user.role)) {

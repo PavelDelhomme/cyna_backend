@@ -10,10 +10,4 @@ router.post('/', authMiddleware(), loadUserProfile, addressController.addAddress
 // Voir ses adresses
 router.get('/me', authMiddleware(['user', 'admin']), loadUserProfile, addressController.getUserAddresses);
 
-// Modifier une adresse
-router.patch('/:id', authMiddleware(), loadUserProfile, addressController.updateUserAddress);
-
-// Supprimer une adresse
-router.delete('/:id', authMiddleware(), loadUserProfile, addressController.deleteUserAddress);
-
 module.exports = router;

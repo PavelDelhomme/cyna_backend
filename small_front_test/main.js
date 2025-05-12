@@ -21,6 +21,8 @@ window.reconnect = Auth.reconnect;
 window.disconnect = Auth.disconnect;
 window.getFreshAdminToken = TokenService.getFreshAdminToken;
 window.forceResetAndFetchAdminToken = TokenService.forceResetAndFetchAdminToken;
+window.forceAdmin = Auth.forceAdmin;
+window.forceUser = Auth.forceUser;
 
 window.listUsers = Users.listUsers;
 window.createUser = Users.createUser;
@@ -29,6 +31,8 @@ window.assignRoleToUser = Users.assignRoleToUser;
 window.signupUser = Auth.signupUser;
 window.deleteRole = Users.deleteRole;
 
+
+window.listAllAddresses = Addresses.listAllAddresses;
 window.getMyAddresses = Addresses.getMyAddresses;
 
 window.listProducts = Products.listProducts;

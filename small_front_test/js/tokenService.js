@@ -81,6 +81,7 @@ export const TokenService = {
 
     if (this.forcedAdmin) {
       console.warn("[authFetch] Mode forcé admin activé");
+      token = await this.getFreshAdminToken();
     } else if (!token || this.isExpired(token)) {
       console.warn("[authFetch] Token manquant ou expiré, récupération...");
 
@@ -91,9 +92,24 @@ export const TokenService = {
         token = await this.getFreshAdminToken();
       }
     }
+
+    if (this.forcedUser) {
+      console.warn("[authFetch] Mode forcé utilisateur activé");
+    }
+
     console.log("[authFetch] Token utilisé pour fetch:", token);
 
-    token = this.getUserToken();
+    // Auto refresh si besoin
+    if (!token || this.isExpired(token)) {
+      console.warn("[authFetch] Token expiré ou manquant");
+      const refresh = localStorage.getItem("refreshToken");
+      if (refresh && !this.isExpired(refresh)) {
+        await this.refreshToken(refresh);
+        token = this.getUserToken();
+      } else {
+        token = await this.getFreshAdminToken();
+      }
+    }
 
     return fetch(url, {
       ...options,
