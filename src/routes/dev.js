@@ -56,10 +56,13 @@ router.get('/dev-admin', async (req, res) => {
 
   } catch (err) {
     console.error(err);
+    console.error("[DEV-ADMIN ERROR dans src/routes/dev.js]", err);
     res.status(500).json({ error: "Erreur création admin" });
   }
 });
 
+
+console.log("✅ Route GET /api/dev/dev-admin active");
 
 router.delete('/reset-users', async (req, res) => {
   try {

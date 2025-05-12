@@ -2,7 +2,7 @@
 export function getUserToken() {
   return localStorage.getItem('token');
 }
-export const API_URL = window.location.origin;
+export const API_URL = "http://localhost:3007";
 
 export const TokenService = {
   async initAdminSession() {
@@ -24,7 +24,7 @@ export const TokenService = {
 
   async getFreshAdminToken() {
     try {
-      const res = await fetch(`${API_URL}/api/auth/dev-admin`);
+      const res = await fetch(`${API_URL}/api/dev/dev-admin`);
       const data = await res.json();
       console.log("[TokenService] getFreshAdminToken response:", data);
 
@@ -39,7 +39,7 @@ export const TokenService = {
       return data.token;
     } catch (err) {
       console.error("[TokenService] Erreur récupération admin token :", err);
-      alert("Échec récupération token admin.");
+      alert("Échec récupération token admin : " + (err?.message || 'Inconnue'));
       return null;
     }
   },
@@ -143,4 +143,17 @@ export function updateTokenDisplay() {
       roleBadge.className = 'badge-role';
     }
   }
+}
+
+
+export function clearTokens() {
+  localStorage.removeItem('token');
+  localStorage.removeItem('refreshToken');
+  localStorage.removeItem('tokenVersion');
+}
+
+
+export function forceResetAndFetchAdminToken() {
+  clearTokens();
+  return TokenService.getFreshAdminToken();
 }

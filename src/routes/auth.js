@@ -47,7 +47,7 @@ router.get('/dev-admin', async (req, res) => {
 
     } catch (err) {
       console.error(err);
-      res.status(500).json({ error: "Erreur création admin" });
+      res.status(500).json({ error: "Erreur création admin dans auth.js dans src/routes/auth.js" });
     }
   });
   

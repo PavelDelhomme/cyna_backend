@@ -1,5 +1,5 @@
 const express = require('express');
-const { Sequelize } = require('sequelize');
+
 const config = require("./config/database")[process.env.NODE_ENV || 'development'];
 console.log(config);
 // DB
@@ -22,10 +22,6 @@ const path = require('path');
 // Servir le petit front-end de test
 app.use('/', express.static(path.join(__dirname, "../small_front_test")));
 
-app.use((req, res) => {
-  res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});
-});
-
 // Middleware
 app.use(express.json());
 
@@ -36,7 +32,11 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/promo-codes", promoCodeRoutes);
 app.use("/api/addresses", addressRoutes);
-app.use('/api', require('./routes/devTest'));
+
+app.use((req, res) => {
+  res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});
+});
+//app.use('/api', require('./routes/devTest'));
 
 // Initialisation de Sequelize
 // const sequelize = new Sequelize(

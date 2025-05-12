@@ -21,6 +21,7 @@ window.useAdminToken = Auth.useAdminToken;
 window.reconnect = Auth.reconnect;
 window.disconnect = Auth.disconnect;
 window.getFreshAdminToken = TokenService.getFreshAdminToken;
+window.forceResetAndFetchAdminToken = TokenService.forceResetAndFetchAdminToken;
 
 window.listUsers = Users.listUsers;
 window.createUser = Users.createUser;

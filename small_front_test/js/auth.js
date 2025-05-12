@@ -72,9 +72,9 @@ function reconnect() {
 }
 
 async function signupUser() {
-  const name = document.getElementById('user-name').value;
-  const email = document.getElementById('user-email').value;
-  const password = document.getElementById('user-password').value;
+  const name = document.getElementById('signup-name').value;
+  const email = document.getElementById('signup-email').value;
+  const password = document.getElementById('signup-password').value;
 
   try {
     const res = await fetch(`${API_URL}/api/auth/signup`, {
