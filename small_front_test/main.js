@@ -12,6 +12,7 @@ import * as Stats from './js/stats.js';
 import * as Tickets from './js/tickets.js';
 
 import { TokenService } from './js/tokenService.js';
+import './js/profileDashboard.js';
 
 export const API_URL = window.location.origin;
 
@@ -30,6 +31,11 @@ window.createRole = Users.createRole;
 window.assignRoleToUser = Users.assignRoleToUser;
 window.signupUser = Auth.signupUser;
 window.deleteRole = Users.deleteRole;
+window.switchToUser = Users.switchToUser;
+
+window.getMyProfile = Users.getMyProfile;
+window.updateMyProfile = Users.updateMyProfile;
+window.deleteMyProfile = Users.deleteMyProfile;
 
 
 window.listAllAddresses = Addresses.listAllAddresses;

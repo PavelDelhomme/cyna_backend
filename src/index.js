@@ -11,13 +11,6 @@ const { User, Role } = db;
 
 const app = express();
 
-const authRoutes = require('./routes/auth');
-const userRoutes = require("./routes/users");
-const roleRoutes = require('./routes/roles');
-const promoCodeRoutes = require('./routes/promo-codes');
-const addressRoutes = require('./routes/addresses');
-const devRoutes = require('./routes/dev');
-
 const path = require('path');
 // Servir le petit front-end de test
 app.use('/', express.static(path.join(__dirname, "../small_front_test")));
@@ -26,12 +19,24 @@ app.use('/', express.static(path.join(__dirname, "../small_front_test")));
 app.use(express.json());
 
 // Routes
-app.use("/api/dev", devRoutes);
-app.use("/api/auth", authRoutes);
-app.use("/api/users", userRoutes);
-app.use("/api/roles", roleRoutes);
-app.use("/api/promo-codes", promoCodeRoutes);
-app.use("/api/addresses", addressRoutes);
+//app.use("/api/dev", devRoutes);
+app.use("/api/auth", require('./routes/auth'));  // Auth publique
+app.use("/api/addresses", require('./routes/addresses'));
+app.use("/api/users", require('./routes/users'));
+app.use("/api/roles", require('./routes/roles'));
+app.use("/api/profiles", require('./routes/profile'));
+app.use("/api/promo-codes", require('./routes/promo-codes'));
+
+// --- Routes Admin PROPRE ---
+app.use("/api/admin/auth", require('./routes/admin/auth'));
+app.use("/api/admin/orders", require('./routes/admin/orders'));
+app.use("/api/admin/payments", require('./routes/admin/payments'));
+app.use("/api/admin/services", require('./routes/admin/services'));
+app.use("/api/admin/reviews", require('./routes/admin/reviews'));
+app.use("/api/admin/addresses", require('./routes/admin/addresses'));
+app.use("/api/admin/promo-codes", require('./routes/admin/promo-codes'));
+app.use("/api/admin/roles", require('./routes/admin/roles'));
+app.use("/api/admin/users", require('./routes/admin/users'));
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});

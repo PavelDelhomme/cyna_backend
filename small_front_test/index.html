@@ -71,8 +71,30 @@
       <h2>📂 Profils utilisateurs</h2>
       <button onclick="listUserProfiles()">Afficher les profils</button>
       <div id="user-profiles-table"></div>
+      <button onclick="loadMyProfile()">Voir mon profil (Utilisateur connecté)</button>
     </section>
-    
+    <section id="profile-dashboard">
+    <h2>👤 Mon Profil</h2>
+    <button onclick="loadMyProfile()">Voir mon profil</button>
+    <button onclick="deleteMyProfile()">Supprimer mon compte</button>
+    <div id="my-profile" class="json-output"></div>
+
+    <h2>🏠 Mes Adresses</h2>
+    <button onclick="loadMyAddresses()">Voir mes adresses</button>
+    <div id="my-addresses" class="json-output"></div>
+
+    <h3>➕ Ajouter une adresse</h3>
+    <form onsubmit="event.preventDefault(); addMyAddress();">
+      <input type="text" id="address1-my" placeholder="Adresse" required>
+      <input type="text" id="city-my" placeholder="Ville" required>
+      <input type="text" id="postalCode-my" placeholder="Code Postal" required>
+      <input type="text" id="region-my" placeholder="Région">
+      <input type="text" id="country-my" placeholder="Pays">
+      <input type="text" id="type-my" placeholder="Type">
+      <button type="submit">Ajouter Adresse</button>
+    </form>
+  </section>
+
     <section id="existing-roles-section">
       <h2>📘 Rôles existants</h2>
       <button onclick="displayRoles()">Afficher les rôles</button>

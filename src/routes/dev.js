@@ -24,7 +24,7 @@ router.post('/refresh', refreshTokenAuth);
 
 
 // ✅ Dev admin auto
-router.get('/dev-admin', async (req, res) => { 
+router.get('/dev-create-admin', async (req, res) => { 
   try {
     console.log("[/dev-admin] Initialisation admin...");
     const [adminRole] = await Role.findOrCreate({ where: { name: 'admin' } });
@@ -50,20 +50,22 @@ router.get('/dev-admin', async (req, res) => {
   }
 });
 
-router.get('/admin-only', authMiddleware(['admin']), (req, res) => res.json({ message: "Accès autorisé", user: req.user }));
+router.get('/test-admin-only', authMiddleware(['admin']), (req, res) => res.json({ message: "Accès autorisé", user: req.user }));
 
 
 
 // --- Gestion utilisateurs & rôles ---
-router.post('/users', authMiddleware(['admin']), devController.createUser);
-router.get('/users', authMiddleware(['admin']), devController.listUsers);
+router.post('/create-user', authMiddleware(['admin']), devController.createUser);
+router.get('/list-users', authMiddleware(['admin']), devController.listUsers);
+router.post('/create-admin-profile', authMiddleware(['admin']), devController.createAdminProfile);
+
 router.get('/profiles', authMiddleware(['admin']), devController.listProfiles);
-router.post('/admin/profile', authMiddleware(['admin']), devController.createAdminProfile);
+
+router.post('/assign-role-to-user/:userId', authMiddleware(['admin']), devController.assignRoleToUser);
+router.delete('/delete-role/:id', authMiddleware(['admin']), devController.deleteRole);
 
 router.get('/roles', authMiddleware(['admin']), devController.listRoles);
 router.post('/roles', authMiddleware(['admin']), roleController.createRole);
-router.delete('/roles/:id', authMiddleware(['admin']), devController.deleteRole);
-router.post('/assignRole/:userId', authMiddleware(['admin']), devController.assignRoleToUser);
 
 // --- Génériques GET + POST + DELETE ---
 const resources = [
@@ -82,31 +84,30 @@ resources.forEach(resource => {
 
 // --- Routes métiers spéciales ---
 // Promo -> Produit / Service / Catégorie
-router.post('/promo-codes/:promoId/product/:productId', authMiddleware(['admin']), devController.assignPromoToProduct);
-router.post('/promo-codes/:promoId/service/:serviceId', authMiddleware(['admin']), devController.assignPromoToService);
-router.post('/promo-codes/:promoId/product-category/:categoryId', authMiddleware(['admin']), devController.assignPromoToProductCategory);
-router.post('/promo-codes/:promoId/category/:categoryId', authMiddleware(['admin']), devController.assignPromoToProductCategory);
+router.post('/apply-promo-to-product/:promoId/:productId', authMiddleware(['admin']), devController.assignPromoToProduct);
+router.post('/apply-promo-to-service/:promoId/:serviceId', authMiddleware(['admin']), devController.assignPromoToService);
+router.post('/apply-promo-to-category/:promoId/:categoryId', authMiddleware(['admin']), devController.assignPromoToProductCategory);
 
 // Carts -> Ajout spécifique
-router.post('/carts/:cartId/add-product/:productId', authMiddleware(['admin']), devController.addProductToCart);
-router.post('/carts/:cartId/add-service/:serviceId', authMiddleware(['admin']), devController.addServiceToCart);
-router.post('/carts/user/:userId', authMiddleware(['admin']), devController.createCartForUser);
+router.post('/add-product-to-cart/:cartId/:productId', authMiddleware(['admin']), devController.addProductToCart);
+router.post('/add-service-to-cart/:cartId/:serviceId', authMiddleware(['admin']), devController.addServiceToCart);
+router.post('/create-cart-for-user/:userId', authMiddleware(['admin']), devController.createCartForUser);
 
 // Addresses -> Ajout / Update
-router.post('/addresses/:userId', authMiddleware(['admin']), devController.createAddressForUser);
-router.patch('/addresses/:id', authMiddleware(['admin']), devController.updateAddress);
+router.post('/create-address-for-user/:userId', authMiddleware(['admin']), devController.createAddressForUser);
+router.patch('/update-address/:id', authMiddleware(['admin']), devController.updateAddress);
 
 // --- Divers ---
-router.get('/tokens', authMiddleware(['admin']), devController.listUserTokens);
-router.get('/getUserAddresses/:userId', authMiddleware(['admin']), devController.getUserAddresses);
-router.post('/fix-profiles', authMiddleware(['admin']), devController.fixProfiles);
+router.get('/list-tokens', authMiddleware(['admin']), devController.listUserTokens);
+router.get('/list-user-addresses/:userId', authMiddleware(['admin']), devController.getUserAddresses);
+router.post('/fix-user-profiles', authMiddleware(['admin']), devController.fixProfiles);
 
 // --- Nettoyage utilisateurs ---
 router.delete('/reset-users', authMiddleware(['admin']), devController.resetUsers);
 
 
 // --- Reviews ---
-router.post('/reviews', authMiddleware(['admin', 'user']), devController.createReview);
+router.post('/create-review', authMiddleware(['admin', 'user']), devController.createReview);
 
 
 module.exports = router;

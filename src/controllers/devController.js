@@ -176,16 +176,22 @@ exports.deleteAddress = async (req, res) => {
 
 
 exports.listUserTokens = async (req, res) => {
-    const users = await User.findAll({ include: Role });
-    const jwt = require("jsonwebtoken");
-    const tokens = users.map(u => ({
-      id: u.id,
-      name: u.name,
-      email: u.email,
-      role: u.role?.name || 'N/A',
-      token: jwt.sign({ userId: u.id }, process.env.JWT_SECRET, { expiresIn: "1d" })
-    }));
-    res.json(tokens);
+  const users = await User.findAll({
+  include: [{
+    model: Role,
+    as: 'role' // 👈 obligatoire
+    }]
+  });
+
+  const jwt = require("jsonwebtoken");
+  const tokens = users.map(u => ({
+    id: u.id,
+    name: u.name,
+    email: u.email,
+    role: u.role?.name || 'N/A',
+    token: jwt.sign({ userId: u.id }, process.env.JWT_SECRET, { expiresIn: "1d" })
+  }));
+  res.json(tokens);
 };
 
 

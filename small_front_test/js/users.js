@@ -25,6 +25,30 @@ async function listUsers(page = 1) {
   }
 }
 
+async function switchToUser(userId, email) {
+  try {
+    const res = await TokenService.authFetch(`${API_URL}/api/dev/tokens`);
+    const tokens = await res.json();
+
+    const userToken = tokens.find(t => t.id === userId);
+
+    if (!userToken) {
+      alert("Impossible de trouver le token de cet utilisateur.");
+      console.error("[switchToUser] impossible de trouver le token de cet utilisateur.");
+      return;
+    }
+
+    localStorage.setItem('token', userToken.token);
+    localStorage.setItem("forcedMode", "custom");
+    TokenService.forcedAdmin = false;
+    TokenService.forcedUser = false;
+    alert(`Connecté en tant que ${email}`);
+    TokenService.updateTokenDisplay();
+  } catch (e) {
+    console.error('[switchToUser] Erreur :', e);
+    alert("Erreur lors du switch utilisateur.");
+  }
+}
 
 function renderUsersTable(users) {
   const container = document.getElementById('users-table');
@@ -41,6 +65,7 @@ function renderUsersTable(users) {
         <th>Email</th>
         <th>Rôle</th>
         <th>Créé le</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -51,6 +76,7 @@ function renderUsersTable(users) {
           <td>${user.email}</td>
           <td>${user.role ? user.role.name : 'N/A'}</td>
           <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
+          <td><button onclick="switchToUser(${user.id}, '${user.email}')">🔄 Utiliser</button></td>
         </tr>`).join('')}
     </tbody>
   `;
@@ -272,6 +298,49 @@ async function deleteRole(roleId) {
   }
 }
 
+async function getMyProfile() {
+  try {
+    const res = await TokenService.authFetch(`${API_URL}/api/profile/me`);
+    const profile = await res.json();
+    console.log("[getMyProfile] Profile courant :", profile);
+    alert(`Votre profile : ID ${profile.id}, User ID ${profile.user_id}`);
+  } catch (e) {
+    console.error("[getMyProfile] Erreur :", e);
+    alert("Erreur lors du chargement de votre profile.");
+  }
+}
+
+async function updateMyProfile(data) {
+  try {
+    const res = await TokenService.authFetch(`${API_URL}/api/profile/me`, {
+      method: 'PATCH',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(data)
+    });
+    const updated = await res.json();
+    alert("Profil mis à jour !");
+    console.log(updated);
+  } catch (e) {
+    console.error("Erreur lors de la mise à jour du profil : ", e);
+    alert("Erreur lors de la mise à jour du profil");
+  }
+}
+
+
+async function deleteMyProfile() {
+  try {
+    if (!confirm("Êtes-vous sûr de vouloir supprimer votre profile ?")) return;
+    const res = await TokenService.authFetch(`${API_URL}/api/profile/me`, { method: 'DELETE' });
+    const data = await res.json();
+    alert("Profil supprimé !");
+    console.log(data);
+    TokenService.disconnect();
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la suppression du profil");
+  }
+}
+
 
 export {
   listUsers,
@@ -284,4 +353,8 @@ export {
   listUserProfiles,
   displayRoles,
   deleteRole,
+  switchToUser,
+  getMyProfile,
+  updateMyProfile,
+  deleteMyProfile
 };

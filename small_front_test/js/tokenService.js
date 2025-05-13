@@ -18,8 +18,26 @@ export const TokenService = {
   },
 
   async initAdminSession() {
-    this.forcedAdmin = true;
-    await this.getFreshAdminToken();
+    // Appliquer le mode forcé sauvegardé (si existe)
+    const mode = localStorage.getItem("forcedMode");
+    if (mode === "admin") {
+        this.forcedAdmin = true;
+        this.forcedUser = false;
+    } else if (mode === "user") {
+        this.forcedUser = true;
+        this.forcedAdmin = false;
+    } else {
+        this.forcedAdmin = false;
+        this.forcedUser = false;
+    }
+
+    const token = localStorage.getItem('token');
+    if (token && !this.isExpired(token)) {
+        console.log("[initAdminSession] Session existante détectée.");
+    } else {
+        console.log("[initAdminSession] Aucun token valide, mode neutre.");
+    }
+    this.updateTokenDisplay();
   },
 
   async getFreshAdminToken() {
@@ -187,7 +205,20 @@ export const TokenService = {
 
     const tokenStatus = document.getElementById('token-status');
     if (tokenStatus) {
-      tokenStatus.innerText = this.forcedAdmin ? "🔒 Mode Admin Forcé" : "👤 Mode Utilisateur";
+      if (this.forcedAdmin) {
+        tokenStatus.innerText = "🔒 Mode Admin Forcé";
+      } else if (this.forcedUser) {
+        tokenStatus.innerText = "👤 Mode Utilisateur Forcé";
+      } else {
+        // Lecture propre du token réel
+        const token = this.getUserToken();
+        if (token) {
+          const decoded = this.decodeJWT(token);
+          tokenStatus.innerText = `Mode : ${decoded.role || 'inconnu'}`;
+        } else {
+          tokenStatus.innerText = "Mode : Aucun";
+        }
+      }
     }
   },
 
@@ -202,5 +233,13 @@ export const TokenService = {
     this.clearTokens();
     this.forcedAdmin = true;
     return this.getFreshAdminToken();
+  },
+
+  disconnect() {
+    this.clearTokens();
+    localStorage.removeItem("forceMode");
+    this.updateTokenDisplay();
+    location.reload();
   }
+
 }

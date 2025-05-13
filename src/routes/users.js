@@ -3,10 +3,9 @@ const router = express.Router();
 const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
 
-router.get('/:id/profile', authMiddleware(['admin']), userController.getUserProfile);
-
-router.patch('/:id', authMiddleware(), userController.updateUser);
-router.patch('/:id/password', authMiddleware(), userController.updatePassword);
-router.delete('/:id/profile', authMiddleware(), userController.deleteUserProfile);
+router.get('/get-profile/:id', authMiddleware(['user', 'admin']), userController.getUserProfile);
+router.patch('/update-profile/:id', authMiddleware(['user', 'admin']), userController.updateUser);
+router.patch('/update-password/:id', authMiddleware(['user', 'admin']), userController.updatePassword);
+router.delete('/delete-profile/:id', authMiddleware(['user', 'admin']), userController.deleteUserProfile);
 
 module.exports = router;

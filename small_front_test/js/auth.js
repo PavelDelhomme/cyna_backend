@@ -8,18 +8,22 @@ async function useAdminToken() {
 
 function disconnect() {
   TokenService.clearTokens();
+  localStorage.removeItem("forcedMode");
   TokenService.updateTokenDisplay();
   location.reload();
 }
+
 function forceAdmin() {
   TokenService.forcedAdmin = true;
   TokenService.forcedUser = false;
+  localStorage.setItem("forcedMode", "admin");
   TokenService.updateTokenDisplay();
 }
 
 function forceUser() {
   TokenService.forcedUser = true;
   TokenService.forcedAdmin = false;
+  localStorage.setItem("forcedMode", "user");
   TokenService.updateTokenDisplay();
 }
 
