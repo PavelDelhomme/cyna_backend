@@ -24,3 +24,14 @@ exports.associatePromoToRole = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+
+exports.getAllPromoCodes = async (req, res) => {
+  try {
+    const promoCodes = await PromoCode.findAll();
+    res.json(promoCodes);
+  } catch (error) {
+    console.log("[promoCodeController] : Erreur lors de la récupération de tout les codes promo : ", error);
+    res.status(500).json({ error: error.message });
+  }
+};

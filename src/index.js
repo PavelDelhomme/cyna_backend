@@ -1,33 +1,35 @@
 const express = require('express');
-
+const path = require('path');
 const config = require("./config/database")[process.env.NODE_ENV || 'development'];
 console.log(config);
 // DB
 const db = require('./models');
-
-// Vérification / création automatique de l'admin
 const jwt = require('jsonwebtoken');
 const { User, Role } = db;
 
 const app = express();
 
-const path = require('path');
+// Middleware global
+app.use(express.json());
+
 // Servir le petit front-end de test
 app.use('/', express.static(path.join(__dirname, "../small_front_test")));
 
-// Middleware
-app.use(express.json());
-
-// Routes
-//app.use("/api/dev", devRoutes);
+// --- Routes User / Public ---
 app.use("/api/auth", require('./routes/auth'));  // Auth publique
 app.use("/api/addresses", require('./routes/addresses'));
 app.use("/api/users", require('./routes/users'));
 app.use("/api/roles", require('./routes/roles'));
 app.use("/api/profiles", require('./routes/profile'));
 app.use("/api/promo-codes", require('./routes/promo-codes'));
+app.use("/api/chatbots", require('./routes/chatbots'));
+app.use("/api/chatbots-histories", require('./routes/chatbot-histories'));
+app.use("/api/product-categories", require('./routes/product-categories'));
+app.use("/api/products", require('./routes/products'));
+app.use("/api/service-types", require('./routes/service-types'));
+app.use("/api/stats", require("./routes/stats"));
 
-// --- Routes Admin PROPRE ---
+// --- Routes Admin propres ---
 app.use("/api/admin/auth", require('./routes/admin/auth'));
 app.use("/api/admin/orders", require('./routes/admin/orders'));
 app.use("/api/admin/payments", require('./routes/admin/payments'));
@@ -37,26 +39,20 @@ app.use("/api/admin/addresses", require('./routes/admin/addresses'));
 app.use("/api/admin/promo-codes", require('./routes/admin/promo-codes'));
 app.use("/api/admin/roles", require('./routes/admin/roles'));
 app.use("/api/admin/users", require('./routes/admin/users'));
+app.use("/api/admin/chatbots", require('./routes/admin/chatbots'));
+app.use("/api/admin/chatbot-histories", require('./routes/admin/chatbot-histories'));
+app.use("/api/admin/product-categories", require('./routes/admin/product-categories'));
+app.use("/api/admin/products", require('./routes/admin/products'));
+app.use("/api/admin/services-types", require('./routes/admin/service-types'));
+app.use("/api/admin/stats", require('./routes/admin/stats'));
+
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});
 });
-//app.use('/api', require('./routes/devTest'));
 
-// Initialisation de Sequelize
-// const sequelize = new Sequelize(
-//   config.database,
-//   config.username,
-//   config.password,
-//   {
-//     host: config.host,
-//     dialect: config.dialect,
-//     port: config.port,
-//     pool: config.pool
-//   }
-// );
 
-// Initialisation de l'application après connexion à la base de données
+// --- Initialisation ---
 const initializeApp = async () => {
   let retries = 5;
   while (retries) {
@@ -161,24 +157,12 @@ const createDevAdminIfNotExists = async () => {
     }
   });
 
-  if (created) {
-    console.log("✅ Admin créé automatiquement !");
-  } else {
-    console.log("ℹ️ Admin existant utilisé.");
-  }
+  if (created) console.log("✅ Admin créé automatiquement !");
+  else console.log("ℹ️ Admin existant utilisé.");
 
   // Générer et afficher les nouveaux tokens
-  const token = jwt.sign(
-    { userId: adminUser.id },
-    process.env.JWT_SECRET,
-    { expiresIn: process.env.JWT_EXPIRES_IN || '365d' }
-  );
-
-  const refreshToken = jwt.sign(
-    { userId: adminUser.id },
-    process.env.JWT_REFRESH_SECRET,
-    { expiresIn: '365d' }
-  );
+  const token = jwt.sign({ userId: adminUser.id }, process.env.JWT_SECRET, { expiresIn: '365d' });
+  const refreshToken = jwt.sign({ userId: adminUser.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '365d' });
 
   console.log("\n=== ADMIN DEV TOKENS ===");
   console.log("Token :", token);

@@ -1,8 +1,8 @@
 const express = require("express");
 const router = express.Router();
-const profileController = require('controller/profileController');
-const addressController = require('controllers/addressController');
-const authMiddleware = require('middlewares/authMiddleware');
+const profileController = require('../controllers/profileController');
+const addressController = require('../controllers/addressController');
+const authMiddleware = require('../middlewares/authMiddleware');
 
 router.get('/get-my-profile', authMiddleware(['user', 'admin']), profileController.getMyProfile);
 router.patch('/update-my-profile', authMiddleware(['user', 'admin']), profileController.updateMyProfile);
