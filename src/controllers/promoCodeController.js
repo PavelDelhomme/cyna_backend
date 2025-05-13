@@ -1,14 +1,39 @@
-const { PromoCode, RolePromoCode } = require('../models');
+const { PromoCode, RolePromoCode, Product, ProductCategory, Service } = require('../models');
+
+
+exports.listPromoCodes = async (req, res) => {
+    const promoCodes = await PromoCode.findAll();
+    res.json(promoCodes);
+};
+
+
 
 exports.createPromoCode = async (req, res) => {
+  try {
+    const { code, discount, expiresAt } = req.body;
+    const promo = await PromoCode.create({ code, discount, expiresAt });
+    res.status(201).json(promo);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.updatePromoCode = async (req, res) => {
     try {
-      const { code, discount, expiresAt } = req.body;
-      const promo = await PromoCode.create({ code, discount, expiresAt });
-      res.status(201).json(promo);
-    } catch (err) {
-      res.status(500).json({ error: err.message });
+        const promoCode = await PromoCode.findByPk(req.params.id);
+
+        if (!promoCode) {
+            return res.status(404).json({ error: "PromoCode non trouvé"});
+        }
+        
+        await promoCode.update(req.body);
+
+        res.json({ message: "PromoCode mis à jour", promoCode });
+    } catch (error) {
+        console.error("[PromoCodeController.js] Erreur updatePromoCode", error);
+        res.status(500).json({ error: error.message });
     }
-  };
+};
 
 
 exports.associatePromoToRole = async (req, res) => {
@@ -28,17 +53,11 @@ exports.associatePromoToRole = async (req, res) => {
 
 //New
 
-exports.listPromoCodes = async (req, res) => {
-    const promoCodes = await PromoCode.findAll();
-    res.json(promoCodes);
-};
-
 
 exports.assignPromoToProduct = async (req, res) => {
-  const { PromoCode, Product } = require('../models');
-  const { promoId, productId } = req.params;
+  const { promoCodeId, productId } = req.params;
   try {
-    const promo = await PromoCode.findByPk(promoId);
+    const promo = await PromoCode.findByPk(promoCodeId);
     const product = await Product.findByPk(productId);
     if (!promo || !product) return res.status(404).json({ error: "Promo ou produit non trouvé." });
 
@@ -51,9 +70,9 @@ exports.assignPromoToProduct = async (req, res) => {
 
 
 exports.assignPromoToService = async (req, res) => {
-  const { promoId, serviceId } = req.params;
+  const { promoCodeId, serviceId } = req.params;
   try {
-    const promo = await PromoCode.findByPk(promoId);
+    const promo = await PromoCode.findByPk(promoCodeId);
     const service = await Service.findByPk(serviceId);
     if (!promo || !service) return res.status(404).json({ error: "Promo ou service non trouvé." });
 
@@ -67,9 +86,9 @@ exports.assignPromoToService = async (req, res) => {
 
 
 exports.assignPromoToProductCategory = async (req, res) => {
-  const { promoId, categoryId } = req.params;
+  const { promoCodeId, categoryId } = req.params;
   try {
-    const promo = await PromoCode.findByPk(promoId);
+    const promo = await PromoCode.findByPk(promoCodeId);
     const category = await ProductCategory.findByPk(categoryId);
     if (!promo || !category) return res.status(404).json({ error: "Promo ou catégorie non trouvée." });
 
@@ -78,24 +97,6 @@ exports.assignPromoToProductCategory = async (req, res) => {
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
-};
-
-
-exports.updatePromoCode = async (req, res) => {
-    try {
-        const promoCode = await PromoCode.findByPk(req.params.id);
-
-        if (!promoCode) {
-            return res.status(404).json({ error: "PromoCode non trouvé"});
-        }
-        
-        await promoCode.update(req.body);
-
-        res.json({ message: "PromoCode mis à jour", promoCode });
-    } catch (error) {
-        console.error("[PromoCodeController.js] Erreur updatePromoCode", error);
-        res.status(500).json({ error: error.message });
-    }
 };
 
 
