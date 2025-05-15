@@ -1,4 +1,5 @@
-const { Address, AddressUserProfile, UserProfile } = require('../models');
+const { Address, AddressUserProfile } = require('../models');
+const UserProfile = require('../models');
 
 exports.addAddressToUser = async (req, res) => {
   try {
