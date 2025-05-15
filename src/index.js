@@ -12,11 +12,19 @@ const { User, Role } = db;
 const app = express();
 
 const authRoutes = require('./routes/auth');
-const userRoutes = require("./routes/users");
+const userRoutes = require('./routes/users');
 const roleRoutes = require('./routes/roles');
 const promoCodeRoutes = require('./routes/promo-codes');
 const addressRoutes = require('./routes/addresses');
 const devRoutes = require('./routes/dev');
+
+
+const cartRoutes = require('./routes/carts');
+const invoiceRoutes = require('./routes/invoices');
+const paymentRoutes = require('./routes/payments');
+const serviceRoutes = require('./routes/services');
+const statRoutes = require('./routes/stats');
+
 
 const path = require('path');
 // Servir le petit front-end de test
@@ -32,6 +40,15 @@ app.use("/api/users", userRoutes);
 app.use("/api/roles", roleRoutes);
 app.use("/api/promo-codes", promoCodeRoutes);
 app.use("/api/addresses", addressRoutes);
+
+
+app.use("/api/carts", cartRoutes);
+app.use("/api/invoices", invoiceRoutes);
+app.use("/api/payments", paymentRoutes);
+app.use("/api/services", serviceRoutes);
+app.use("/api/stats", statRoutes);
+
+
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});
