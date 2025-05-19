@@ -79,18 +79,17 @@ exports.deleteAddress = async (req, res) => {
 
 // Obtention de toutes les adresses liés a un utilisateur (via son profil)
 exports.getUserAddresses = async (req, res) => {
-    const { userId } = req.params;
     try {
-        const userProfile = await UserProfile.findOne({ where: { user_id: userId } });
-        if (!userProfile) {
+        const profile = req.user.user_profile;
+        if (!profile) {
         return res.status(404).json({ error: "Profil utilisateur introuvable" });
         }
 
         const addresses = await Address.findAll({
-        include: [{
-            model: AddressUserProfile,
-            where: { user_profile_id: userProfile.id }
-        }]
+          include: [{
+              model: AddressUserProfile,
+              where: { user_profile_id: profile.id }
+          }]
         });
 
         res.json(addresses);
@@ -98,6 +97,10 @@ exports.getUserAddresses = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+// exports.getUserAddresses déjà présent, renommez‐le en getMyAddresses pour plus de clarté :
+exports.getMyAddresses = exports.getUserAddresses;
+
 
 exports.addAddressToUser = async (req, res) => {
   try {

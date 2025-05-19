@@ -7,7 +7,7 @@ const pageSize = 10;
 async function listUsers(page = 1) {
   try {
     // plus "/api/dev/users"
-    const response = await TokenService.authFetch(`${API_URL}/${apiPrefix()}/users`);
+    const response = await TokenService.authFetch(`${API_URL}${apiPrefix()}/users`);
     const users = await response.json();
 
     if (!Array.isArray(users)) {
@@ -206,7 +206,7 @@ async function createAdminProfile() {
   try {
     // plus "/api/dev/admin/profile"
     const response = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/admin/profile`, { method: "POST" }
+      `${API_URL}${apiPrefix()}/admin/profiles/admin`, { method: "POST" }
     );
     const data = await safeJsonResponse(response);
     if (data.message) {
@@ -223,7 +223,7 @@ async function listUserProfiles() {
   try {
     // plus "/api/dev/profiles"
     const response = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/profiles`
+      `${API_URL}${apiPrefix()}/admin/profiles`
     );
     const profiles = await response.json();
 

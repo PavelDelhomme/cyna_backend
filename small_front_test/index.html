@@ -79,22 +79,6 @@
     <button onclick="deleteMyProfile()">Supprimer mon compte</button>
     <div id="my-profile" class="json-output"></div>
 
-    <h2>🏠 Mes Adresses</h2>
-    <button onclick="loadMyAddresses()">Voir mes adresses</button>
-    <div id="my-addresses" class="json-output"></div>
-
-    <h3>➕ Ajouter une adresse</h3>
-    <form onsubmit="event.preventDefault(); addMyAddress();">
-      <input type="text" id="address1-my" placeholder="Adresse" required>
-      <input type="text" id="city-my" placeholder="Ville" required>
-      <input type="text" id="postalCode-my" placeholder="Code Postal" required>
-      <input type="text" id="region-my" placeholder="Région">
-      <input type="text" id="country-my" placeholder="Pays">
-      <input type="text" id="type-my" placeholder="Type">
-      <button type="submit">Ajouter Adresse</button>
-    </form>
-  </section>
-
     <section id="existing-roles-section">
       <h2>📘 Rôles existants</h2>
       <button onclick="displayRoles()">Afficher les rôles</button>
@@ -132,6 +116,42 @@
         <select id="user-id-address-select" required></select>
         <button type="submit">Ajouter adresse</button>
       </form>
+    </section>
+
+    <section id="profile-address-section">
+      <h2>🏠 Mes Adresses</h2>
+      <button onclick="reloadMyAddresses()">Actualiser</button>
+      <div id="my-addresses"></div>
+
+      <h3>➕ Ajouter une adresse</h3>
+      <form id="add-my-address-form">
+        <input type="text" id="address1-my" placeholder="Adresse" required>
+        <input type="text" id="city-my" placeholder="Ville" required>
+        <input type="text" id="postalCode-my" placeholder="Code Postal" required>
+        <input type="text" id="region-my" placeholder="Région">
+        <input type="text" id="country-my" placeholder="Pays">
+        <input type="text" id="type-my" placeholder="Type">
+        <button type="submit">Ajouter</button>
+      </form>
+
+      <h3>✏️ Modifier / 🗑 Supprimer une adresse</h3>
+      <input type="number" id="edit-address-id" placeholder="ID adresse" />
+      <button onclick="promptEditAddress()">Modifier</button>
+      <button onclick="removeMyAddress()">Supprimer</button>
+    </section>
+
+    <section id="admin-address-section">
+      <h2>🏠 Gestion globale des adresses (Admin)</h2>
+      <button onclick="reloadAllAddresses()">Lister toutes</button>
+      <div id="all-addresses"></div>
+
+      <h3>✏️ Modifier une adresse (Admin)</h3>
+      <input type="number" id="admin-edit-address-id" placeholder="ID adresse" />
+      <button onclick="promptAdminEditAddress()">Modifier</button>
+
+      <h3>🗑 Supprimer une adresse (Admin)</h3>
+      <input type="number" id="admin-delete-address-id" placeholder="ID adresse" />
+      <button onclick="removeAddress()">Supprimer</button>
     </section>
 
     <section id="product-section">

@@ -5,15 +5,12 @@ const users   = require('../../controllers/userController');
 
 router.use(auth(['admin']));
 
-router
-  .route('/')
-  .get(users.getAllUsers);
+router.get('/', auth(['admin']), users.getAllUsers);
 
-router
-  .route('/:id')
-  .get(users.getUserById)
-  .delete(users.deleteUser);
+router.get('/:id', auth(['user', 'admin']), users.getUserById);
 
+router.patch('/:id', auth(['user','admin']), users.updateUser);
+router.delete('/:id', auth(['user', 'admin']), users.deleteUser);
 // Pour assigner un rôle à un utilisateur
 router.post('/:userId/roles/:roleId', users.assignRoleToUser);
 

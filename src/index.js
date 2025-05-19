@@ -20,7 +20,8 @@ app.use("/api/auth", require('./routes/auth'));  // Auth publique
 app.use("/api/addresses", require('./routes/addresses'));
 app.use("/api/users", require('./routes/users'));
 app.use("/api/roles", require('./routes/roles'));
-app.use("/api/profiles", require('./routes/profile'));
+// → point d’entrée unique pour le profil (user/admin)
+app.use("/api/profile", require('./routes/profile'));
 app.use("/api/promo-codes", require('./routes/promo-codes'));
 app.use("/api/chatbots", require('./routes/chatbots'));
 app.use("/api/chatbots-histories", require('./routes/chatbot-histories'));
@@ -33,28 +34,30 @@ app.use("/api/reviews", require('./routes/reviews'));
 app.use("/api/payments", require('./routes/payments'));
 app.use("/api/orders", require("./routes/orders"));
 app.use("/api/invoices", require("./routes/invoices"));
+app.use("/api/carts", require("./routes/carts"));
 app.use("/api/tickets", require("./routes/tickets"));
+app.use("/api/dev", require("./routes/devTest"));
 
 // --- Routes Admin propres ---
-app.use("/api/admin/auth", require('./routes/admin/auth'));
-app.use("/api/admin/orders", require('./routes/admin/orders'));
-app.use("/api/admin/invoices", require('./routes/admin/invoices'));
-app.use("/api/admin/payments", require('./routes/admin/payments'));
-app.use("/api/admin/services", require('./routes/admin/services'));
-app.use("/api/admin/reviews", require('./routes/admin/reviews'));
-app.use("/api/admin/addresses", require('./routes/admin/addresses'));
-app.use("/api/admin/promo-codes", require('./routes/admin/promo-codes'));
-app.use("/api/admin/roles", require('./routes/admin/roles'));
-app.use("/api/admin/users", require('./routes/admin/users'));
-app.use("/api/admin/chatbots", require('./routes/admin/chatbots'));
-app.use("/api/admin/chatbot-histories", require('./routes/admin/chatbot-histories'));
-app.use("/api/admin/product-categories", require('./routes/admin/product-categories'));
-app.use("/api/admin/products", require('./routes/admin/products'));
-app.use("/api/admin/services-types", require('./routes/admin/service-types'));
-app.use("/api/admin/stats", require('./routes/admin/stats'));
-app.use("/api/admin/tickets", require('./routes/admin/tickets'));
-
-
+app.use("/api/admin/auth",                require('./routes/admin/auth'));
+app.use("/api/admin/orders",              require('./routes/admin/orders'));
+app.use("/api/admin/invoices",            require('./routes/admin/invoices'));
+app.use("/api/admin/payments",            require('./routes/admin/payments'));
+app.use("/api/admin/services",            require('./routes/admin/services'));
+app.use("/api/admin/reviews",             require('./routes/admin/reviews'));
+app.use("/api/admin/addresses",           require('./routes/admin/addresses'));
+app.use("/api/admin/promo-codes",         require('./routes/admin/promo-codes'));
+app.use("/api/admin/roles",               require('./routes/admin/roles'));
+app.use("/api/admin/users",               require('./routes/admin/users'));
+app.use("/api/admin/chatbots",            require('./routes/admin/chatbots'));
+app.use("/api/admin/chatbot-histories",   require('./routes/admin/chatbot-histories'));
+app.use("/api/admin/product-categories",  require('./routes/admin/product-categories'));
+app.use("/api/admin/carts",               require('./routes/admin/carts'));
+app.use("/api/admin/products",            require('./routes/admin/products'));
+app.use("/api/admin/service-types",       require('./routes/admin/service-types'));
+app.use("/api/admin/stats",               require('./routes/admin/stats'));
+app.use("/api/admin/tickets",             require('./routes/admin/tickets'));
+app.use("/api/admin/profiles",            require('./routes/admin/profiles'));
 
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});
@@ -122,7 +125,7 @@ const initializeApp = async () => {
       
       console.log("Synchronisation de la base de données terminée");
 
-      await createDevAdminIfNotExists();
+      const adminUser = await createDevAdminIfNotExists();
 
       if (process.env.RESET_DB === 'true') {
         await db.Role.findOrCreate({
@@ -130,6 +133,10 @@ const initializeApp = async () => {
           default: { nme: 'user' }
         });
       }
+      // create Dev admin profile if not exists
+      const { UserProfile } = db;
+      await UserProfile.findOrCreate({ where: { user_id: adminUser.id } });
+
 
       // Démarrage du server
       const PORT = process.env.PORT || 3000;
@@ -166,8 +173,9 @@ const createDevAdminIfNotExists = async () => {
     }
   });
 
-  if (created) console.log("✅ Admin créé automatiquement !");
-  else console.log("ℹ️ Admin existant utilisé.");
+  console.log(created
+    ? "✅ Admin créé automatiquement !"
+    : "ℹ️ Admin existant utilisé.");
 
   // Générer et afficher les nouveaux tokens
   const token = jwt.sign({ userId: adminUser.id }, process.env.JWT_SECRET, { expiresIn: '365d' });
@@ -177,6 +185,7 @@ const createDevAdminIfNotExists = async () => {
   console.log("Token :", token);
   console.log("Refresh Token :", refreshToken);
   console.log("========================\n");
+  return adminUser;
 };
 
 // Démarrer l'application

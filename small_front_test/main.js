@@ -167,3 +167,87 @@ async function populateUserSelect() {
     console.error("Erreur chargement utilisateurs:", e);
   }
 }
+
+
+// --- Profil utilisateur ---
+async function reloadMyAddresses() {
+  const list = await Addresses.getMyAddresses();
+  const container = document.getElementById('my-addresses');
+  container.innerHTML = list.map(a =>
+    `<div>(${a.id}) ${a.address1}, ${a.city} 
+       <button onclick="prefillEditAddress(${a.id})">✏️</button>
+     </div>`
+  ).join('');
+}
+
+window.reloadMyAddresses = reloadMyAddresses;
+window.reloadAllAddresses = reloadAllAddresses;
+
+document
+  .getElementById('add-my-address-form')
+  .addEventListener('submit', async e => {
+    e.preventDefault();
+    const data = {
+      address1: document.getElementById('address1-my').value,
+      city:     document.getElementById('city-my').value,
+      postalCode: document.getElementById('postalCode-my').value,
+      region:   document.getElementById('region-my').value,
+      country:  document.getElementById('country-my').value,
+      type:     document.getElementById('type-my').value,
+    };
+    await Addresses.addMyAddress(data);
+    alert("Adresse ajoutée");
+    reloadMyAddresses();
+  });
+
+// remplir le formulaire de modif
+window.prefillEditAddress = id => {
+  document.getElementById('edit-address-id').value = id;
+  // tu peux aussi load l’adresse dans un petit form si tu veux
+};
+
+window.promptEditAddress = async () => {
+  const id = +document.getElementById('edit-address-id').value;
+  // pour simplifier on fait un prompt sur chaque champ
+  const address1 = prompt("Nouvelle adresse1 ?");
+  const city     = prompt("Nouvelle ville ?");
+  // … etc
+  await Addresses.updateMyAddress(id, { address1, city });
+  alert("Adresse mise à jour");
+  reloadMyAddresses();
+};
+
+window.removeMyAddress = async () => {
+  const id = +document.getElementById('edit-address-id').value;
+  if (!confirm("Supprimer cette adresse ?")) return;
+  await Addresses.deleteMyAddress(id);
+  alert("Adresse supprimée");
+  reloadMyAddresses();
+};
+
+
+// --- Admin global ---
+async function reloadAllAddresses() {
+  const all = await Addresses.listAllAddresses();
+  const cont = document.getElementById('all-addresses');
+  cont.innerHTML = all.map(a =>
+    `<div>(${a.id}) ${a.address1}, ${a.city}</div>`
+  ).join('');
+}
+
+window.promptAdminEditAddress = async () => {
+  const id = +document.getElementById('admin-edit-address-id').value;
+  const address1 = prompt("Nouvelle adresse1 ?");
+  const city     = prompt("Nouvelle ville ?");
+  await Addresses.updateAddress(id, { address1, city });
+  alert("Adresse admin mise à jour");
+  reloadAllAddresses();
+};
+
+window.removeAddress = async () => {
+  const id = +document.getElementById('admin-delete-address-id').value;
+  if (!confirm("Supprimer cette adresse (admin) ?")) return;
+  await Addresses.deleteAddress(id);
+  alert("Adresse admin supprimée");
+  reloadAllAddresses();
+};

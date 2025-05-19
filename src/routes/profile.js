@@ -6,7 +6,7 @@ const addrCtrl = require('../controllers/addressController');
 
 // Toutes les routes dans ce fichier exigent user ou admin
 router.use(auth(['user', 'admin']));
-
+router.use(require('../middlewares/loadUserProfile'));
 // Profile
 // GET      /api/profile    -> récupérer mon profil
 // PATCH    /api/profile    -> mettre à jour mon profil
@@ -16,6 +16,7 @@ router
     .get(profCtrl.getMyProfile)
     .patch(profCtrl.updateMyProfile)
     .delete(profCtrl.deleteMyProfile);
+router.get('/me', profCtrl.getMyProfile);
 
 // Adresses liées à mon profil
 // GET    /api/profile/addresses        -> lister mes adresses
