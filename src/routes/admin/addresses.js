@@ -1,10 +1,14 @@
+// routes/admin/addresses.js
 const express = require('express');
-const router = express.Router();
-const addressController = require('../../controllers/addressController');
-const authMiddleware = require('../../middlewares/authMiddleware');
-const loadUserProfile = require('../../middlewares/loadUserProfile');
+const router  = express.Router();
+const auth    = require('../../middlewares/authMiddleware');
+const addr    = require('../../controllers/addressController');
 
-router.patch('/update-address/:id', authMiddleware(), loadUserProfile, addressController.updateUserAddress);
-router.delete('/delete-address/:id', authMiddleware(), loadUserProfile, addressController.deleteUserAddress);
+router.use(auth(['admin']));
+
+router
+  .route('/:id')
+  .patch(addr.updateAddress)
+  .delete(addr.deleteAddress);
 
 module.exports = router;

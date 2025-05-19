@@ -11,10 +11,10 @@ import * as Reviews from './js/reviews.js';
 import * as Stats from './js/stats.js';
 import * as Tickets from './js/tickets.js';
 
-import { TokenService } from './js/tokenService.js';
+import { TokenService, API_URL, apiPrefix } from './js/tokenService.js';
 import './js/profileDashboard.js';
 
-export const API_URL = window.location.origin;
+export { API_URL };
 
 // Exposition des fonctions au window pour le HTML
 window.useAdminToken = Auth.useAdminToken;
@@ -37,7 +37,6 @@ window.getMyProfile = Users.getMyProfile;
 window.updateMyProfile = Users.updateMyProfile;
 window.deleteMyProfile = Users.deleteMyProfile;
 
-
 window.listAllAddresses = Addresses.listAllAddresses;
 window.getMyAddresses = Addresses.getMyAddresses;
 
@@ -45,7 +44,6 @@ window.listProducts = Products.listProducts;
 window.addProduct = Products.addProduct;
 window.listProductcategories = Products.listProductCategories;
 window.deleteProduct = Products.deleteProduct;
-
 
 window.listServices = Services.listServices;
 window.addService = Services.addService;
@@ -79,81 +77,66 @@ window.createAdminProfile = Users.createAdminProfile;
 window.listUserProfiles = Users.listUserProfiles;
 window.displayRoles = Users.displayRoles;
 
+// Test d'accès admin-only (si vous avez encore une route de test sous /dev/admin-only)
 window.testProtectedRoute = async () => {
-  const res = await fetch(`${API_URL}/api/dev/admin-only`, {
-    headers: {
-      Authorization: `Bearer ${TokenService.getUserToken()}`
-    }
-  });
-  const text = await res.text();
-  document.getElementById('test-result').innerText = text;
+  const res = await fetch(
+    `${API_URL}${apiPrefix()}/dev/admin-only`,
+    { headers: { Authorization: `Bearer ${TokenService.getUserToken()}` } }
+  );
+  document.getElementById('test-result').innerText = await res.text();
 };
 
-
-// Rendu DOMContentLoaded
+// Au chargement de la page
 document.addEventListener('DOMContentLoaded', async () => {
   console.log("[main] Initialisation session admin...");
   await TokenService.initAdminSession();
   await TokenService.validateAndAutoFixSession();
   console.log("[main] Session prête.");
 
-  await new Promise(r => setTimeout(r, 300)); // Laisse le temps au token d’être bien propagé
+  // Petite pause pour que tout s'initialise
+  await new Promise(r => setTimeout(r, 300));
 
-
+  // Auto-refresh du token
   setInterval(() => {
-    const token = TokenService.getUserToken();
-    if (token && TokenService.isExpired(token)) {
-      console.log("[Auto Refresh] Token expiré, tentative de refresh...");
+    if (TokenService.isExpired(TokenService.getUserToken())) {
       const refresh = localStorage.getItem('refreshToken');
       if (refresh && !TokenService.isExpired(refresh)) {
         TokenService.refreshToken(refresh);
       }
     }
     TokenService.updateTokenDisplay();
-  }, 15000); // toutes les 15 secondes
-  
+  }, 15000);
 
-  document.getElementById('login-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    await Auth.login();
-  });
+  // Liaison des formulaires
+  document
+    .getElementById('login-form')
+    .addEventListener('submit', e => { e.preventDefault(); Auth.login(); });
+  document
+    .getElementById('address-form')
+    .addEventListener('submit', e => { e.preventDefault(); Addresses.addAddress(); });
+  document
+    .getElementById('product-form')
+    .addEventListener('submit', e => { e.preventDefault(); Products.addProduct(); });
+  document
+    .getElementById('service-form')
+    .addEventListener('submit', e => { e.preventDefault(); Services.addService(); });
 
-  document.getElementById('address-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    Addresses.addAddress();
-  });
-  
-  document.getElementById('product-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    Products.addProduct();
-  });
-
-  
-  document.getElementById('service-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-    Services.addService();
-  });
-
-  await new Promise(r => setTimeout(r, 100));
-
+  // Chargement initial des sélecteurs et des listes
   await Promise.all([
-    await populateUserSelect(),
+    populateUserSelect(),
     Promo.loadPromosIntoSelect("promo-id"),
     Promo.loadPromosIntoSelect("promo-id-service"),
     Promo.loadPromosIntoSelect("promo-id-category"),
-    
     Products.loadProductsIntoSelect("product-id"),
     Products.loadProductsIntoSelect("product-id-to-add"),
-
     Services.loadServicesIntoSelect("service-id"),
     Services.loadServicesIntoSelect("service-id-to-add"),
-
     Products.loadProductCategoriesIntoSelect("category-id"),
-
     Users.loadUsersIntoSelect("role-user-id"),
     Users.loadRolesIntoSelect("role-id")
   ]);
 
+  // Affichage initial
   Users.listUsers();
   Payments.listPayments();
   Orders.listOrders();
@@ -165,19 +148,20 @@ document.addEventListener('DOMContentLoaded', async () => {
   Promo.listPromocodes();
 });
 
-
+// Remplit le select des utilisateurs
 async function populateUserSelect() {
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/dev/users`);
-    const users = await TokenService.safeJsonResponse(res);
+    const res    = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/users`
+    );
+    const users  = await res.json();
     const select = document.getElementById('user-id-address-select');
     select.innerHTML = '';
-
-    users.forEach(user => {
-      const option = document.createElement('option');
-      option.value = user.id;
-      option.text = `${user.name} (${user.email})`;
-      select.appendChild(option);
+    users.forEach(u => {
+      const opt = document.createElement('option');
+      opt.value = u.id;
+      opt.text  = `${u.name} (${u.email})`;
+      select.appendChild(opt);
     });
   } catch (e) {
     console.error("Erreur chargement utilisateurs:", e);

@@ -1,16 +1,35 @@
-const express = require("express");
+const express = require('express');
 const router = express.Router();
-const profileController = require('../controllers/profileController');
-const addressController = require('../controllers/addressController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const auth = require('../middlewares/authMiddleware');
+const profCtrl = require('../controllers/profileController');
+const addrCtrl = require('../controllers/addressController');
 
-router.get('/get-my-profile', authMiddleware(['user', 'admin']), profileController.getMyProfile);
-router.patch('/update-my-profile', authMiddleware(['user', 'admin']), profileController.updateMyProfile);
-router.delete('/delete-my-profile', authMiddleware(['user', 'admin']), profileController.deleteMyProfile);
+// Toutes les routes dans ce fichier exigent user ou admin
+router.use(auth(['user', 'admin']));
 
-router.get('/get-my-addresses', authMiddleware(['user', 'admin']), addressController.getUserAddresses);
-router.post('/add-address-to-my-profile', authMiddleware(['user', 'admin']), addressController.addAddressToUser);
-router.patch('/update-my-address/:id', authMiddleware(['user', 'admin']), addressController.updateUserAddress);
-router.delete('/delete-my-address/:id', authMiddleware(['user', 'admin']), addressController.deleteUserAddress);
+// Profile
+// GET      /api/profile    -> récupérer mon profil
+// PATCH    /api/profile    -> mettre à jour mon profil
+// DELETE   /api/profile    -> supprimer mon profil
+router
+    .route('/')
+    .get(profCtrl.getMyProfile)
+    .patch(profCtrl.updateMyProfile)
+    .delete(profCtrl.deleteMyProfile);
+
+// Adresses liées à mon profil
+// GET    /api/profile/addresses        -> lister mes adresses
+// POST   /api/profile/addresses        -> créer une nouvelle adresse
+// PATCH  /api/profile/addresses/:id    -> modifier l’adresse n°:id
+// DELETE /api/profile/addresses/:id    -> supprimer l’adresse n°:id
+router
+    .route('/addresses')
+    .get(addrCtrl.getUserAddresses)
+    .post(addrCtrl.addAddressToUser);
+
+router
+    .route('/addresses/:id')
+    .patch(addrCtrl.updateUserAddress)
+    .delete(addrCtrl.deleteUserAddress);
 
 module.exports = router;

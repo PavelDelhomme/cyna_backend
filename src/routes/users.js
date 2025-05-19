@@ -1,11 +1,13 @@
 const express = require('express');
 const router = express.Router();
-const userController = require('../controllers/userController');
 const authMiddleware = require('../middlewares/authMiddleware');
+const userController = require('../controllers/userController');
 
-router.get('/get-profile/:id', authMiddleware(['user', 'admin']), userController.getUserProfile);
-router.patch('/update-profile/:id', authMiddleware(['user', 'admin']), userController.updateUser);
-router.patch('/update-password/:id', authMiddleware(['user', 'admin']), userController.updatePassword);
-router.delete('/delete-profile/:id', authMiddleware(['user', 'admin']), userController.deleteUserProfile);
+// Pour récupérer le profil de n'importe quel utilisateur (admin ou soi-même)
+router.get('/:id', authMiddleware(['user', 'admin']), userController.getUserById);
+
+// Modifier / supprimer son propre profil
+router.patch('/:id', authMiddleware(['user', 'admin']), userController.updateUser);
+router.delete('/:id', authMiddleware(['user', 'admin']), userController.deleteUser);
 
 module.exports = router;

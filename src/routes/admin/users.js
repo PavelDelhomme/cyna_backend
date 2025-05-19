@@ -1,11 +1,20 @@
 const express = require('express');
-const router = express.Router();
-const userController = require('../../controllers/userController');
-const authMiddleware = require('../../middlewares/authMiddleware');
+const router  = express.Router();
+const auth    = require('../../middlewares/authMiddleware');
+const users   = require('../../controllers/userController');
 
-router.get('/list-users', authMiddleware(['admin']), userController.getAllUsers);
-router.get('/get-user/:id', authMiddleware(['admin']), userController.getUserById);
-router.delete('/delete-user/:id', authMiddleware(['admin']), userController.deleteUser);
-router.post('/assign-role/:userId', authMiddleware(['admin']), userController.assignRoleToUser);
+router.use(auth(['admin']));
+
+router
+  .route('/')
+  .get(users.getAllUsers);
+
+router
+  .route('/:id')
+  .get(users.getUserById)
+  .delete(users.deleteUser);
+
+// Pour assigner un rôle à un utilisateur
+router.post('/:userId/roles/:roleId', users.assignRoleToUser);
 
 module.exports = router;

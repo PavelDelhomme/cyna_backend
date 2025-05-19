@@ -123,23 +123,6 @@ exports.addAddressToUser = async (req, res) => {
   }
 };
 
-// Voir toutes ses adresses
-exports.getUserAddresses = async (req, res) => {
-  try {
-    const userProfile = await UserProfile.findOne({
-      where: { user_id: req.user.id },
-      include: ['addresses']
-    });
-
-    if (!userProfile) {
-      return res.status(404).json({ error: 'Profil utilisateur introuvable' });
-    }
-    
-    res.json(userProfile.addresses);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
-};
 
 
 // Modifier une adresse par ID (si elle appartient au user)

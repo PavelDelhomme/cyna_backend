@@ -1,8 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const chatbotHistoryController = require('../../controllers/chatbotHistoryController');
-const authMiddleware = require('../../middlewares/authMiddleware');
+const router  = express.Router();
+const auth    = require('../../middlewares/authMiddleware');
+const hist    = require('../../controllers/chatbotHistoryController');
 
-router.get('/list-chatbot-histories', authMiddleware(['admin']), chatbotHistoryController.listChatbotHistories);
+router.use(auth(['admin']));
+
+router.get('/', hist.listChatbotHistories);
 
 module.exports = router;

@@ -1,4 +1,4 @@
-import { API_URL, TokenService } from "./tokenService.js";
+import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
 import { renderPagination } from "./pagination.js";
 
 const pageSize = 10;
@@ -6,7 +6,8 @@ const pageSize = 10;
 
 async function listUsers(page = 1) {
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/users`);
+    // plus "/api/dev/users"
+    const response = await TokenService.authFetch(`${API_URL}/${apiPrefix()}/users`);
     const users = await response.json();
 
     if (!Array.isArray(users)) {
@@ -27,7 +28,10 @@ async function listUsers(page = 1) {
 
 async function switchToUser(userId, email) {
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/dev/tokens`);
+    // plus "/api/dev/tokens"
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/tokens`
+    );
     const tokens = await res.json();
 
     const userToken = tokens.find(t => t.id === userId);
@@ -91,11 +95,14 @@ async function createUser() {
   const password = document.getElementById('user-password').value;
 
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/users`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name, email, password })
-    });
+    // plus "/api/dev/users"
+    const response = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email, password })
+      }
+    );
 
     const data = await TokenService.safeJsonResponse(response);
     if (data) {
@@ -120,11 +127,14 @@ async function createRole() {
   }
 
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/roles`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ name })
-    });
+    // plus "/api/dev/roles"
+    const response = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/roles`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name })
+      }
+    );
 
     const data = await TokenService.safeJsonResponse(response);
     if (data) {
@@ -145,11 +155,14 @@ async function assignRoleToUser() {
   const roleId = document.getElementById('role-id').value;
 
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/dev/assignRole/${userId}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ roleId })
-    });
+    // plus "/api/dev/assignRole/:userId"
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/assignRole/${userId}`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ roleId })
+      }
+    );
 
     const data = await TokenService.safeJsonResponse(res);
     if (data) alert("Rôle assigné avec succès !");
@@ -161,7 +174,10 @@ async function assignRoleToUser() {
 
 
 async function loadUsersIntoSelect(selectId) {
-  const res = await TokenService.authFetch(`${API_URL}/api/dev/users`);
+  // plus "/api/dev/users"
+  const res = await TokenService.authFetch(
+    `${API_URL}${apiPrefix()}/users`
+  );
   const users = await res.json();
   if (!Array.isArray(users)) {
     console.warn(`⚠️ users attendu comme tableau mais reçu :`, users);
@@ -173,7 +189,10 @@ async function loadUsersIntoSelect(selectId) {
 
 
 async function loadRolesIntoSelect(selectId) {
-  const res = await TokenService.authFetch(`${API_URL}/api/dev/roles`);
+  // plus "/api/dev/roles"
+  const res   = await TokenService.authFetch(
+    `${API_URL}${apiPrefix()}/roles`
+  );
   const roles = await res.json();
   if (!Array.isArray(roles)) {
     console.warn(`⚠️ roles attendu comme tableau mais reçu :`, roles);
@@ -185,9 +204,10 @@ async function loadRolesIntoSelect(selectId) {
 
 async function createAdminProfile() {
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/admin/profile`, {
-      method: "POST"
-    });
+    // plus "/api/dev/admin/profile"
+    const response = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/admin/profile`, { method: "POST" }
+    );
     const data = await safeJsonResponse(response);
     if (data.message) {
       alert(data.message);
@@ -201,7 +221,10 @@ async function createAdminProfile() {
 
 async function listUserProfiles() {
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/profiles`);
+    // plus "/api/dev/profiles"
+    const response = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profiles`
+    );
     const profiles = await response.json();
 
     const container = document.getElementById('user-profiles-table');
@@ -237,7 +260,10 @@ async function listUserProfiles() {
 }
 async function displayRoles() {
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/dev/roles`);
+    // plus "/api/dev/roles"
+    const res   = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/roles`
+    );
     const roles = await res.json();
 
     if (!Array.isArray(roles)) {
@@ -280,9 +306,10 @@ async function deleteRole(roleId) {
   if (!confirm("Supprimer ce rôle ?")) return;
 
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/dev/roles/${roleId}`, {
-      method: 'DELETE'
-    });
+    // plus "/api/dev/roles/:roleId"
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/roles/${roleId}`, { method: 'DELETE' }
+    );
 
     const data = await res.json();
     if (res.ok) {
@@ -300,7 +327,10 @@ async function deleteRole(roleId) {
 
 async function getMyProfile() {
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/profile/me`);
+    // passe aussi par apiPrefix()
+    const res     = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me`
+    );
     const profile = await res.json();
     console.log("[getMyProfile] Profile courant :", profile);
     alert(`Votre profile : ID ${profile.id}, User ID ${profile.user_id}`);
@@ -312,11 +342,13 @@ async function getMyProfile() {
 
 async function updateMyProfile(data) {
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/profile/me`, {
-      method: 'PATCH',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(data)
-    });
+    const res     = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+      }
+    );
     const updated = await res.json();
     alert("Profil mis à jour !");
     console.log(updated);
@@ -330,10 +362,11 @@ async function updateMyProfile(data) {
 async function deleteMyProfile() {
   try {
     if (!confirm("Êtes-vous sûr de vouloir supprimer votre profile ?")) return;
-    const res = await TokenService.authFetch(`${API_URL}/api/profile/me`, { method: 'DELETE' });
-    const data = await res.json();
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me`, { method: 'DELETE' }
+    );
+    await res.json();
     alert("Profil supprimé !");
-    console.log(data);
     TokenService.disconnect();
   } catch (e) {
     console.error(e);

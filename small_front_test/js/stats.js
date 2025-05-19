@@ -1,20 +1,22 @@
-import { API_URL, TokenService } from "./tokenService.js";
+import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
 
 async function listStats() {
-    try {
-      const res = await TokenService.authFetch(`${API_URL}/api/dev/stats`);
-      const data = await res.json();
-  
-      if (!Array.isArray(data)) {
-        console.warn(`⚠️ stats attendu comme tableau mais reçu :`, data);
-        return;
-      }
-  
-      renderStatsTable(data);
-    } catch (err) {
-      console.error(err);
-      alert("Erreur lors du chargement des statistiques.");
+  try {
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/stats`
+    );
+    const data = await res.json();
+
+    if (!Array.isArray(data)) {
+      console.warn(`⚠️ stats attendu comme tableau mais reçu :`, data);
+      return;
     }
+
+    renderStatsTable(data);
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors du chargement des statistiques.");
+  }
 }
 
 

@@ -1,5 +1,12 @@
 const { PromoCode, RolePromoCode } = require('../models');
 
+
+
+exports.listPromoCodes = async (req, res) => {
+    const promoCodes = await PromoCode.findAll();
+    res.json(promoCodes);
+};
+
 exports.createPromoCode = async (req, res) => {
   try {
     const { name, benefit, status } = req.body;

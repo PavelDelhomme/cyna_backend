@@ -1,10 +1,14 @@
+const { Product, PromoCode } = require('../models');
 
 
 exports.listProducts = async (req, res) => {
+  try {
     const products = await Product.findAll();
     res.json(products);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
 };
-
 
 
   // Créer un produit
@@ -33,7 +37,6 @@ exports.createProduct = async (req, res) => {
 
 
 exports.assignPromoToProduct = async (req, res) => {
-    const { PromoCode, Product } = require('../models');
     const { promoId, productId } = req.params;
     try {
         const promo = await PromoCode.findByPk(promoId);

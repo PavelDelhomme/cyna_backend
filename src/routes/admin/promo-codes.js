@@ -1,11 +1,15 @@
 const express = require('express');
-const router = express.Router();
-const promoCodeController = require('../controllers/promoCodeController');
-const authMiddleware = require('../middlewares/authMiddleware');
+const router  = express.Router();
+const auth    = require('../../middlewares/authMiddleware');
+const promo   = require('../../controllers/promoCodeController');
 
+router.use(auth(['admin']));
 
-router.post('/create-promo-code', authMiddleware(['admin']), promoCodeController.createPromoCode);
-router.get('/list-promo-codes', authMiddleware(['admin']), promoCodeController.getAllPromoCodes);
-router.post('/assign-promo-code-role/:promoCodeId/:roleId', authMiddleware(['admin']), promoCodeController.associatePromoToRole);
+router
+  .route('/')
+  .get(promo.getAllPromoCodes)
+  .post(promo.createPromoCode);
+
+router.post('/:promoCodeId/roles/:roleId', promo.associatePromoToRole);
 
 module.exports = router;

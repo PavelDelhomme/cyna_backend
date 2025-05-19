@@ -27,11 +27,18 @@ app.use("/api/chatbots-histories", require('./routes/chatbot-histories'));
 app.use("/api/product-categories", require('./routes/product-categories'));
 app.use("/api/products", require('./routes/products'));
 app.use("/api/service-types", require('./routes/service-types'));
+app.use("/api/services", require('./routes/services'));
 app.use("/api/stats", require("./routes/stats"));
+app.use("/api/reviews", require('./routes/reviews'));
+app.use("/api/payments", require('./routes/payments'));
+app.use("/api/orders", require("./routes/orders"));
+app.use("/api/invoices", require("./routes/invoices"));
+app.use("/api/tickets", require("./routes/tickets"));
 
 // --- Routes Admin propres ---
 app.use("/api/admin/auth", require('./routes/admin/auth'));
 app.use("/api/admin/orders", require('./routes/admin/orders'));
+app.use("/api/admin/invoices", require('./routes/admin/invoices'));
 app.use("/api/admin/payments", require('./routes/admin/payments'));
 app.use("/api/admin/services", require('./routes/admin/services'));
 app.use("/api/admin/reviews", require('./routes/admin/reviews'));
@@ -45,6 +52,8 @@ app.use("/api/admin/product-categories", require('./routes/admin/product-categor
 app.use("/api/admin/products", require('./routes/admin/products'));
 app.use("/api/admin/services-types", require('./routes/admin/service-types'));
 app.use("/api/admin/stats", require('./routes/admin/stats'));
+app.use("/api/admin/tickets", require('./routes/admin/tickets'));
+
 
 
 app.use((req, res) => {

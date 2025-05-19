@@ -180,12 +180,17 @@
     <section id="tickets-section">
       <h2>🎟️ Tickets</h2>
       <div id="tickets-table"></div>
-      <form onsubmit="event.preventDefault(); addTicket();">
-        <input type="text" id="ticket-subject" placeholder="Objet" />
-        <input type="text" id="ticket-description" placeholder="Description" />
-        <button type="submit">Ajouter</button>
-      </form>
+      <!-- on ajoute un id pour le toggle -->
+      <div id="ticket-form-container" style="display:none;">
+        <h3>➕ Ajouter un ticket</h3>
+        <form onsubmit="event.preventDefault(); addTicket();">
+          <input type="text" id="ticket-subject" placeholder="Objet" required />
+          <input type="text" id="ticket-description" placeholder="Description" required />
+          <button type="submit">Ajouter</button>
+        </form>
+      </div>
     </section>
+
 
     <section id="orders-section">
       <h2>🧾 Commandes</h2>

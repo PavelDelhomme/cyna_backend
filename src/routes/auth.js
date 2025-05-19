@@ -1,10 +1,12 @@
 const express = require('express');
 const router = express.Router();
-const { signup, login, refreshToken } = require('../controllers/authController');
-const { User, Role } = require('../models');
+const authCtrl = require('../controllers/authController');
 
-router.post('/signup-user', signup);
-router.post('/login-user', login);
-router.post('/refresh-token', refreshToken);
+// Inscription & connexion (pas de JWT requis)
+router.post('/signup', authCtrl.signup);
+router.post('/login', authCtrl.login);
+
+// Renouvellement de token
+router.post('/refresh', authCtrl.refreshToken);
 
 module.exports = router;

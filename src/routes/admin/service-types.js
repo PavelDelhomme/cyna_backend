@@ -1,8 +1,10 @@
 const express = require('express');
-const router = express.Router();
-const serviceTypeController = require('../../controllers/serviceTypeController');
-const authMiddleware = require('../../middlewares/authMiddleware');
+const router  = express.Router();
+const auth    = require('../../middlewares/authMiddleware');
+const stype   = require('../../controllers/serviceTypeController');
 
-router.get('/list-service-types', authMiddleware(['admin']), serviceTypeController.listServiceTypes);
+router.use(auth(['admin']));
+
+router.get('/', stype.listServiceTypes);
 
 module.exports = router;

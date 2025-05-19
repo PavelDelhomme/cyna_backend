@@ -1,6 +1,23 @@
 const db = require('../models');
 const {User, Role, UserProfile} = db;
 
+
+exports.listUsers = async (req, res) => {
+  try {
+    const users = await User.findAll({
+      include: [{
+        model: Role,
+        as: 'role'
+      }]
+    });
+    res.json(users);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Erreur serveur' });
+  }
+};
+
+
 exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.findAll({
@@ -177,39 +194,6 @@ exports.deleteUserProfile = async (req, res) => {
   }
 };
 
-
-
-exports.listUsers = async (req, res) => {
-  try {
-    const users = await User.findAll({
-      include: [{
-        model: Role,
-        as: 'role'
-      }]
-    });
-    res.json(users);
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Erreur serveur' });
-  }
-};
-
-
-
-exports.createUser = async (req, res) => {
-  try {
-    const { name, email, password } = req.body;
-    const [role] = await Role.findOrCreate({ where: { name: 'user' } });
-    const user = await User.create({ name, email, password, role_id: role.id });
-    await UserProfile.create({ user_id: user.id });
-    res.status(201).json(user);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-    console.error("[devController.js] Erreur lors de la création de l'utilisateur : ", e);
-  }
-};
-
-
 exports.listUserTokens = async (req, res) => {
   const users = await User.findAll({
     include: [{
@@ -245,18 +229,3 @@ exports.resetUsers = async (req, res) => {
   }
 };
 
-
-exports.fixProfiles = async (req, res) => {
-  try {
-    const users = await User.findAll();
-    const created = [];
-    for (const user of users) {
-      const [profile, isNew] = await UserProfile.findOrCreate({ where: { user_id: user.id } });
-      if (isNew) created.push(user.email);
-    }
-    res.json({ message: "Profils vérifiés/Créés", newlyCreated: created});
-  } catch (error) {
-    console.error("[devController.js] Erreur lors de la tentative de fix de profiles", error);
-    res.status(500).json({ error: error.message });
-  }
-};

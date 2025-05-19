@@ -1,8 +1,13 @@
 const express = require('express');
-const router = express.Router();
-const statController = require('../../controllers/statController');
-const authMiddleware = require('../../middlewares/authMiddleware');
+const router  = express.Router();
+const auth    = require('../../middlewares/authMiddleware');
+const stat    = require('../../controllers/statController');
 
-router.get('/list-stats', authMiddleware(['admin']), statController.listStats);
+router.use(auth(['admin']));
+
+router
+  .route('/')
+  .get(stat.listStats)
+  .post(stat.createStat);
 
 module.exports = router;

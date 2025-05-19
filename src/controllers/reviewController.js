@@ -1,3 +1,6 @@
+const {
+    Review
+} = require('../models');
 
 exports.listReviews = async (req, res) => {
     const reviews = await Review.findAll();
@@ -24,6 +27,22 @@ exports.createReview = async (req, res) => {
         res.status(201).json(review);
     } catch (err) {
         console.error("Erreur création review :", err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.deleteReview = async (req, res) => {
+    try {
+        const review = await Review.findByPk(req.params.id);
+        if (!review) {
+            console.error("[reviewController.js] Review non trouvé");
+            return res.status(404).json({ error: "Review non trouvée" });
+        };
+        await review.destroy();
+        res.json({ message: "Review supprimé" });
+        console.log("[reviewController.js] Review supprimée");
+    } catch (err) {
+        console.error("[reviewController.js] Erreur lors de la suppression de la review", err);
         res.status(500).json({ error: err.message });
     }
 };

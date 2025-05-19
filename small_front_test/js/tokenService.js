@@ -42,7 +42,7 @@ export const TokenService = {
 
   async getFreshAdminToken() {
     try {
-      const res = await fetch(`${API_URL}/api/dev/dev-admin`);
+      const res = await fetch(`${API_URL}/api/admin/auth/generate-admin-token`);
       const data = await res.json();
       console.log("[TokenService] getFreshAdminToken response:", data);
 
@@ -242,4 +242,10 @@ export const TokenService = {
     location.reload();
   }
 
+};
+
+export function apiPrefix() {
+  return TokenService.forcedAdmin
+    ? '/api/admin'
+    : '/api';
 }

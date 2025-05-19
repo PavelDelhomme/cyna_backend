@@ -1,15 +1,17 @@
-import { API_URL, TokenService } from "./tokenService.js";
+import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
 
 async function loadMyProfile() {
-    try {
-        const res = await TokenService.authFetch(`${API_URL}/api/profile/me`);
-        const profile = await TokenService.safeJsonResponse(res);
+  try {
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me`
+    );
+    const profile = await TokenService.safeJsonResponse(res);
 
-        const container = document.getElementById('my-profile');
-        if (!profile) {
-            container.innerText = "Profil introuvable ou erreur serveur.";
-            return;
-        }
+    const container = document.getElementById('my-profile');
+    if (!profile) {
+      container.innerText = "Profil introuvable ou erreur serveur.";
+      return;
+    }
 
     container.innerHTML = `
       <table class="styled-table">
@@ -20,42 +22,48 @@ async function loadMyProfile() {
     `;
   } catch (e) {
     console.error(e);
-    document.getElementById('my-profile').innerText = "Erreur lors du chargement de votre profil.";
+    document.getElementById('my-profile').innerText =
+      "Erreur lors du chargement de votre profil.";
   }
 }
 
-
 async function loadMyAddresses() {
   try {
-    const res = await TokenService.authFetch(`${API_URL}/api/profile/me/addresses`);
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me/addresses`
+    );
     const addresses = await TokenService.safeJsonResponse(res);
 
     const container = document.getElementById('my-addresses');
-    if (!addresses || addresses.length === 0) {
+    if (!Array.isArray(addresses) || addresses.length === 0) {
       container.innerText = "Aucune adresse enregistrée.";
       return;
     }
 
     container.innerHTML = `
       <table class="styled-table">
-        <thead><tr><th>ID</th><th>Adresse</th><th>Ville</th><th>Actions</th></tr></thead>
+        <thead>
+          <tr><th>ID</th><th>Adresse</th><th>Ville</th><th>Actions</th></tr>
+        </thead>
         <tbody>
-          ${addresses.map(a => `
+          ${addresses
+            .map(
+              a => `
             <tr>
               <td>${a.id}</td>
               <td>${a.address1}</td>
               <td>${a.city}</td>
-              <td>
-                <button onclick="deleteMyAddress(${a.id})">🗑 Supprimer</button>
-              </td>
-            </tr>
-          `).join('')}
+              <td><button onclick="deleteMyAddress(${a.id})">🗑 Supprimer</button></td>
+            </tr>`
+            )
+            .join('')}
         </tbody>
       </table>
     `;
   } catch (e) {
     console.error(e);
-    document.getElementById('my-addresses').innerText = "Erreur lors du chargement des adresses.";
+    document.getElementById('my-addresses').innerText =
+      "Erreur lors du chargement des adresses.";
   }
 }
 
@@ -67,16 +75,18 @@ async function addMyAddress() {
       postalCode: document.getElementById('postalCode').value,
       region: document.getElementById('region')?.value || '',
       country: document.getElementById('country')?.value || '',
-      type: document.getElementById('type')?.value || '',
+      type: document.getElementById('type')?.value || ''
     };
 
-    const res = await TokenService.authFetch(`${API_URL}/api/profile/me/addresses`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(addressData)
-    });
-
-    const data = await TokenService.safeJsonResponse(res);
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me/addresses`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(addressData)
+      }
+    );
+    await TokenService.safeJsonResponse(res);
     alert("Adresse ajoutée !");
     await loadMyAddresses();
   } catch (e) {
@@ -88,11 +98,11 @@ async function addMyAddress() {
 async function deleteMyAddress(addressId) {
   try {
     if (!confirm("Supprimer cette adresse ?")) return;
-    const res = await TokenService.authFetch(`${API_URL}/api/profile/me/addresses/${addressId}`, {
-      method: 'DELETE'
-    });
-
-    const data = await TokenService.safeJsonResponse(res);
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me/addresses/${addressId}`,
+      { method: 'DELETE' }
+    );
+    await TokenService.safeJsonResponse(res);
     alert("Adresse supprimée !");
     await loadMyAddresses();
   } catch (e) {

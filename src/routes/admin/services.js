@@ -1,10 +1,11 @@
 const express = require('express');
-const router = express.Router();
-const devController = require('../../controllers/devController');
-const authMiddleware = require('../../middlewares/authMiddleware');
+const router  = express.Router();
+const auth    = require('../../middlewares/authMiddleware');
+const svc     = require('../../controllers/serviceController');
 
-router.get('/list-services', authMiddleware(['admin']), devController.listServices);
-router.post('/create-service', authMiddleware(['admin']), devController.createService);
-router.delete('/delete-service/:id', authMiddleware(['admin']), devController.deleteService);
+router.use(auth(['admin']));
+
+router.get('/', svc.listServices);
+router.post('/', svc.createService);
 
 module.exports = router;

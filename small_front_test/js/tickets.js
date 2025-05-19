@@ -1,91 +1,126 @@
-import { API_URL, TokenService } from "./tokenService.js";
+import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
 
-async function listTickets() {
-    try {
-      const res = await TokenService.authFetch(`${API_URL}/api/dev/tickets`);
-      const text = await res.text();
-      console.log('[DEBUG] Réponse brute :', text);
-  
-      let data;
-      try {
-        data = JSON.parse(text);
-      } catch (err) {
-        console.error("La réponse n'était pas du JSON valide :", text);
-        alert("Erreur côté serveur : réponse invalide.");
-        return;
-      }
-  
-      if (!Array.isArray(data)) {
-        console.warn(`⚠️ tickets attendu comme tableau mais reçu :`, data);
-        return;
-      }
-  
-      renderTicketsTable(data);
-    } catch (err) {
-      console.error(err);
-      alert("Erreur lors du chargement des tickets.");
-    }
+
+// HELPERS
+function isAdmin() {
+  const token = TokenService.getUserToken();
+  if (!token) return false;
+  const decoded = TokenService.decodeJWT(token);
+  return decoded.role === 'admin';
 }
 
-function renderTicketsTable(data) {
-    const container = document.getElementById('tickets-table');
-    container.innerHTML = '';
+function getEndpoint() {
+  return isAdmin()
+    ? `${API_URL}${apiPrefix()}/tickets`
+    : `${API_URL}${apiPrefix()}/tickets`;
+}
 
-    if (!data || data.length === 0) {
-        container.innerText = "Aucun ticket trouvé.";
-        return;
-    }
 
-    const table = document.createElement('table');
-    table.className = "styled-table";
-    table.innerHTML = `
-      <thead><tr><th>ID</th><th>Objet</th><th>Description</th><th>Statut</th><th>Date</th></tr></thead>
+// LIST
+export async function listTickets() {
+  try {
+    const res  = await TokenService.authFetch(getEndpoint());
+    const text = await res.text();
+    const data = JSON.parse(text);
+    if (!Array.isArray(data)) throw new Error("Réponse invalide");
+    renderTicketsTable(data);
+    toggleTicketForm();  // masquer ou afficher le formulaire
+  } catch (err) {
+    console.error(err);
+    alert("Erreur lors du chargement des tickets.");
+  }
+}
+
+
+// RENDER
+function renderTicketsTable(tickets) {
+  const admin = isAdmin();
+  const container = document.getElementById('tickets-table');
+  container.innerHTML = '';
+
+  if (!tickets.length) {
+    container.innerText = "Aucun ticket trouvé.";
+    return;
+  }
+
+  // EN-TÊTE
+  const thActions = admin ? '<th>Actions</th>' : '';
+  let html = `
+    <table class="styled-table">
+      <thead>
+        <tr>
+          <th>ID</th><th>Objet</th><th>Description</th><th>Statut</th><th>Date</th>
+          ${thActions}
+        </tr>
+      </thead>
       <tbody>
-        ${data.map(t => `
-          <tr>
-            <td>${t.id}</td>
-            <td>${t.subject}</td>
-            <td>${t.description}</td>
-            <td>${t.status}</td>
-            <td>${new Date(t.creationDate || t.created_at).toLocaleDateString()}</td>
-          </tr>
-        `).join('')}
-      </tbody>
+  `;
+
+  // LIGNES
+  tickets.forEach(t => {
+    const date = new Date(t.creationDate||t.created_at).toLocaleDateString();
+    const btnDelete = admin
+      ? `<button onclick="deleteTicket(${t.id})">🗑️</button>`
+      : '';
+    html += `
+      <tr>
+        <td>${t.id}</td>
+        <td>${t.subject}</td>
+        <td>${t.description}</td>
+        <td>${t.status}</td>
+        <td>${date}</td>
+        ${admin ? `<td>${btnDelete}</td>` : ''}
+      </tr>
     `;
-    container.appendChild(table);
+  });
+
+  html += `</tbody></table>`;
+  container.innerHTML = html;
 }
 
+// ADD
+export async function addTicket() {
+  if (!isAdmin()) {
+    return alert("Vous n’êtes pas autorisé à créer des tickets.");
+  }
 
-async function addTicket() {
-    const ticket = {
-      subject: document.getElementById('ticket-subject').value,
-      description: document.getElementById('ticket-description').value
-    };
-  
-    try {
-      const response = await TokenService.authFetch(`${API_URL}/api/dev/tickets`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(ticket)
-      });
-  
-      const text = await response.text();
-      console.log('[DEBUG] Ticket ajouté réponse :', text);
-  
-      let result;
-      try {
-        result = JSON.parse(text);
-      } catch (e) {
-        alert("Erreur inattendue lors de la création du ticket.");
-        return;
-      }
-  
-      alert("Ticket ajouté !");
-      listTickets();
-    } catch (error) {
-      console.error(error);
-      alert("Erreur lors de la création du ticket.");
-    }
+  const subject     = document.getElementById('ticket-subject').value;
+  const description = document.getElementById('ticket-description').value;
+  try {
+    await TokenService.authFetch(`${API_URL}/api/admin/tickets`, {
+      method: 'POST',
+      headers: { 'Content-Type':'application/json' },
+      body: JSON.stringify({ subject, description })
+    });
+    alert("Ticket créé !");
+    listTickets();
+  } catch (err) {
+    console.error(err);
+    alert("Erreur création ticket.");
+  }
 }
 
-export { listTickets, addTicket };
+// DELETE (admin only)
+window.deleteTicket = async function(id) {
+  if (!confirm("Supprimer ce ticket ?")) return;
+  try {
+    await TokenService.authFetch(`${API_URL}/api/admin/tickets/${id}`, {
+      method: 'DELETE'
+    });
+    listTickets();
+  } catch (err) {
+    console.error(err);
+    alert("Erreur suppression ticket.");
+  }
+};
+
+// Afficher / masquer le formulaire de création
+function toggleTicketForm() {
+  const formSection = document.getElementById('ticket-form-container');
+  if (isAdmin()) formSection.style.display = 'block';
+  else            formSection.style.display = 'none';
+}
+
+// Expose au global pour ton HTML
+window.listTickets = listTickets;
+window.addTicket   = addTicket;

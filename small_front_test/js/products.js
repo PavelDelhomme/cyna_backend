@@ -1,35 +1,33 @@
-import { API_URL, TokenService } from "./tokenService.js";
+import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
 
 async function listProducts() {
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/products`);
+    const response = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/products`
+    );
     const products = await TokenService.safeJsonResponse(response);
-    if (!products) return;
+    if (!Array.isArray(products)) {
+      console.warn(`⚠️ products attendu comme tableau mais reçu :`, products);
+      return;
+    }
     renderProductsTable(products);
   } catch (error) {
     console.error(error);
     alert("Erreur lors du chargement des produits.");
   }
 }
-  
+
 function renderProductsTable(products) {
   const container = document.getElementById('products-table');
   container.innerHTML = '';
 
   const table = document.createElement('table');
   table.className = "styled-table";
-
   table.innerHTML = `
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Description</th>
-        <th>Prix</th>
-        <th>Stock</th>
-        <th>Promotion</th>
-        <th>Catégorie</th>
-        <th>Actions</th>
+        <th>ID</th><th>Nom</th><th>Description</th><th>Prix</th>
+        <th>Stock</th><th>Promotion</th><th>Catégorie</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -50,33 +48,38 @@ function renderProductsTable(products) {
   container.appendChild(table);
 }
 
-
 async function addProduct() {
   const categoryName = document.getElementById('product-category-name').value;
-
   let categoryId = null;
 
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`);
-    const categories = await response.json();
-
-    const existingCategory = categories.find(c => c.name.toLowerCase() === categoryName.toLowerCase());
-
-    if (existingCategory) {
-      categoryId = existingCategory.id;
+    // Récupérer ou créer la catégorie
+    const resCats = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/product-categories`
+    );
+    const categories = await resCats.json();
+    const existing = categories.find(c =>
+      c.name.toLowerCase() === categoryName.toLowerCase()
+    );
+    if (existing) {
+      categoryId = existing.id;
     } else {
-      const createCatResponse = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          name: categoryName,
-          description: `Catégorie créée automatiquement: ${categoryName}`
-        })
-      });
-      const newCategory = await createCatResponse.json();
-      categoryId = newCategory.id;
+      const createCat = await TokenService.authFetch(
+        `${API_URL}${apiPrefix()}/product-categories`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            name: categoryName,
+            description: `Catégorie créée automatiquement : ${categoryName}`
+          })
+        }
+      );
+      const newCat = await createCat.json();
+      categoryId = newCat.id;
     }
 
+    // Créer le produit
     const productData = {
       name: document.getElementById('product-name').value,
       description: document.getElementById('product-description').value,
@@ -86,13 +89,15 @@ async function addProduct() {
       category_id: categoryId
     };
 
-    const productRes = await TokenService.authFetch(`${API_URL}/api/dev/products`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(productData)
-    });
-
-    const result = await productRes.json();
+    const resProd = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/products`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(productData)
+      }
+    );
+    await resProd.json();
     alert("Produit ajouté avec succès !");
     listProducts();
   } catch (error) {
@@ -101,11 +106,12 @@ async function addProduct() {
   }
 }
 
-
 async function listProductCategories() {
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`);
-    const categories = await response.json();
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/product-categories`
+    );
+    const categories = await res.json();
     renderProductCategoriesTable(categories);
   } catch (error) {
     console.error(error);
@@ -113,14 +119,11 @@ async function listProductCategories() {
   }
 }
 
-
 function renderProductCategoriesTable(categories) {
   const container = document.getElementById('product-categories-table');
   container.innerHTML = '';
-
   const table = document.createElement('table');
   table.className = "styled-table";
-
   table.innerHTML = `
     <thead>
       <tr><th>ID</th><th>Nom</th><th>Description</th></tr>
@@ -138,40 +141,54 @@ function renderProductCategoriesTable(categories) {
   container.appendChild(table);
 }
 
-
 async function loadProductsIntoSelect(selectId) {
-  const res = await TokenService.authFetch(`${API_URL}/api/dev/products`);
-  const products = await res.json();
-  if (!Array.isArray(products)) {
-    console.warn(`⚠️ products attendu comme tableau mais reçu :`, products);
-    return;
+  try {
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/products`
+    );
+    const products = await res.json();
+    if (!Array.isArray(products)) {
+      console.warn(`⚠️ products attendu comme tableau mais reçu :`, products);
+      return;
+    }
+    const select = document.getElementById(selectId);
+    select.innerHTML = products
+      .map(p => `<option value="${p.id}">${p.name}</option>`)
+      .join('');
+  } catch (e) {
+    console.error(e);
+    alert("Erreur chargement produits pour select.");
   }
-  const select = document.getElementById(selectId);
-  select.innerHTML = products.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
 }
-
 
 async function loadProductCategoriesIntoSelect(selectId) {
-  const res = await TokenService.authFetch(`${API_URL}/api/dev/product-categories`);
-  const categories = await res.json();
-  if (!Array.isArray(categories)) {
-    console.warn(`⚠️ categories attendu comme tableau mais reçu :`, categories);
-    return;
+  try {
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/product-categories`
+    );
+    const cats = await res.json();
+    if (!Array.isArray(cats)) {
+      console.warn(`⚠️ categories attendu comme tableau mais reçu :`, cats);
+      return;
+    }
+    const select = document.getElementById(selectId);
+    select.innerHTML = cats
+      .map(c => `<option value="${c.id}">${c.name}</option>`)
+      .join('');
+  } catch (e) {
+    console.error(e);
+    alert("Erreur chargement catégories pour select.");
   }
-  const select = document.getElementById(selectId);
-  select.innerHTML = categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
 }
-
 
 async function deleteProduct(id) {
   if (!confirm("Confirmer la suppression de ce produit ?")) return;
-
   try {
-    const response = await TokenService.authFetch(`${API_URL}/api/dev/products/${id}`, {
-      method: 'DELETE'
-    });
-
-    const result = await response.json();
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/products/${id}`,
+      { method: 'DELETE' }
+    );
+    const result = await res.json();
     alert(result.message || "Produit supprimé.");
     listProducts();
   } catch (error) {
