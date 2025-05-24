@@ -9,10 +9,6 @@ module.exports = (sequelize) => {
     },
     rating: DataTypes.INTEGER,
     description: DataTypes.STRING(50),
-    reviewDate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    }
   }, {
     tableName: 'reviews'
   });

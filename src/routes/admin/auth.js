@@ -18,12 +18,25 @@ router.get('/generate-admin-token', async (req, res) => {
             await user.reload({ include: [{ model: Role, as: 'role' }] });
         }
 
-        await UserProfile.findOrCreate({ where: { user_id: user.id } });
+        // Crée ou récupère le profil, et on garde l’instance dans `profile`
+        const [profile, created] = await UserProfile.findOrCreate({
+            where: { user_id: user.id }
+        });
 
         const token = jwt.sign({ userId: user.id, role: 'admin' }, process.env.JWT_SECRET, { expiresIn: '365d' });
         const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET, { expiresIn: '365d' });
 
-        res.json({ token, refreshToken, userId: user.id });
+        res.json({ 
+            token, 
+            refreshToken,
+            userId: user.id,
+            profile: {
+                id: profile.id,
+                user_id: profile.user_id,
+                createdAt: profile.createdAt,
+                updatedAt: profile.updatedAt
+            } 
+        });
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Erreur de création admin" });

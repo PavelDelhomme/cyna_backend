@@ -25,7 +25,9 @@ module.exports = (roles = []) => {
       }
 
       req.user = { id: user.id, role: user.role?.name || 'inconnu', isAdmin: user.role?.name === 'admin', isUser: user.role?.name === 'user' };
-      console.log(`[AUTH] Utilisateur: ${user.email} | Rôle: ${req.user.role}`);
+      req.user.createdAt = user.createdAt;
+      req.user.updatedAt = user.updatedAt;
+      console.log(`[AUTH] Utilisateur: ${user.email} | Rôle: ${req.user.role} | Créé le: ${req.user.createdAt} | Mis à jour le: ${req.user.updatedAt}`);
 
       if (roles.length > 0 && !roles.includes(req.user.role)) {
         console.warn(`[AUTH] Accès interdit - Rôle requis: ${roles.join(', ')} | Rôle actuel: ${req.user.role}`);

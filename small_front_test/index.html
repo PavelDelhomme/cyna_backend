@@ -5,6 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>CYNA Backend - Interface de test</title>
   <link rel="stylesheet" href="styles.css">
+  <link rel="icon" href="/favicon.ico" />
 </head>
 <body>
   <header>
@@ -105,7 +106,7 @@
     <section id="address-section">
       <h2>🏠 Adresses</h2>
       <button onclick="listAllAddresses()">Lister toutes les adresses (Admin)</button>
-      <pre id="addresses-list" class="json-output"></pre>
+      <div id="addresses-list"></div>
       <form id="address-form">
         <input type="text" id="address1" placeholder="Adresse" required />
         <input type="text" id="city" placeholder="Ville" required />

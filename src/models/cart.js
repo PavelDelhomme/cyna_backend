@@ -7,14 +7,6 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     },
-    creationDate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    },
-    lastUpdate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    }
   }, {
     tableName: 'carts'
   });

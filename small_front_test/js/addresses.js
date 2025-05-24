@@ -1,5 +1,60 @@
 import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
 
+export function formatDate(obj, field = 'created') {
+  const iso = obj[`${field}At`] || obj[`${field}_at`];
+  return iso ? new Date(iso).toLocaleString() : '';
+}
+
+
+// Liste et rend **toutes** les adresses en tableau (admin)
+async function renderAllAddressesTable() {
+  const res = await TokenService.authFetch(
+    `${API_URL}${apiPrefix()}/admin/addresses`
+  );
+  const addresses = await TokenService.safeJsonResponse(res);
+  const container = document.getElementById('addresses-list');
+  container.innerHTML = '';
+
+  if (!Array.isArray(addresses) || addresses.lengh === 0) {
+    container.innerText = "Aucune adresse trouvée.";
+    return;
+  }
+
+  
+  const table = document.createElement('table');
+  table.className = 'styled-table';
+  table.innerHTML = `
+    <thead>
+      <tr>
+        <th>ID</th><th>User ID</th><th>Adresse</th><th>Ville</th>
+        <th>Code postal</th><th>Région</th><th>Pays</th><th>Type</th>
+        <th>Créé le</th><th>Mis à jour</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${addresses.map(a => `
+        <tr>
+          <td>${a.id}</td>
+          <td>${a.AddressUserProfile?.user_profile_id || '—'}</td>
+          <td>${a.address1}</td>
+          <td>${a.city}</td>
+          <td>${a.postalCode}</td>
+          <td>${a.region || '-'}</td>
+          <td>${a.country || '-'}</td>
+          <td>${a.type || '-'}</td>
+          <td>${formatDate(a, 'created')}</td>
+          <td>${formatDate(a, 'updated')}</td>
+          <td>
+            <button onclick="promptAdminEditAddress(${a.id})">✏️</button>
+            <button onclick="removeAddress(${a.id})">🗑️</button>
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+
+  container.appendChild(table);
+}
 
 /** → UTILISATEUR (profil) **/
 // Récupère mes adresses
@@ -88,6 +143,46 @@ async function deleteAddress(id) {
   );
 }
 
+async function renderMyAddressesTable() {
+  const res = await TokenService.authFetch(
+    `${API_URL}${apiPrefix()}/profile/addresses`
+  );
+  const addresses = await TokenService.safeJsonResponse(res);
+  const container = document.getElementById('my-addresses');
+  container.innerHTML = '';
+
+  if (!addresses.length) {
+    container.innerText = "Vous n’avez pas encore d’adresse.";
+    return;
+  }
+
+  const table = document.createElement('table');
+  table.className = 'styled-table';
+  table.innerHTML = `
+    <thead>
+      <tr><th>ID</th><th>Adresse</th><th>Ville</th><th>Créé le</th>
+          <th>Mis à jour</th><th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      ${addresses.map(a => `
+        <tr>
+          <td>${a.id}</td>
+          <td>${a.address1}</td>
+          <td>${a.city}</td>
+          <td>${formatDate(a, 'created')}</td>
+          <td>${formatDate(a, 'updated')}</td>
+          <td>
+            <button onclick="prefillEditAddress(${a.id})">✏️</button>
+            <button onclick="removeMyAddress(${a.id})">🗑️</button>
+          </td>
+        </tr>
+      `).join('')}
+    </tbody>
+  `;
+  container.appendChild(table);
+}
+
 
 export { 
   getMyAddresses,
@@ -98,4 +193,6 @@ export {
   addAddressForUser,
   updateAddress,
   deleteAddress,
+  renderAllAddressesTable,
+  renderMyAddressesTable
 };

@@ -37,8 +37,9 @@ window.getMyProfile = Users.getMyProfile;
 window.updateMyProfile = Users.updateMyProfile;
 window.deleteMyProfile = Users.deleteMyProfile;
 
-window.listAllAddresses = Addresses.listAllAddresses;
+window.listAllAddresses = Addresses.renderAllAddressesTable;
 window.getMyAddresses = Addresses.getMyAddresses;
+window.reloadMyAddresses = Addresses.renderMyAddressesTable;
 
 window.listProducts = Products.listProducts;
 window.addProduct = Products.addProduct;
@@ -113,7 +114,21 @@ document.addEventListener('DOMContentLoaded', async () => {
     .addEventListener('submit', e => { e.preventDefault(); Auth.login(); });
   document
     .getElementById('address-form')
-    .addEventListener('submit', e => { e.preventDefault(); Addresses.addAddress(); });
+    .addEventListener('submit', async e => {
+      e.preventDefault();
+      const userId = +document.getElementById('user-id-address-select').value;
+      const data = {
+        address1:  document.getElementById('address1').value,
+        city:      document.getElementById('city').value,
+        postalCode:document.getElementById('postalCode').value,
+        region:    document.getElementById('region').value,
+        country:   document.getElementById('country').value,
+        type:      document.getElementById('type').value
+      };
+      await Addresses.addAddressForUser(userId, data);
+      alert(`Adresse ajoutée pour l'utilisateur ${userId}`);
+      reloadAllAddresses();
+    });
   document
     .getElementById('product-form')
     .addEventListener('submit', e => { e.preventDefault(); Products.addProduct(); });
@@ -143,7 +158,8 @@ document.addEventListener('DOMContentLoaded', async () => {
   Reviews.listReviews();
   Tickets.listTickets();
   Stats.listStats();
-  Addresses.getMyAddresses();
+  Addresses.renderAllAddressesTable();
+  Addresses.renderMyAddressesTable();
   Carts.listCarts();
   Promo.listPromocodes();
 });

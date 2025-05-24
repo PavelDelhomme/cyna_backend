@@ -14,10 +14,6 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     phone: DataTypes.STRING(20),
-    creationDate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    },
     method: DataTypes.STRING(50),
     quantity: DataTypes.STRING(50)
   }, {

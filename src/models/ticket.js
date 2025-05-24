@@ -10,11 +10,6 @@ module.exports = (sequelize) => {
     subject: DataTypes.STRING(50),
     description: DataTypes.STRING(50),
     status: DataTypes.STRING(50),
-    creationDate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    },
-    updateDate: DataTypes.DATE
   }, {
     tableName: 'tickets'
   });

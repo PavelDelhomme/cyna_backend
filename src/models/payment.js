@@ -12,10 +12,6 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     status: DataTypes.STRING(50),
-    creationDate: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    },
     method: DataTypes.STRING(50)
   }, {
     tableName: "payments"

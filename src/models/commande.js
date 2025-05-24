@@ -7,10 +7,6 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     },
-    dateCommande: {
-      type: DataTypes.DATE,
-      defaultValue: DataTypes.NOW
-    },
     montantTotal: {
       type: DataTypes.DECIMAL(10, 2),
       allowNull: false

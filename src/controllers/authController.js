@@ -34,11 +34,18 @@ const signup = async (req, res) => {
         const user = await User.create({ name, email, password, role_id: role.id });
 
         // Créatoin de UserProfile
-        const profile = await UserProfile.findOrCreate({ where: { user_id: user.id } });
+        const [profile] = await UserProfile.findOrCreate({ where: { user_id: user.id } });
 
         const { token, refreshToken } = generateTokens(user);
 
-        res.status(201).json({ token, userId: user.id, role: role.name });
+        res.status(201).json({ token, refreshToken, userId: user.id, profile: {
+          id: profile.id,
+          user_id: profile.user_id,
+          createdAt: profile.createdAt,
+          updatedAt: profile.updatedAt
+        },
+        role: user.role.name, 
+      });
     } catch (error) {
         console.log(error);
         res.status(400).json({ error: error.message });
@@ -59,7 +66,7 @@ const login = async (req, res) => {
         }
 
         // 🔐 Création du profil si inexistant
-        await UserProfile.findOrCreate({ where: { user_id: user.id } });
+        const [profile] = await UserProfile.findOrCreate({ where: { user_id: user.id } });
 
         const { token, refreshToken } = generateTokens(user, user.role?.name);
 
@@ -67,7 +74,11 @@ const login = async (req, res) => {
             token,
             refreshToken,
             userId: user.id,
-            role: user.role.name,
+            profile: {
+                id: profile.id,
+                createdAt: profile.createdAt,
+                updatedAt: profile.updatedAt
+            }
         });
     } catch (err) {
         console.error(err)

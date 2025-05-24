@@ -64,24 +64,20 @@ function renderUsersTable(users) {
   table.innerHTML = `
     <thead>
       <tr>
-        <th>ID</th>
-        <th>Nom</th>
-        <th>Email</th>
-        <th>Rôle</th>
-        <th>Créé le</th>
-        <th>Actions</th>
+        <th>ID</th><th>Nom</th><th>Email</th><th>Rôle</th>
+        <th>Créé le</th><th>Mis à jour</th><th>Actions</th>
       </tr>
     </thead>
     <tbody>
-      ${users.map(user => `
+      ${users.map(u => `
         <tr>
-          <td>${user.id}</td>
-          <td>${user.name}</td>
-          <td>${user.email}</td>
-          <td>${user.role ? user.role.name : 'N/A'}</td>
-          <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}</td>
-          <td>${user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : '—'}</td>
-          <td><button onclick="switchToUser(${user.id}, '${user.email}')">🔄 Utiliser</button></td>
+          <td>${u.id}</td>
+          <td>${u.name}</td>
+          <td>${u.email}</td>
+          <td>${u.role?.name || 'N/A'}</td>
+          <td>${u.createdAt ? new Date(u.createdAt).toLocaleDateString() : '—'}</td>
+          <td>${u.updatedAt ? new Date(u.updatedAt).toLocaleDateString() : '—'}</td>
+          <td><button onclick="switchToUser(${u.id}, '${u.email}')">🔄 Utiliser</button></td>
         </tr>`).join('')}
     </tbody>
   `;
