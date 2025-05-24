@@ -20,7 +20,6 @@ module.exports = (sequelize) => {
       allowNull: false
     }
   }, {
-    underscored: true,
     tableName: 'commandes'
   });
 

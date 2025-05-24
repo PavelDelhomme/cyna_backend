@@ -79,7 +79,8 @@ function renderUsersTable(users) {
           <td>${user.name}</td>
           <td>${user.email}</td>
           <td>${user.role ? user.role.name : 'N/A'}</td>
-          <td>${user.created_at ? new Date(user.created_at).toLocaleDateString() : '—'}</td>
+          <td>${user.createdAt ? new Date(user.createdAt).toLocaleDateString() : '—'}</td>
+          <td>${user.updatedAt ? new Date(user.updatedAt).toLocaleDateString() : '—'}</td>
           <td><button onclick="switchToUser(${user.id}, '${user.email}')">🔄 Utiliser</button></td>
         </tr>`).join('')}
     </tbody>
@@ -285,7 +286,7 @@ async function displayRoles() {
           <tr>
             <td>${r.id}</td>
             <td>${r.name}</td>
-            <td>${new Date(r.created_at).toLocaleDateString()}</td>
+            <td>${new Date(r.createdAt).toLocaleDateString()}</td>
             <td>
               <button onclick="deleteRole(${r.id})">🗑 Supprimer</button>
             </td>

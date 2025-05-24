@@ -11,7 +11,7 @@ module.exports = (sequelize) => {
     prompts: DataTypes.TEXT,
     // Suppression du champs userId car Sequelize l'ajoute automatiquement
   }, {
-    underscored: true,
+    tableName: "chatbots"
   });
 
   Chatbot.associate = (models) => {

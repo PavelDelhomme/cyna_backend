@@ -19,7 +19,6 @@ module.exports = (sequelize) => {
     userCount: DataTypes.INTEGER,
     promotion: DataTypes.STRING(255)
   }, {
-    underscored: true,
     tableName: 'services'
   });
 

@@ -26,7 +26,6 @@ module.exports = (sequelize) => {
     },
     phone: DataTypes.STRING(20)
   }, {
-    underscored: true,
     tableName: 'users',
     indexes: [
       {

@@ -16,7 +16,7 @@ module.exports = (sequelize) => {
       allowNull: false
     }
   }, {
-    underscored: true,
+    tableName: 'orderItems'
   });
 
   OrderItem.associate = (models) => {

@@ -16,7 +16,7 @@ const sequelize = new Sequelize(
     define: {
       underscored: true,
       timestamps: true,
-      createdAt: 'created_at',
+      createdAt: 'created_at', // Renomme la colonne createdAt -> created_at
       updatedAt: 'updated_at',
       paranoid: false
     }
@@ -31,25 +31,20 @@ function loadModels(dirPath) {
   fs.readdirSync(dirPath).forEach(file => {
     const fullPath = path.join(dirPath, file);
     const stat = fs.statSync(fullPath);
-
-    if (stat.isDirectory()) {
-      loadModels(fullPath);
-    } else if (file !== 'index.js' && file.endsWith('.js')) {
-      const model = require(fullPath)(sequelize);
-      db[model.name] = model;
-    }
+    if (stat.isDirectory()) return loadModels(fullPath);
+    if (file === 'index.js' || !file.endsWith('.js')) return;
+    const model = require(fullPath)(sequelize);
+    db[model.name] = model;
   });
 }
 
 // Lancemet depuis le dossier courant
 loadModels(__dirname);
 
-// Appliquer les associations
-Object.keys(db).forEach(modelName => {
-  if (db[modelName].associate) {
-    db[modelName].associate(db);
-  }
-});
+// 2) **UN SEUL** passage pour appliquer tous les `associate()` déclarés
+Object.values(db)
+  .filter(m => typeof m.associate === 'function')
+  .forEach(m => m.associate(db));
 
 db.sequelize = sequelize;
 db.Sequelize = Sequelize;

@@ -22,7 +22,7 @@ module.exports = (sequelize) => {
     },
     promotion: DataTypes.STRING(255)
   }, {
-    underscored: true,
+    tableName: 'products'
   });
 
   Product.associate = (models) => {

@@ -11,22 +11,18 @@ module.exports = (sequelize) => {
       type: DataTypes.ENUM('admin', 'user', 'support'),
       defaultValue: 'user'
     },
-    created_at: {
+    createdAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
       allowNull: false
     },
-    updated_at: {
+    updatedAt: {
       type: DataTypes.DATE,
       defaultValue: DataTypes.NOW,
       allowNull: false
     }
   }, {
-    timestamps: true,
-    underscored: true,
     tableName: 'roles',
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'    
   });
 
   Role.associate = (models) => {

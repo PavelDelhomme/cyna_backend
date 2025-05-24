@@ -16,7 +16,6 @@ module.exports = (sequelize) => {
       defaultValue: DataTypes.NOW
     }
   }, {
-    underscored: true,
     tableName: 'carts'
   });
 

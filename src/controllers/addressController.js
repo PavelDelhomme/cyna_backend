@@ -76,27 +76,19 @@ exports.deleteAddress = async (req, res) => {
     }
 };
 
-
-// Obtention de toutes les adresses liés a un utilisateur (via son profil)
+// Obtention de toutes les adresses liées à mon profil
 exports.getUserAddresses = async (req, res) => {
-    try {
-        const profile = req.user.user_profile;
-        if (!profile) {
-        return res.status(404).json({ error: "Profil utilisateur introuvable" });
-        }
-
-        const addresses = await Address.findAll({
-          include: [{
-              model: AddressUserProfile,
-              where: { user_profile_id: profile.id }
-          }]
-        });
-
-        res.json(addresses);
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
+  try {
+    // Sequelize vous génère automatiquement une méthode getAddresses()
+    const addresses = await req.user.user_profile.getAddresses();
+    res.json(addresses);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 };
+// alias plus clair
+exports.getMyAddresses = exports.getUserAddresses;
+
 
 // exports.getUserAddresses déjà présent, renommez‐le en getMyAddresses pour plus de clarté :
 exports.getMyAddresses = exports.getUserAddresses;

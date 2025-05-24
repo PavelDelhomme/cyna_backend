@@ -20,11 +20,7 @@ module.exports = (sequelize) => {
     //   }
     // }
   }, {
-    underscored: true,
     tableName: 'chatbot_histories',
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
   });
 
   ChatbotHistory.associate = (models) => {

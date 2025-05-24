@@ -33,7 +33,7 @@ function renderOrdersTable(data) {
           <td>${o.id}</td>
           <td>${o.totalPrice}</td>
           <td>${o.status}</td>
-          <td>${new Date(o.created_at).toLocaleDateString()}</td>
+          <td>${new Date(o.createdAt).toLocaleDateString()}</td>
         </tr>
       `).join('')}
     </tbody>

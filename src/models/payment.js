@@ -18,7 +18,7 @@ module.exports = (sequelize) => {
     },
     method: DataTypes.STRING(50)
   }, {
-    underscored: true
+    tableName: "payments"
   });
 
   Payment.associate = (models) => {

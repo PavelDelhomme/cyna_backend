@@ -8,7 +8,6 @@ module.exports = (sequelize) => {
       primaryKey: true
     }
   }, {
-    underscored: true,
     tableName: 'stats'
   });
 

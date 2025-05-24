@@ -2,8 +2,6 @@ const { DataTypes } = require('sequelize');
 
 module.exports = (sequelize) => {
   const OrderItemProduct = sequelize.define("OrderItemProduct", {}, {
-    timestamps: false,
-    underscored: true,
     tableName: 'order_item_products'
   });
 

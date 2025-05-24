@@ -1,12 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const auth = require('../middlewares/authMiddleware');
+const loadProfile = require('../middlewares/loadUserProfile');
 const profCtrl = require('../controllers/profileController');
 const addrCtrl = require('../controllers/addressController');
 
 // Toutes les routes dans ce fichier exigent user ou admin
 router.use(auth(['user', 'admin']));
-router.use(require('../middlewares/loadUserProfile'));
+router.use(loadProfile);
 // Profile
 // GET      /api/profile    -> récupérer mon profil
 // PATCH    /api/profile    -> mettre à jour mon profil

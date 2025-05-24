@@ -22,10 +22,13 @@ module.exports = (sequelize) => {
       },
     },
     { 
-      timestamps: false, 
-      underscored: true,
       tableName: 'address_user_profiles'
     });
+
+  AddressUserProfile.associate = models => {
+    AddressUserProfile.belongsTo(models.Address,      { foreignKey: 'address_id' });
+    AddressUserProfile.belongsTo(models.UserProfile, { foreignKey: 'user_profile_id' });
+  };
 
   return AddressUserProfile;
 };

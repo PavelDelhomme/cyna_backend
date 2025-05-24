@@ -11,7 +11,6 @@ module.exports = (sequelize) => {
     benefit: DataTypes.STRING(50),
     status: DataTypes.BOOLEAN
   }, {
-    underscored: true,
     tableName: 'promo_codes'
   });
 

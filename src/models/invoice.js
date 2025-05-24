@@ -21,7 +21,6 @@ module.exports = (sequelize) => {
     method: DataTypes.STRING(50),
     quantity: DataTypes.STRING(50)
   }, {
-    underscored: true,
     tableName: 'invoices'
   });
 

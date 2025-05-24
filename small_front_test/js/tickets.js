@@ -58,7 +58,7 @@ function renderTicketsTable(tickets) {
 
   // LIGNES
   tickets.forEach(t => {
-    const date = new Date(t.creationDate||t.created_at).toLocaleDateString();
+    const date = new Date(t.creationDate||t.createdDate).toLocaleDateString();
     const btnDelete = admin
       ? `<button onclick="deleteTicket(${t.id})">🗑️</button>`
       : '';

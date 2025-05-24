@@ -7,8 +7,6 @@ module.exports = (sequelize) => {
       // Pas besoin d'utiliser les clés étrangères également 
     },
     { 
-      timestamps: false,
-      underscored: true,
       tableName: 'order_item_services'
     }
   );

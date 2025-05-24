@@ -115,7 +115,7 @@ export const TokenService = {
       console.warn("[authFetch] Mode forcé utilisateur activé");
     }
 
-    console.log("[authFetch] Token utilisé pour fetch:", token);
+    //console.log("[authFetch] Token utilisé pour fetch:", token);
 
     // Auto refresh si besoin
     if (!token || this.isExpired(token)) {

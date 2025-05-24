@@ -12,10 +12,7 @@ module.exports = (sequelize) => {
       allowNull: false
     }
   }, {
-    underscored: true,
-    timestamps: true,
-    createdAt: 'created_at',
-    updatedAt: 'updated_at'
+    tableName: 'orders'
   });
 
   Order.associate = (models) => {

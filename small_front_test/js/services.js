@@ -140,7 +140,7 @@ function renderServiceTypesTable(types) {
           <td>${t.id}</td>
           <td>${t.name}</td>
           <td>${t.description || '-'}</td>
-          <td>${new Date(t.created_at).toLocaleDateString()}</td>
+          <td>${new Date(t.createdAt).toLocaleDateString()}</td>
         </tr>
       `).join('')}
     </tbody>

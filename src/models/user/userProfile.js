@@ -9,9 +9,7 @@ module.exports = (sequelize) => {
     }
     // Suppression de userId car Sequelize ajoute automatiquement UserId cela créer des problème du duplicata de champs dans la bdd
   }, {
-    underscored: true,
     tableName: 'user_profiles',
-    timestamps: false, // Pour ne pas avoir de created_at/updated_at
   });
 
   UserProfile.associate = (models) => {

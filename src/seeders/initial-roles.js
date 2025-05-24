@@ -4,18 +4,18 @@ module.exports = {
       await queryInterface.bulkInsert('roles', [
         { 
             name: 'admin',
-            created_at: now,
-            updated_at: now
+            createdAt: now,
+            updatedAt: now
         },
         { 
             name: 'user',
-            created_at: now,
-            updated_at: now
+            createdAt: now,
+            updatedAt: now
         },
         { 
             name: 'support',
-            created_at: now,
-            updated_at: now 
+            createdAt: now,
+            updatedAt: now 
         }
       ], {}); // Ajout de l'option vide pour MySQL 8
     },

@@ -14,13 +14,11 @@ module.exports = (sequelize) => {
     country: DataTypes.STRING(50),
     type: DataTypes.STRING(50),
   }, {
-    underscored: true,
     tableName: 'addresses'
   });
 
   Address.associate = (models) => {
     Address.belongsToMany(models.UserProfile, {
-      //through: 'address_user_profiles',
       through: models.AddressUserProfile,
       foreignKey: "address_id",
       otherKey: 'user_profile_id',

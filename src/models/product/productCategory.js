@@ -10,7 +10,7 @@ module.exports = (sequelize) => {
     name: DataTypes.STRING(50),
     description: DataTypes.STRING(50)
   }, {
-    underscored: true,
+    tableName: "product_categories"
   });
 
   ProductCategory.associate = (models) => {

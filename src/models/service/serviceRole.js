@@ -22,8 +22,6 @@ module.exports = (sequelize) => {
       },
     },
     { 
-      underscored: true,
-      timestamps: false,
       tableName: 'service_roles',
       primaryKey: [
         'service_id',
