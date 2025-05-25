@@ -152,17 +152,15 @@ async function assignRoleToUser() {
   const roleId = document.getElementById('role-id').value;
 
   try {
-    // plus "/api/dev/assignRole/:userId"
-    const res = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/assignRole/${userId}`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ roleId })
-      }
-    );
-
-    const data = await TokenService.safeJsonResponse(res);
-    if (data) alert("Rôle assigné avec succès !");
+    const url = `${API_URL}${apiPrefix()}/users/${userId}/roles/${roleId}`;
+    const res = await TokenService.authFetch(url, {
+      method: 'POST'
+      // pas besoin de body puisque le roleId est dans l’URL
+    });
+    await TokenService.safeJsonResponse(res);
+    alert("Rôle assigné avec succès !");
+    listUsers();            // pour rafraîchir l’affichage
+    loadUsersIntoSelect("role-user-id");
   } catch (e) {
     console.error(e);
     alert("Erreur lors de l’assignation du rôle.");
