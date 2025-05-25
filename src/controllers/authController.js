@@ -36,16 +36,20 @@ const signup = async (req, res) => {
         // Créatoin de UserProfile
         const [profile] = await UserProfile.findOrCreate({ where: { user_id: user.id } });
 
-        const { token, refreshToken } = generateTokens(user);
+        const { token, refreshToken } = generateTokens(user, role.name);
 
-        res.status(201).json({ token, refreshToken, userId: user.id, profile: {
-          id: profile.id,
-          user_id: profile.user_id,
-          createdAt: profile.createdAt,
-          updatedAt: profile.updatedAt
-        },
-        role: user.role.name, 
-      });
+        res.status(201).json({ 
+          token, 
+          refreshToken, 
+          userId: user.id, 
+          profile: {
+            id: profile.id,
+            user_id: profile.user_id,
+            createdAt: profile.createdAt,
+            updatedAt: profile.updatedAt
+          },
+          role: role.name, 
+          });
     } catch (error) {
         console.log(error);
         res.status(400).json({ error: error.message });
