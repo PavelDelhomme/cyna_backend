@@ -8,8 +8,13 @@ module.exports = (sequelize) => {
     //   primaryKey: true
     // },
     name: {
-      type: DataTypes.ENUM('admin', 'user', 'support'),
-      defaultValue: 'user'
+      type: DataTypes.STRING,
+      allowNull: false,
+      unique: true,
+      defaultValue: 'user',
+      validate: {
+        len: { args: [1, 255], msg: "Le nom doit faire entre 1 et 255 caractères"}
+      }
     },
   }, {
     tableName: 'roles',

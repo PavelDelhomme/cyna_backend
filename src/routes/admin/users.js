@@ -6,7 +6,7 @@ const users   = require('../../controllers/userController');
 router.use(auth(['admin']));
 
 router.get('/', auth(['admin']), users.getAllUsers);
-
+router.post('/', auth(['admin', 'user']), users.createUser);
 router.get('/:id', auth(['user', 'admin']), users.getUserById);
 
 router.patch('/:id', auth(['user','admin']), users.updateUser);
