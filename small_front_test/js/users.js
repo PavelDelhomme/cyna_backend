@@ -232,20 +232,35 @@ async function listUserProfiles() {
     table.className = "styled-table";
     table.innerHTML = `
       <thead>
-        <tr><th>ID</th><th>ID Utilisateur</th><th>Créé</th><th>Modifié</th></tr>
+        <tr>
+          <th>ID Profil</th>
+          <th>User ID</th>
+          <th>Nom</th>
+          <th>Email</th>
+          <th># Adresses</th>
+          <th>Créé le</th>
+          <th>Mis à jour</th>
+          <th>Actions</th>
+        </tr>
       </thead>
       <tbody>
         ${profiles.map(p => `
           <tr>
             <td>${p.id}</td>
             <td>${p.user_id}</td>
-            <td>${p.createdAt ? new Date(p.createdAt).toLocaleDateString() : '—'}</td>
-            <td>${p.updatedAt ? new Date(p.updatedAt).toLocaleDateString() : '—'}</td>
+            <td>${p.User?.name || ''}</td>
+            <td>${p.User?.email || ''}</td>
+            <td>${p.addresses?.length || 0}</td>
+            <td>${new Date(p.createdAt).toLocaleString()}</td>
+            <td>${new Date(p.updatedAt).toLocaleString()}</td>
+            <td>
+              <button onclick="promptEditUser(${p.user_id}, '${p.User?.name}', '${p.User?.email}')">✏️ Modifier</button>
+              <button onclick="deleteUserProfile(${p.user_id})">🗑 Supprimer profil</button>
+            </td>
           </tr>
         `).join('')}
       </tbody>
     `;
-
     container.innerHTML = '';
     container.appendChild(table);
   } catch (err) {
@@ -369,6 +384,33 @@ async function deleteMyProfile() {
   }
 }
 
+
+// Ouvre un prompt, puis appel PATCH /api/admin/userrs/:id
+window.promptEditUser = async function(userId, currentName, currentEmail) {
+  const name = prompt("Nouveau nom ?", currentName);
+  const email = prompt("Nouveau email ?", currentEmail);
+  if (name == null || email == null) return;
+
+  try {
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/admin/users/${userId}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name, email })
+      }
+    );
+    const data = await TokenService.safeJsonResponse(res);
+    if (res.ok) {
+      alert("Utilisateur mis à jour !");
+      listUserProfiles();    // rafraîchir le tableau
+    } else {
+      alert("Erreur : " + (data.error || "Échec mise à jour"));
+    }
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la mise à jour de l'utilisateur.");
+  }
+};
 
 export {
   listUsers,

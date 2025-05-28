@@ -16,7 +16,8 @@ module.exports = (sequelize) => {
     UserProfile.belongsTo(models.User, {
       foreignKey: {
         name: 'user_id',
-        allowNull: false
+        allowNull: false,
+        as: 'User'
       },
       foreignKeyConstraint: { name: 'fk_user_profile_user' }
     });

@@ -111,6 +111,39 @@ async function deleteMyAddress(addressId) {
   }
 }
 
+window.promptEditAddress = async function() {
+  const id      = parseInt(prompt("ID de l'adresse à modifier ?"),10);
+  if (!id) return;
+  const a       = await TokenService.authFetch(
+    `${API_URL}${apiPrefix()}/profile/me/addresses/${id}`
+  ).then(r => r.json());
+  if (!a.id) { alert("Adresse non trouvée"); return; }
+
+  const address1  = prompt("Nouvelle adresse", a.address1);
+  const city      = prompt("Nouvelle ville",   a.city);
+  const postalCode= prompt("Code postal",       a.postalCode);
+  const region    = prompt("Région",            a.region);
+  const country   = prompt("Pays",              a.country);
+  const type      = prompt("Type",              a.type);
+
+  try {
+    const res = await TokenService.authFetch(
+      `${API_URL}${apiPrefix()}/profile/me/addresses/${id}`, {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ address1, city, postalCode, region, country, type })
+      }
+    );
+    await TokenService.safeJsonResponse(res);
+    alert("Adresse mise à jour !");
+    loadMyAddresses();
+  } catch (e) {
+    console.error(e);
+    alert("Erreur lors de la mise à jour de l'adresse.");
+  }
+};
+
+
 window.loadMyProfile = loadMyProfile;
 window.loadMyAddresses = loadMyAddresses;
 window.addMyAddress = addMyAddress;

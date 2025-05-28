@@ -9,6 +9,11 @@ router.get('/', authMiddleware(['admin']), userController.getAllUsers);
 // Créer un nouvel utilisateur
 router.post('/', authMiddleware(['admin', 'user']), userController.createUser);
 
+router.post('/:userId/roles/:roleId',
+  authMiddleware(['admin']),            // seuls les admin pourront y accéder
+  userController.assignRoleToUser
+);
+
 // Pour récupérer le profil de n'importe quel utilisateur (admin ou soi-même)
 router.get('/:id', authMiddleware(['user', 'admin']), userController.getUserById);
 

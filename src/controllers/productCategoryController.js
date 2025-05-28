@@ -27,3 +27,13 @@ exports.assignPromoToProductCategory = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.createProductCategory = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const category = await ProductCategory.create({ name, description });
+    res.status(201).json(category);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

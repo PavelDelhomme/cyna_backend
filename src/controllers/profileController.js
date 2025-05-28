@@ -45,7 +45,16 @@ exports.deleteMyProfile = async (req, res) => {
 
 exports.listProfiles = async (req, res) => {
   try {
-    const profiles = await UserProfile.findAll();
+    const profiles = await UserProfile.findAll({
+      include: [
+        {
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        },
+        'addresses'
+      ]
+    });
     res.json(profiles);
   } catch (error) {
     console.error("[userProfileController] Erreur liste profiles", error);

@@ -6,5 +6,6 @@ const stype   = require('../../controllers/serviceTypeController');
 router.use(auth(['admin']));
 
 router.get('/', stype.listServiceTypes);
+router.post('/', stype.createServiceType);
 
 module.exports = router;

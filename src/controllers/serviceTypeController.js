@@ -8,3 +8,12 @@ exports.listServiceTypes = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+exports.createServiceType = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const st = await ServiceType.create({ name, description });
+    res.status(201).json(st);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

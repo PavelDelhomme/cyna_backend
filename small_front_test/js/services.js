@@ -31,7 +31,9 @@ function renderServicesTable(services) {
       <tr>
         <th>ID</th><th>Nom</th><th>Description</th><th>Prix</th>
         <th>Statut</th><th>Abonnement</th><th>Type</th>
-        <th>Utilisateurs</th><th>Promotion</th><th>Actions</th>
+        <th>Utilisateurs</th><th>Promotion</th>
+        <th>Créé le</th><th>Mis à jour</th>
+        <th>Actions</th>
       </tr>
     </thead>
     <tbody>
@@ -46,11 +48,14 @@ function renderServicesTable(services) {
           <td>${s.subscriptionType || '-'}</td>
           <td>${s.userCount || 0}</td>
           <td>${s.promotion || '-'}</td>
+          <td>${new Date(s.createdAt).toLocaleString()}</td>
+          <td>${new Date(s.updatedAt).toLocaleString()}</td>
           <td><button onclick="deleteService(${s.id})">🗑️ Supprimer</button></td>
         </tr>
       `).join('')}
     </tbody>
   `;
+
 
   container.appendChild(table);
 }
