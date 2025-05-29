@@ -17,8 +17,8 @@ module.exports = (sequelize) => {
       foreignKey: {
         name: 'user_id',
         allowNull: false,
-        as: 'User'
       },
+      as: 'user',
       foreignKeyConstraint: { name: 'fk_user_profile_user' }
     });
 

@@ -1,19 +1,47 @@
+require('dotenv').config();
 const express = require('express');
-const path = require('path');
-const config = require("./config/database")[process.env.NODE_ENV || 'development'];
-console.log(config);
-// DB
-const db = require('./models');
-const jwt = require('jsonwebtoken');
-const { User, Role } = db;
+const cors    = require('cors');
+const path    = require('path');
+const config  = require("./config/database")[process.env.NODE_ENV || 'development'];
+const db      = require('./models');
+const jwt     = require('jsonwebtoken');
 
 const app = express();
+
+
+// 1. CORS : autorise ton front
+app.use(cors({
+  // Reflecte l’origine de la requête comme valeur d’Access-Control-Allow-Origin
+  origin: (origin, callback) => {
+    // autorise les requêtes sans origin (Postman, mobile, etc.)
+    if (!origin) return callback(null, true);
+    // liste blanche
+    const whiteList = [
+      'http://localhost:3007',
+      'http://127.0.0.1:3007'
+    ];
+    if (whiteList.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Non autorisé par CORS'));
+    }
+  },
+  credentials: true,           // si tu veux gérer les cookies/credentials
+  methods: ['GET','POST','PATCH','DELETE','PUT','OPTIONS'],
+  allowedHeaders: ['Content-Type','Authorization']
+}));
+
+console.log(config);
 
 // Middleware global
 app.use(express.json());
 
 // Servir le petit front-end de test
 app.use('/', express.static(path.join(__dirname, "../small_front_test")));
+
+// DB
+const { User, Role } = db;
+
 
 // --- Routes User / Public ---
 app.use("/api/auth", require('./routes/auth'));  // Auth publique

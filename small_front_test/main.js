@@ -162,6 +162,16 @@ document.addEventListener('DOMContentLoaded', async () => {
   Addresses.renderMyAddressesTable();
   Carts.listCarts();
   Promo.listPromocodes();
+
+  reloadMyAddresses();
+  reloadAllAddresses();
+
+  Users.listUserProfiles();
+  Users.displayRoles();
+
+  window.testProtectedRoute();
+
+  console.log("[main] Initialisation terminé.");
 });
 
 // Remplit le select des utilisateurs

@@ -1,5 +1,7 @@
 import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
 
+const BASE = API_URL + apiPrefix();
+
 export function formatDate(obj, field = 'created') {
   const iso = obj[`${field}At`] || obj[`${field}_at`];
   return iso ? new Date(iso).toLocaleString() : '';
@@ -59,14 +61,14 @@ async function renderAllAddressesTable() {
 /** → UTILISATEUR (profil) **/
 // Récupère mes adresses
 async function getMyAddresses() {
-  const res = await TokenService.authFetch(`${API_URL}/api/profile/addresses`);
+  const res = await TokenService.authFetch(`${BASE}/addresses/me`);
   return TokenService.safeJsonResponse(res);
 }
 
 // Ajoute une adresse à mon profil
 async function addMyAddress(data) {
   const res = await TokenService.authFetch(
-    `${API_URL}/api/profile/addresses`,
+    `${BASE}/addresses`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -79,7 +81,7 @@ async function addMyAddress(data) {
 // Modifie une de mes adresses
 async function updateMyAddress(id, data) {
   const res = await TokenService.authFetch(
-    `${API_URL}/api/profile/addresses/${id}`,
+    `${BASE}/addresses/${id}`,
     {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -92,7 +94,7 @@ async function updateMyAddress(id, data) {
 // Supprime une de mes adresses
 async function deleteMyAddress(id) {
   await TokenService.authFetch(
-    `${API_URL}/api/profile/addresses/${id}`,
+    `${BASE}/addresses/${id}`,
     { method: "DELETE" }
   );
 }
@@ -102,7 +104,7 @@ async function deleteMyAddress(id) {
 // Liste **toutes** les adresses du système
 async function listAllAddresses() {
   const res = await TokenService.authFetch(
-    `${API_URL}/api/addresses`
+    `${BASE}/admin/addresses`
   );
   return TokenService.safeJsonResponse(res);
 }
@@ -110,7 +112,7 @@ async function listAllAddresses() {
 // Crée une adresse pour n’importe quel user (admin)
 async function addAddressForUser(userId, data) {
   const res = await TokenService.authFetch(
-    `${API_URL}${apiPrefix()}/addresses/user/${userId}`,
+    `${BASE}/admin/addresses/user/${userId}`,
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -123,7 +125,7 @@ async function addAddressForUser(userId, data) {
 // Modifie n’importe quelle adresse (admin)
 async function updateAddress(id, data) {
   const res = await TokenService.authFetch(
-    `${API_URL}${apiPrefix()}/admin/addresses/${id}`,
+    `${BASE}/admin/addresses/${id}`,
     {
       method: "PATCH",
       headers: { "Content-Type": "application/json" },
@@ -136,20 +138,20 @@ async function updateAddress(id, data) {
 // Supprime n’importe quelle adresse (admin)
 async function deleteAddress(id) {
   await TokenService.authFetch(
-    `${API_URL}/api/admin/addresses/${id}`,
+    `${BASE}/admin/addresses/${id}`,
     { method: "DELETE" }
   );
 }
 
 async function renderMyAddressesTable() {
   const res = await TokenService.authFetch(
-    `${API_URL}/api/profile/addresses`
+    `${BASE}/addresses/me`
   );
   const addresses = await TokenService.safeJsonResponse(res);
   const container = document.getElementById('my-addresses');
   container.innerHTML = '';
 
-  if (!addresses.length) {
+  if (!Array.isArray(addresses) || addresses.length === 0) {
     container.innerText = "Vous n’avez pas encore d’adresse.";
     return;
   }

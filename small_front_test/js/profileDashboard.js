@@ -1,9 +1,10 @@
 import { API_URL, TokenService, apiPrefix } from "./tokenService.js";
+const BASE = API_URL + apiPrefix();
 
 async function loadMyProfile() {
   try {
     const res = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/profile/me`
+      `${BASE}/profile/me`
     );
     const profile = await TokenService.safeJsonResponse(res);
 
@@ -30,7 +31,7 @@ async function loadMyProfile() {
 async function loadMyAddresses() {
   try {
     const res = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/profile/me/addresses`
+      `${BASE}/profile/addresses`
     );
     const addresses = await TokenService.safeJsonResponse(res);
 
@@ -79,7 +80,7 @@ async function addMyAddress() {
     };
 
     const res = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/profile/me/addresses`,
+      `${BASE}/profile/addresses`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -99,7 +100,7 @@ async function deleteMyAddress(addressId) {
   try {
     if (!confirm("Supprimer cette adresse ?")) return;
     const res = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/profile/me/addresses/${addressId}`,
+      `${BASE}/profile/addresses/${addressId}`,
       { method: 'DELETE' }
     );
     await TokenService.safeJsonResponse(res);
@@ -115,7 +116,7 @@ window.promptEditAddress = async function() {
   const id      = parseInt(prompt("ID de l'adresse à modifier ?"),10);
   if (!id) return;
   const a       = await TokenService.authFetch(
-    `${API_URL}${apiPrefix()}/profile/me/addresses/${id}`
+    `${BASE}/profile/me/addresses/${id}`
   ).then(r => r.json());
   if (!a.id) { alert("Adresse non trouvée"); return; }
 
@@ -128,7 +129,7 @@ window.promptEditAddress = async function() {
 
   try {
     const res = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/profile/me/addresses/${id}`, {
+      `${BASE}/profile/me/addresses/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address1, city, postalCode, region, country, type })

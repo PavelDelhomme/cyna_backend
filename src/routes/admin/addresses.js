@@ -7,15 +7,15 @@ const ctrl    = require('../../controllers/addressController');
 router.use(auth(['admin']));
 
 // GET /api/admin/addresses           → liste TOUTES les adresses
-router.get('/', ctrl.listAddresses);
+router.get('/', auth(['admin']), ctrl.listAddresses);
 
 // POST /api/admin/addresses/user/:userId
-router.post('/user/:userId', ctrl.createAddressForUser);
+router.post('/user/:userId', auth(['admin']), ctrl.createAddressForUser);
 
 // PATCH /api/admin/addresses/:id
-router.patch('/:id', ctrl.updateAddress);
+router.patch('/:id', auth(['admin']), ctrl.updateAddress);
 
 // DELETE /api/admin/addresses/:id
-router.delete('/:id', ctrl.deleteAddress);
+router.delete('/:id', auth(['admin']), ctrl.deleteAddress);
 
 module.exports = router;
