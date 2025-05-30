@@ -27,12 +27,15 @@ function forceUser() {
 }
 
 async function login() {
+  TokenService.forcedAdmin = false;
+  TokenService.forcedUser = false;
+
   const email = document.getElementById("email").value;
   const password = document.getElementById("password").value;
 
   try {
     const res = await fetch(
-      `${API_URL}${apiPrefix()}/auth/login`,
+      `${API_URL}api/auth/login`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

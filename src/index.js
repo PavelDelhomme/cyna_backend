@@ -64,7 +64,12 @@ app.use("/api/orders", require("./routes/orders"));
 app.use("/api/invoices", require("./routes/invoices"));
 app.use("/api/carts", require("./routes/carts"));
 app.use("/api/tickets", require("./routes/tickets"));
-app.use("/api/dev", require("./routes/devTest"));
+
+// public debug
+app.use("/api/dev",       require("./routes/devTest"));
+
+// admin debug
+app.use("/api/admin/dev", require("./routes/devTest"));
 
 // --- Routes Admin propres ---
 app.use("/api/admin/auth",                require('./routes/admin/auth'));

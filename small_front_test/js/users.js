@@ -201,7 +201,7 @@ async function createAdminProfile() {
   try {
     // plus "/api/dev/admin/profile"
     const response = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/admin/profiles/admin`, { method: "POST" }
+      `${API_URL}${apiPrefix()}/profiles`, { method: "POST" }
     );
     const data = await safeJsonResponse(response);
     if (data.message) {
@@ -218,7 +218,7 @@ async function listUserProfiles() {
   try {
     // plus "/api/dev/profiles"
     const response = await TokenService.authFetch(
-      `${API_URL}${apiPrefix()}/admin/profiles`
+      `${API_URL}${apiPrefix()}/profiles`
     );
     const profiles = await response.json();
 
