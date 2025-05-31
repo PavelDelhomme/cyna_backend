@@ -31,7 +31,7 @@ async function loadMyProfile() {
 async function loadMyAddresses() {
   try {
     const res = await TokenService.authFetch(
-      `${BASE}/profile/addresses`
+      `${BASE}/profile/addresses/me`
     );
     const addresses = await TokenService.safeJsonResponse(res);
 
@@ -80,7 +80,7 @@ async function addMyAddress() {
     };
 
     const res = await TokenService.authFetch(
-      `${BASE}/profile/addresses`,
+      `${BASE}/profile/addresses/me`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -100,7 +100,7 @@ async function deleteMyAddress(addressId) {
   try {
     if (!confirm("Supprimer cette adresse ?")) return;
     const res = await TokenService.authFetch(
-      `${BASE}/profile/addresses/${addressId}`,
+      `${BASE}/profile/addresses/me/${addressId}`,
       { method: 'DELETE' }
     );
     await TokenService.safeJsonResponse(res);
@@ -116,7 +116,7 @@ window.promptEditAddress = async function() {
   const id      = parseInt(prompt("ID de l'adresse à modifier ?"),10);
   if (!id) return;
   const a       = await TokenService.authFetch(
-    `${BASE}/profile/me/addresses/${id}`
+    `${BASE}/profile/me/addresses/me/${id}`
   ).then(r => r.json());
   if (!a.id) { alert("Adresse non trouvée"); return; }
 
@@ -129,7 +129,7 @@ window.promptEditAddress = async function() {
 
   try {
     const res = await TokenService.authFetch(
-      `${BASE}/profile/me/addresses/${id}`, {
+      `${BASE}/profile/me/addresses/me:${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ address1, city, postalCode, region, country, type })

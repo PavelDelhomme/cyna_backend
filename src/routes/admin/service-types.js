@@ -3,7 +3,7 @@ const router  = express.Router();
 const auth    = require('../../middlewares/authMiddleware');
 const stype   = require('../../controllers/serviceTypeController');
 
-router.use(auth(['admin']));
+router.use(auth(['admin','seller']));
 
 router.get('/', stype.listServiceTypes);
 router.post('/', auth(['admin']), stype.createServiceType);

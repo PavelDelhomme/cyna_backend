@@ -3,7 +3,7 @@ const router  = express.Router();
 const auth    = require('../../middlewares/authMiddleware');
 const rev     = require('../../controllers/reviewController');
 
-router.use(auth(['admin']));
+router.use(auth(['admin','seller']));
 
 router
   .route('/')

@@ -5,6 +5,7 @@ const path    = require('path');
 const config  = require("./config/database")[process.env.NODE_ENV || 'development'];
 const db      = require('./models');
 const jwt     = require('jsonwebtoken');
+const { where } = require('sequelize');
 
 const app = express();
 
@@ -166,6 +167,15 @@ const initializeApp = async () => {
           default: { nme: 'user' }
         });
       }
+
+      await Role.findOrCreate({ where: { name: 'user' }});
+      await Role.findOrCreate({ where: { name: 'admin' }});
+      await Role.findOrCreate({ where: { name: 'support' }});
+      await Role.findOrCreate({ where: { name: 'customer' }});
+      await Role.findOrCreate({ where: { name: 'seller' }});
+
+      console.log("✅ Rôles de base (user, admin, support, customer, seller) en place");
+
       // create Dev admin profile if not exists
       const { UserProfile } = db;
       await UserProfile.findOrCreate({ where: { user_id: adminUser.id } });

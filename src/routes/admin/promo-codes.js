@@ -3,7 +3,7 @@ const router  = express.Router();
 const auth    = require('../../middlewares/authMiddleware');
 const promo   = require('../../controllers/promoCodeController');
 
-router.use(auth(['admin']));
+router.use(auth(['admin','seller']));
 
 router
   .route('/')

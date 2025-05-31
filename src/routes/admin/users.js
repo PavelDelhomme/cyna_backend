@@ -12,6 +12,11 @@ router.get('/:id', auth(['user', 'admin']), users.getUserById);
 router.patch('/:id', auth(['user','admin']), users.updateUser);
 router.delete('/:id', auth(['user', 'admin']), users.deleteUser);
 // Pour assigner un rôle à un utilisateur
-router.post('/:userId/roles/:roleId', users.assignRoleToUser);
+// POST /api/admin/users/:userId/roles/:roleId
+router.post(
+  '/:userId/roles/:roleId',
+  auth(['admin']),
+  users.assignRoleToUser
+);
 
 module.exports = router;

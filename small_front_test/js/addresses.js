@@ -11,7 +11,7 @@ export function formatDate(obj, field = 'created') {
 // Liste et rend **toutes** les adresses en tableau (admin)
 async function renderAllAddressesTable() {
   const res = await TokenService.authFetch(
-    `${API_URL}${apiPrefix()}/addresses`
+    `${API_URL}${apiPrefix()}/addresses/me`
   );
   const addresses = await TokenService.safeJsonResponse(res);
   const container = document.getElementById('addresses-list');
@@ -61,86 +61,80 @@ async function renderAllAddressesTable() {
 /** → UTILISATEUR (profil) **/
 // Récupère mes adresses
 async function getMyAddresses() {
-  const res = await TokenService.authFetch(`${BASE}/addresses/me`);
-  return TokenService.safeJsonResponse(res);
+  return TokenService
+    .safeJsonResponse(
+      await TokenService.authFetch(`${BASE}/addresses/me`)
+    );
 }
 
 // Ajoute une adresse à mon profil
 async function addMyAddress(data) {
-  const res = await TokenService.authFetch(
-    `${BASE}/addresses`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    }
-  );
-  return TokenService.safeJsonResponse(res);
+  return TokenService
+    .safeJsonResponse(
+      await TokenService.authFetch(`${BASE}/addresses`, {
+        method: "POST",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(data)
+      })
+    );
 }
 
 // Modifie une de mes adresses
-async function updateMyAddress(id, data) {
-  const res = await TokenService.authFetch(
-    `${BASE}/addresses/${id}`,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    }
-  );
-  return TokenService.safeJsonResponse(res);
+async function updateMyAddress(id,data) {
+  return TokenService
+    .safeJsonResponse(
+      await TokenService.authFetch(`${BASE}/addresses/${id}`, {
+        method: "PATCH",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(data)
+      })
+    );
 }
 
 // Supprime une de mes adresses
 async function deleteMyAddress(id) {
-  await TokenService.authFetch(
-    `${BASE}/addresses/${id}`,
-    { method: "DELETE" }
-  );
+  await TokenService.authFetch(`${BASE}/addresses/${id}`, { method: "DELETE" });
 }
 
 
 /** → ADMIN **/
 // Liste **toutes** les adresses du système
 async function listAllAddresses() {
-  const res = await TokenService.authFetch(
-    `${BASE}/admin/addresses`
-  );
-  return TokenService.safeJsonResponse(res);
+  return TokenService
+    .safeJsonResponse(
+      await TokenService.authFetch(`${BASE}/addresses`)
+    );
 }
 
 // Crée une adresse pour n’importe quel user (admin)
-async function addAddressForUser(userId, data) {
-  const res = await TokenService.authFetch(
-    `${BASE}/admin/addresses/user/${userId}`,
-    {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    }
-  );
-  return TokenService.safeJsonResponse(res);
+async function addAddressForUser(userId,data) {
+  return TokenService
+    .safeJsonResponse(
+      await TokenService.authFetch(
+        `${BASE}/addresses/user/${userId}`, {
+          method: "POST",
+          headers:{ "Content-Type":"application/json" },
+          body: JSON.stringify(data)
+        }
+      )
+    );
 }
 
 // Modifie n’importe quelle adresse (admin)
-async function updateAddress(id, data) {
-  const res = await TokenService.authFetch(
-    `${BASE}/admin/addresses/${id}`,
-    {
-      method: "PATCH",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify(data),
-    }
-  );
-  return TokenService.safeJsonResponse(res);
+async function updateAddress(id,data) {
+  return TokenService
+    .safeJsonResponse(
+      await TokenService.authFetch(`${BASE}/addresses/${id}`, {
+        method: "PATCH",
+        headers:{ "Content-Type":"application/json" },
+        body: JSON.stringify(data)
+      })
+    );
 }
 
 // Supprime n’importe quelle adresse (admin)
 async function deleteAddress(id) {
-  await TokenService.authFetch(
-    `${BASE}/admin/addresses/${id}`,
-    { method: "DELETE" }
-  );
+  await TokenService.authFetch(`${BASE}/addresses/${id}`, { method: "DELETE" });
 }
 
 async function renderMyAddressesTable() {
