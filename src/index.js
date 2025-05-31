@@ -73,7 +73,7 @@ app.use("/api/dev",       require("./routes/devTest"));
 app.use("/api/admin/dev", require("./routes/devTest"));
 
 // --- Routes Admin propres ---
-app.use("/api/admin/auth",                require('./routes/admin/auth'));
+/*app.use("/api/admin/auth",                require('./routes/admin/auth'));
 app.use("/api/admin/orders",              require('./routes/admin/orders'));
 app.use("/api/admin/invoices",            require('./routes/admin/invoices'));
 app.use("/api/admin/payments",            require('./routes/admin/payments'));
@@ -92,7 +92,7 @@ app.use("/api/admin/service-types",       require('./routes/admin/service-types'
 app.use("/api/admin/stats",               require('./routes/admin/stats'));
 app.use("/api/admin/tickets",             require('./routes/admin/tickets'));
 app.use("/api/admin/profiles",            require('./routes/admin/profiles'));
-
+*/
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});
 });
