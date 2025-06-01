@@ -37,3 +37,32 @@ exports.createProductCategory = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
+exports.updateProductCategory = async (req, res) => {
+  try {
+    const { name, description } = req.body;
+    const category = await ProductCategory.findByPk(req.params.id);
+    if (!category) {
+      return res.status(404).json({ error: "Catégorie non trouvée." });
+    }
+    category.name = name;
+    category.description = description;
+    await category.save();
+    res.json(category);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+exports.deleteProductCategory = async (req, res) => {
+  try {
+    const category = await ProductCategory.findByPk(req.params.id);
+    if (!category) {
+      return res.status(404).json({ error: "Catégorie non trouvée." });
+    }
+    await category.destroy();
+    res.json({ message: "Catégorie supprimée." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};

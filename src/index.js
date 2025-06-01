@@ -18,6 +18,8 @@ app.use(cors({
     if (!origin) return callback(null, true);
     // liste blanche
     const whiteList = [
+      'http://localhost:3000', // <-- Ajoute ce port pour le front React
+      'http://127.0.0.1:3000',
       'http://localhost:3007',
       'http://127.0.0.1:3007'
     ];
