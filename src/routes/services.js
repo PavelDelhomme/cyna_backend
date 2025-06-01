@@ -5,5 +5,7 @@ const svc     = require('../controllers/serviceController');
 
 router.get('/', auth(['user','admin']), svc.listServices);
 router.post('/', auth(['admin']),        svc.createService);
+router.put('/:id', auth(['admin']),      svc.updateService);
+router.delete('/:id', auth(['admin']),   svc.deleteService);
 
 module.exports = router;

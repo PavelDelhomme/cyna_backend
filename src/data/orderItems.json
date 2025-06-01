@@ -1,0 +1,50 @@
+[
+  {
+    "id": 1,
+    "order_id": 1,
+    "Quantity": 1,
+    "Price": 3000.0
+  },
+  {
+    "id": 2,
+    "order_id": 1,
+    "Quantity": 2,
+    "Price": 1800.0
+  },
+  {
+    "id": 3,
+    "order_id": 1,
+    "Quantity": 1,
+    "Price": 500.0
+  },
+  {
+    "id": 4,
+    "order_id": 1,
+    "Quantity": 1,
+    "Price": 600.0
+  },
+  {
+    "id": 5,
+    "order_id": 2,
+    "Quantity": 1,
+    "Price": 2500.0
+  },
+  {
+    "id": 6,
+    "order_id": 2,
+    "Quantity": 1,
+    "Price": 79.0
+  },
+  {
+    "id": 7,
+    "order_id": 2,
+    "Quantity": 1,
+    "Price": 1200.0
+  },
+  {
+    "id": 8,
+    "order_id": 2,
+    "Quantity": 1,
+    "Price": 900.0
+  }
+]

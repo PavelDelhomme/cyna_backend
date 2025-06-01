@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "name": "Pare-feu Matériel X1000",
+    "description": "Pare-feu matériel haute performance pour filtrage et contrôle avancé du trafic réseau.",
+    "price": 2500,
+    "stock": 10,
+    "promotion": "",
+    "category_id": 1,
+    "image": "/images/products/firewall_x1000.jpg"
+  },
+  {
+    "id": 2,
+    "name": "Antivirus Corporate Edition",
+    "description": "Solution antivirus centralisée avec mises à jour automatiques et protection en temps réel.",
+    "price": 79,
+    "stock": 50,
+    "promotion": "10% de réduction",
+    "category_id": 2,
+    "image": "/images/products/antivirus_corp.jpg"
+  },
+  {
+    "id": 3,
+    "name": "VPN SecureConnect Pro",
+    "description": "VPN d'entreprise avec chiffrement AES 256 bits et support multi-plateforme.",
+    "price": 150,
+    "stock": 30,
+    "promotion": "",
+    "category_id": 3,
+    "image": "/images/products/vpn_secureconnect.jpg"
+  },
+  {
+    "id": 4,
+    "name": "IdentityGuard IAM",
+    "description": "Plateforme complète de gestion des identités et des accès pour sécuriser vos utilisateurs.",
+    "price": 1200,
+    "stock": 8,
+    "promotion": "",
+    "category_id": 4,
+    "image": "/images/products/identityguard.jpg"
+  },
+  {
+    "id": 5,
+    "name": "Encryption Suite Enterprise",
+    "description": "Solution de chiffrement des données au repos et en transit, conforme aux normes industrielles.",
+    "price": 3000,
+    "stock": 5,
+    "promotion": "15% de réduction",
+    "category_id": 5,
+    "image": "/images/products/encryption_suite.jpg"
+  },
+  {
+    "id": 6,
+    "name": "IDS/IPS Sensor Pro",
+    "description": "Système de détection et prévention des intrusions en temps réel pour réseau d’entreprise.",
+    "price": 1800,
+    "stock": 12,
+    "promotion": "",
+    "category_id": 6,
+    "image": "/images/products/ids_ips_pro.jpg"
+  }
+]

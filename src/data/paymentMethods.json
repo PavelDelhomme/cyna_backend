@@ -1,0 +1,28 @@
+[
+  {
+    "id": 1,
+    "user_id": 42,
+    "method": "Visa",
+    "last4": "4242",
+    "expiry": "12/24",
+    "is_default": true,
+    "isDefault": false
+  },
+  {
+    "id": 2,
+    "user_id": 42,
+    "method": "MasterCard",
+    "last4": "5555",
+    "expiry": "11/23",
+    "is_default": false,
+    "type": "moyen 1",
+    "isDefault": true
+  },
+  {
+    "id": 3,
+    "type": "test",
+    "last4": "4343",
+    "expiry": "12/32",
+    "isDefault": false
+  }
+]

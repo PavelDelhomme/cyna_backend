@@ -36,6 +36,9 @@ exports.getAllUsers = async (req, res) => {
 exports.createUser = async (req, res) => {
   try {
     const { name, email, password } = req.body;
+    if (!name || !email || !password) {
+      return res.status(400).json({ error: "Tous les champs sont requis" });
+    }
     const [role] = await Role.findOrCreate({ where: { name: 'user' } });
     const user = await User.create({ name, email, password, role_id: role.id });
     await UserProfile.create({ user_id: user.id });

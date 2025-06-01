@@ -50,3 +50,32 @@ exports.assignPromoToProduct = async (req, res) => {
     }
 };
 
+// Mettre à jour un produit
+exports.updateProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name, description, price, stock, promotion, category_id } = req.body;
+    const product = await Product.findByPk(id);
+    if (!product) return res.status(404).json({ error: "Produit non trouvé." });
+
+    await product.update({ name, description, price, stock, promotion, category_id });
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Supprimer un produit
+exports.deleteProduct = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const product = await Product.findByPk(id);
+    if (!product) return res.status(404).json({ error: "Produit non trouvé." });
+
+    await product.destroy();
+    res.json({ message: "Produit supprimé." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
