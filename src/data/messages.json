@@ -20,6 +20,14 @@
       "expediteur": "testGui2 <admin@example.com>",
       "message": "test",
       "date": "2025-05-29"
+    },
+    {
+      "id": 4,
+      "sujet": "re",
+      "expediteur": "testGui <gui.coquemont@hotmail.frf>",
+      "message": "dsfsd",
+      "date": "2025-06-02",
+      "lu": false
     }
   ],
   "tickets": [

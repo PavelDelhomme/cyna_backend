@@ -12,7 +12,7 @@ const app = express();
 
 // 1. CORS : autorise ton front
 app.use(cors({
-  // Reflecte l’origine de la requête comme valeur d’Access-Control-Allow-Origin
+  // Reflecte l'origine de la requête comme valeur d'Access-Control-Allow-Origin
   origin: (origin, callback) => {
     // autorise les requêtes sans origin (Postman, mobile, etc.)
     if (!origin) return callback(null, true);
@@ -51,11 +51,12 @@ app.use("/api/auth", require('./routes/auth'));  // Auth publique
 app.use("/api/addresses", require('./routes/addresses'));
 app.use("/api/users", require('./routes/users'));
 app.use("/api/roles", require('./routes/roles'));
-// → point d’entrée unique pour le profil (user/admin)
+// → point d'entrée unique pour le profil (user/admin)
 app.use("/api/profile", require('./routes/profile'));
 app.use("/api/promo-codes", require('./routes/promo-codes'));
 app.use("/api/chatbots", require('./routes/chatbots'));
 app.use("/api/chatbots-histories", require('./routes/chatbot-histories'));
+app.use("/api/messages", require('./routes/messages'));
 app.use("/api/product-categories", require('./routes/product-categories'));
 app.use("/api/products", require('./routes/products'));
 app.use("/api/service-types", require('./routes/service-types'));
@@ -67,6 +68,8 @@ app.use("/api/orders", require("./routes/orders"));
 app.use("/api/invoices", require("./routes/invoices"));
 app.use("/api/carts", require("./routes/carts"));
 app.use("/api/tickets", require("./routes/tickets"));
+app.use('/api/team', require('./routes/team'));
+app.use('/api/carousel', require('./routes/carousel'));
 
 // public debug
 app.use("/api/dev",       require("./routes/devTest"));

@@ -31,7 +31,8 @@ function loadModels(dirPath) {
     const stat = fs.statSync(fullPath);
     if (stat.isDirectory()) return loadModels(fullPath);
     if (file === 'index.js' || !file.endsWith('.js')) return;
-    const model = require(fullPath)(sequelize);
+    // Passe DataTypes ici :
+    const model = require(fullPath)(sequelize, Sequelize.DataTypes);
     db[model.name] = model;
   });
 }
