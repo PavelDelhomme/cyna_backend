@@ -1,11 +1,23 @@
-const { Product, PromoCode } = require('../models');
+const { Product, PromoCode, ProductCategory } = require('../models');
 
 
 exports.listProducts = async (req, res) => {
   try {
-    const products = await Product.findAll();
+    const products = await Product.findAll({
+      include: [
+        {
+          model: ProductCategory,
+          as: 'category'
+        },
+        {
+          model: PromoCode,
+          as: 'promoCode'
+        }
+      ]
+    });
     res.json(products);
   } catch (err) {
+    console.error('Erreur récupération produits :', err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -14,23 +26,43 @@ exports.listProducts = async (req, res) => {
   // Créer un produit
 exports.createProduct = async (req, res) => {
   try {
-    const { name, description, price, stock, promotion, category_id } = req.body;
+    console.log('Payload reçu pour création produit :', req.body);
 
-    if (!name || !price || !stock || !category_id) {
+    const { name, description, price, stock, category_id, promo_code_id } = req.body;
+
+    // Vérifier si les champs obligatoires sont manquants (null ou undefined)
+    if (name === undefined || name === null ||
+        price === undefined || price === null ||
+        stock === undefined || stock === null ||
+        category_id === undefined || category_id === null) {
       return res.status(400).json({ error: "Champs obligatoires manquants." });
     }
 
     const product = await Product.create({
       name,
       description,
-      price,
-      stock,
-      promotion,
-      category_id
+      price: parseFloat(price), // conversion explicite en nombre
+      stock: parseInt(stock, 10), // conversion explicite en nombre
+      category_id: parseInt(category_id, 10), // conversion explicite en nombre
+      promo_code_id: promo_code_id ? parseInt(promo_code_id, 10) : null
     });
 
-    res.status(201).json(product);
+    const productWithAssociations = await Product.findByPk(product.id, {
+      include: [
+        {
+          model: ProductCategory,
+          as: 'category'
+        },
+        {
+          model: PromoCode,
+          as: 'promoCode'
+        }
+      ]
+    });
+
+    res.status(201).json(productWithAssociations);
   } catch (err) {
+    console.error('Erreur création produit :', err);
     res.status(500).json({ error: err.message });
   }
 };
@@ -53,28 +85,65 @@ exports.assignPromoToProduct = async (req, res) => {
 // Mettre à jour un produit
 exports.updateProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const { name, description, price, stock, promotion, category_id } = req.body;
-    const product = await Product.findByPk(id);
+    console.log('Payload reçu pour mise à jour produit :', req.body);
+    
+    const product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).json({ error: "Produit non trouvé." });
 
-    await product.update({ name, description, price, stock, promotion, category_id });
-    res.json(product);
+    const { name, description, price, stock, category_id, promo_code_id } = req.body;
+
+    // Préparation des données à mettre à jour
+    const updateData = {
+      name,
+      description,
+      price: price ? parseFloat(price) : undefined,
+      stock: stock ? parseInt(stock, 10) : undefined,
+      category_id: category_id ? parseInt(category_id, 10) : undefined,
+      promo_code_id: promo_code_id ? parseInt(promo_code_id, 10) : undefined
+    };
+
+    // Suppression des valeurs undefined
+    Object.keys(updateData).forEach(key => 
+      updateData[key] === undefined && delete updateData[key]
+    );
+
+    console.log('Données à mettre à jour :', updateData);
+
+    await product.update(updateData);
+    
+    const updatedProduct = await Product.findByPk(req.params.id, {
+      include: [
+        {
+          model: ProductCategory,
+          as: 'category'
+        },
+        {
+          model: PromoCode,
+          as: 'promoCode'
+        }
+      ]
+    });
+    
+    res.json(updatedProduct);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error('Erreur détaillée mise à jour produit :', err);
+    res.status(500).json({ 
+      error: err.message,
+      details: err.errors ? err.errors.map(e => e.message) : null
+    });
   }
 };
 
 // Supprimer un produit
 exports.deleteProduct = async (req, res) => {
   try {
-    const { id } = req.params;
-    const product = await Product.findByPk(id);
+    const product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).json({ error: "Produit non trouvé." });
 
     await product.destroy();
     res.json({ message: "Produit supprimé." });
   } catch (err) {
+    console.error('Erreur suppression produit :', err);
     res.status(500).json({ error: err.message });
   }
 };
