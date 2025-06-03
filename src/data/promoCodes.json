@@ -1,0 +1,53 @@
+[
+  {
+    "id": 1,
+    "code": "WELCOME10",
+    "description": "10% de réduction sur votre première commande.",
+    "discount_type": "percentage",
+    "discount_value": 10.0,
+    "min_order_amount": 50.0,
+    "max_discount_amount": 20.0,
+    "start_date": "2024-06-01T00:00:00",
+    "end_date": "2024-12-31T23:59:59",
+    "max_uses": 100,
+    "current_uses": 0,
+    "is_active": true,
+    "is_public": true,
+    "created_by": null,
+    "is_first_purchase_only": true
+  },
+  {
+    "id": 2,
+    "code": "SUMMER50",
+    "description": "50€ de réduction sur toute commande supérieure à 300€.",
+    "discount_type": "fixed",
+    "discount_value": 50.0,
+    "min_order_amount": 300.0,
+    "max_discount_amount": null,
+    "start_date": "2024-06-15T00:00:00",
+    "end_date": "2024-08-31T23:59:59",
+    "max_uses": 50,
+    "current_uses": 0,
+    "is_active": true,
+    "is_public": false,
+    "created_by": null,
+    "is_first_purchase_only": false
+  },
+  {
+    "id": 3,
+    "code": "FREESHIP",
+    "description": "Livraison offerte sans minimum d'achat.",
+    "discount_type": "fixed",
+    "discount_value": 10.0,
+    "min_order_amount": 0.0,
+    "max_discount_amount": 10.0,
+    "start_date": "2024-06-01T00:00:00",
+    "end_date": "2024-09-30T23:59:59",
+    "max_uses": 500,
+    "current_uses": 0,
+    "is_active": true,
+    "is_public": true,
+    "created_by": null,
+    "is_first_purchase_only": false
+  }
+]

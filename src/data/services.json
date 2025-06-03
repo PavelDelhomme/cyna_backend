@@ -1,15 +1,16 @@
 [
   {
     "id": 1,
-    "N-name": "Prévention",
-    "description": "Réduisez votre niveau d’exposition aux risques grâce à nos audits.",
+    "name": "Prévention",
+    "description": "Réduisez votre niveau d'exposition aux risques grâce à nos audits.",
     "status": true,
     "price": 0,
     "subscription": false,
-    "subscriptionType": null,
-    "userCount": 0,
+    "subscriptiontype": null,
+    "usercount": 0,
     "promotion": "",
     "service_type_id": 1,
+    "promo_code_id": null,
     "image": "/images/prevention.jpg"
   },
   {
@@ -19,10 +20,11 @@
     "status": true,
     "price": 0,
     "subscription": false,
-    "subscriptionType": null,
-    "userCount": 0,
+    "subscriptiontype": null,
+    "usercount": 0,
     "promotion": "",
     "service_type_id": 2,
+    "promo_code_id": null,
     "image": "/images/protection.jpg"
   },
   {
@@ -32,10 +34,11 @@
     "status": true,
     "price": 0,
     "subscription": false,
-    "subscriptionType": null,
-    "userCount": 0,
+    "subscriptiontype": null,
+    "usercount": 0,
     "promotion": "",
     "service_type_id": 3,
+    "promo_code_id": null,
     "image": "/images/reponse.jpg"
   }
 ]

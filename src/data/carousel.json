@@ -1,44 +1,7 @@
 [
-  {
-    "product_id": 1,
-    "order": 4
-  },
-  {
-    "product_id": 2,
-    "order": 2
-  },
-  {
-    "product_id": 3,
-    "order": 3
-  },
-  {
-    "product_id": 4,
-    "order": 1
-  },
-  {
-    "product_id": 5,
-    "order": 5
-  },
-  {
-    "product_id": 6,
-    "order": 6
-  },
-  {
-    "product_id": 9,
-    "order": 9
-  },
-  {
-    "product_id": 8,
-    "order": 7
-  },
-  {
-    "item_id": 8,
-    "type": "product",
-    "order": 8
-  },
-  {
-    "item_id": 3,
-    "type": "service",
-    "order": 10
-  }
+  { "product_id": 1, "order": 1 },
+  { "product_id": 2, "order": 2 },
+  { "product_id": 3, "order": 3 },
+  { "service_id": 1, "order": 4 },
+  { "service_id": 2, "order": 5 }
 ]

@@ -19,12 +19,5 @@
     "role": "CISO",
     "avatar": "/avatars/claire.jpg",
     "description": "Claire garantit la sécurité des informations et la conformité aux normes."
-  },
-  {
-    "id": 1748686635853,
-    "name": "test",
-    "role": "Dev",
-    "avatar": "",
-    "description": "ezr"
   }
 ]

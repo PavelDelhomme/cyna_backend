@@ -15,7 +15,7 @@ CREATE TABLE addresses (
 CREATE TABLE product_categories (
    id INT AUTO_INCREMENT,
    name VARCHAR(50),
-   description VARCHAR(50),
+   description VARCHAR(250),
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id)
@@ -23,7 +23,7 @@ CREATE TABLE product_categories (
 
 CREATE TABLE service_types (
    id INT AUTO_INCREMENT,
-   name VARCHAR(50),
+   name VARCHAR(255),
    description VARCHAR(255),
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
@@ -94,6 +94,7 @@ CREATE TABLE services (
    promotion VARCHAR(255),
    service_type_id INT NOT NULL,
    promo_code_id INT,
+   image VARCHAR(255),
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id),
@@ -104,12 +105,13 @@ CREATE TABLE services (
 CREATE TABLE products (
    id INT AUTO_INCREMENT,
    name VARCHAR(50),
-   description VARCHAR(50),
+   description VARCHAR(255),
    price DOUBLE,
    stock BIGINT,
    promotion VARCHAR(255),
    category_id INT NOT NULL,
    promo_code_id INT,
+   image VARCHAR(255),
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id),
@@ -120,7 +122,7 @@ CREATE TABLE products (
 CREATE TABLE tickets (
    id INT AUTO_INCREMENT,
    subject VARCHAR(50),
-   description VARCHAR(50),
+   description VARCHAR(255),
    status VARCHAR(50),
    creationdate DATETIME,
    updatedate DATETIME,
@@ -207,7 +209,7 @@ CREATE TABLE invoices (
 CREATE TABLE reviews (
    id INT AUTO_INCREMENT,
    rating INT,
-   description VARCHAR(50),
+   description VARCHAR(255),
    reviewdate DATE,
    service_id INT NOT NULL,
    product_id INT NOT NULL,
