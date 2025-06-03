@@ -1,7 +1,16 @@
 const fs = require('fs');
 const path = require('path');
 const { Sequelize } = require('sequelize');
-const config = require('../config/database')[process.env.NODE_ENV || 'development'];
+const env = process.env.NODE_ENV || 'development';
+const config = require('../config/database')[env];
+
+console.log('Configuration Sequelize:', {
+    database: config.database,
+    username: config.username,
+    host: config.host,
+    port: config.port,
+    dialect: config.dialect
+});
 
 const sequelize = new Sequelize(
   config.database,
@@ -17,6 +26,11 @@ const sequelize = new Sequelize(
       underscored: true,
       timestamps: true,
       paranoid: false
+    },
+    retry: {
+      max: 5,
+      match: [/ECONNREFUSED/],
+      timeout: 30000
     }
   }
 );

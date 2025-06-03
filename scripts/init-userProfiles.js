@@ -4,8 +4,8 @@ require('dotenv').config({ path: path.join(__dirname, '..', envFile) });
 const mysql = require('mysql2/promise');
 const fs = require('fs').promises;
 
-async function initServices() {
-  const servicesPath = path.join(__dirname, '../src/data/services.json');
+async function initUserProfiles() {
+  const profilesPath = path.join(__dirname, '../src/data/userProfiles.json');
   let connection;
 
   try {
@@ -18,11 +18,11 @@ async function initServices() {
     console.log('NODE_ENV:', process.env.NODE_ENV);
     console.log('Fichier .env utilisé:', envFile);
 
-    console.log('\nLecture du fichier services.json...');
+    console.log('\nLecture du fichier userProfiles.json...');
     // Lecture du fichier JSON
-    const data = await fs.readFile(servicesPath, 'utf8');
-    const services = JSON.parse(data);
-    console.log('Données des services chargées:', services);
+    const data = await fs.readFile(profilesPath, 'utf8');
+    const profiles = JSON.parse(data);
+    console.log('Données des profils utilisateurs chargées:', profiles);
 
     console.log('\nConnexion à la base de données...');
     try {
@@ -43,33 +43,16 @@ async function initServices() {
       await connection.query('SET FOREIGN_KEY_CHECKS = 0');
       console.log('Contraintes désactivées');
 
-      console.log('\nSuppression des anciennes données...');
-      await connection.query('DELETE FROM order_item_services');
-      await connection.query('DELETE FROM asso_services_roles');
-      await connection.query('DELETE FROM services');
-      console.log('Anciennes données supprimées');
+      console.log('\nSuppression des anciens profils utilisateurs...');
+      await connection.query('DELETE FROM user_profiles');
+      console.log('Anciens profils supprimés');
 
-      console.log('\nInsertion des nouveaux services...');
-      for (const svc of services) {
-        console.log('Insertion du service:', svc);
+      console.log('\nInsertion des nouveaux profils...');
+      for (const profile of profiles) {
+        console.log('Insertion du profil:', profile);
         await connection.query(
-          `INSERT INTO services (
-            id, name, description, status, price, subscription, subscriptiontype, usercount, promotion, service_type_id, promo_code_id, image
-          ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
-          [
-            svc.id,
-            svc.name,
-            svc.description,
-            svc.status,
-            svc.price,
-            svc.subscription,
-            svc.subscriptiontype,
-            svc.usercount,
-            svc.promotion,
-            svc.service_type_id,
-            svc.promo_code_id,
-            svc.image
-          ]
+          `INSERT INTO user_profiles (id, user_id) VALUES (?, ?)`,
+          [profile.id, profile.user_id]
         );
       }
 
@@ -77,13 +60,13 @@ async function initServices() {
       await connection.query('SET FOREIGN_KEY_CHECKS = 1');
       console.log('Contraintes réactivées');
 
-      console.log('Services initialisés avec succès !');
+      console.log('Profils utilisateurs initialisés avec succès !');
     } catch (dbError) {
       console.error('Erreur de base de données:', dbError);
       throw dbError;
     }
   } catch (err) {
-    console.error('Erreur lors de l\'initialisation des services :', err);
+    console.error('Erreur lors de l\'initialisation des profils utilisateurs :', err);
     throw err; // Propager l'erreur pour que init-all.js puisse la gérer
   } finally {
     if (connection) {
@@ -100,4 +83,4 @@ process.on('unhandledRejection', (error) => {
   process.exit(1);
 });
 
-initServices();
+initUserProfiles();

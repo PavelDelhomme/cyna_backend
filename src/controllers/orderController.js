@@ -1,11 +1,60 @@
-const { Order, User } = require('../models');
-
+const { Order, User, OrderItem, Product, Service } = require('../models');
 
 exports.listOrders = async (req, res) => {
     const orders = await Order.findAll();
     res.json(orders);
 };
 
+exports.getUserOrders = async (req, res) => {
+    try {
+        const { userId } = req.params;
+        
+        const orders = await Order.findAll({
+            where: { user_id: userId },
+            include: [
+                {
+                    model: OrderItem,
+                    include: [
+                        {
+                            model: Product,
+                            as: 'products',
+                            through: { attributes: [] }
+                        },
+                        {
+                            model: Service,
+                            as: 'services',
+                            through: { attributes: [] }
+                        }
+                    ]
+                }
+            ]
+        });
+
+        if (!orders || orders.length === 0) {
+            return res.status(404).json({ error: "Aucune commande trouvée pour cet utilisateur" });
+        }
+
+        console.log(
+            JSON.stringify(
+                orders.map(order => ({
+                    id: order.id,
+                    items: order.OrderItems?.map(item => ({
+                        id: item.id,
+                        products: item.products,
+                        services: item.services
+                    }))
+                })),
+                null,
+                2
+            )
+        );
+
+        res.json(orders);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commandes de l'utilisateur:", error);
+        res.status(500).json({ error: error.message });
+    }
+};
 
 exports.createOrder = async (req, res) => {
     try {
@@ -21,12 +70,11 @@ exports.deleteOrder = async (req, res) => {
     const { id } = req.params;
 
     try {
-        const order = Order.findByPk(id);
+        const order = await Order.findByPk(id);
         if (!order) {
             return res.status(404).json({ error: "Order introuvable" });
         }
 
-        // Supprimer l'ordre (a voir si besoin de supprimer une association ensuite donc )
         await Order.destroy({ where: { id } });
         
         res.json({ message: "Order supprimé avec succès" });

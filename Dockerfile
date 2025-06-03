@@ -12,7 +12,7 @@ RUN apt-get update && apt-get install -y \
 
 # Copie les fichiers de configuration
 COPY package*.json ./
-COPY .env ./
+COPY .env* ./
 
 # Installe les dépendances
 RUN npm install --force --include=dev

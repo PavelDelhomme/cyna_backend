@@ -14,8 +14,8 @@ CREATE TABLE addresses (
 
 CREATE TABLE product_categories (
    id INT AUTO_INCREMENT,
-   name VARCHAR(50),
-   description VARCHAR(250),
+   name VARCHAR(250),
+   description VARCHAR(500),
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id)
@@ -227,20 +227,24 @@ CREATE TABLE stats (
    CONSTRAINT fk_stats_userprofile FOREIGN KEY(user_profile_id) REFERENCES user_profiles(id)
 );
 
-CREATE TABLE asso_orderitems_products (
+CREATE TABLE order_item_products (
    order_item_id INT,
    product_id INT,
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(order_item_id, product_id),
-   CONSTRAINT fk_aoip_orderitem FOREIGN KEY(order_item_id) REFERENCES order_items(id),
-   CONSTRAINT fk_aoip_product FOREIGN KEY(product_id) REFERENCES products(id)
+   CONSTRAINT fk_oip_orderitem FOREIGN KEY(order_item_id) REFERENCES order_items(id),
+   CONSTRAINT fk_oip_product FOREIGN KEY(product_id) REFERENCES products(id)
 );
 
-CREATE TABLE asso_orderitems_services (
+CREATE TABLE order_item_services (
    order_item_id INT,
    service_id INT,
+   created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+   updated_at DATETIME DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(order_item_id, service_id),
-   CONSTRAINT fk_aois_orderitem FOREIGN KEY(order_item_id) REFERENCES order_items(id),
-   CONSTRAINT fk_aois_service FOREIGN KEY(service_id) REFERENCES services(id)
+   CONSTRAINT fk_ois_orderitem FOREIGN KEY(order_item_id) REFERENCES order_items(id),
+   CONSTRAINT fk_ois_service FOREIGN KEY(service_id) REFERENCES services(id)
 );
 
 CREATE TABLE asso_addresses_user_profiles (

@@ -1,42 +1,42 @@
 [
   {
-    "id": 1,
-    "Name": "Admin User",
-    "Email": "admin@example.com",
-    "Password": "admin123",
-    "Phone": "0123456789",
-    "role_id": 1
-  },
-  {
     "id": 2,
-    "Name": "Standard User",
-    "Email": "user@example.com",
-    "Password": "user123",
-    "Phone": "0987654321",
+    "name": "Standard User",
+    "email": "user@example.com",
+    "password": "user123",
+    "phone": "0987654321",
     "role_id": 2
   },
   {
     "id": 3,
-    "Name": "Alice Super",
-    "Email": "alice.super@exemple.com",
-    "Password": "azerty123",
-    "Phone": "0102030405",
+    "name": "Alice Super",
+    "email": "alice.super@exemple.com",
+    "password": "azerty123",
+    "phone": "0102030405",
     "role_id": 2
   },
   {
     "id": 4,
-    "Name": "Bob Admin",
-    "Email": "bob.admin@exemple.com",
-    "Password": "azerty123",
-    "Phone": "0605040302",
+    "name": "Bob Admin",
+    "email": "bob.admin@exemple.com",
+    "password": "azerty123",
+    "phone": "0605040302",
     "role_id": 2
   },
   {
     "id": 5,
-    "Name": "Charlie Client",
-    "Email": "charlie.client@exemple.com",
-    "Password": "azerty123",
-    "Phone": "0711223344",
-    "role_id": 3
+    "name": "Charlie Client",
+    "email": "charlie.client@exemple.com",
+    "password": "azerty123",
+    "phone": "0711223344",
+    "role_id": 2
+  },
+  {
+    "id": 6,
+    "name": "Admin Dev",
+    "email": "admin@cyna.dev",
+    "password": "azerty123",
+    "phone": "0102030405",
+    "role_id": 1
   }
 ]

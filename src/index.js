@@ -1,11 +1,21 @@
-require('dotenv').config();
+const path = require('path');
+const envFile = process.env.NODE_ENV === 'docker' ? '.env.docker' : '.env';
+require('dotenv').config({ path: path.join(__dirname, '..', envFile) });
+
 const express = require('express');
 const cors    = require('cors');
-const path    = require('path');
 const config  = require("./config/database")[process.env.NODE_ENV || 'development'];
 const db      = require('./models');
 const jwt     = require('jsonwebtoken');
 const { where } = require('sequelize');
+
+console.log('Environnement:', process.env.NODE_ENV);
+console.log('Configuration DB:', {
+    host: config.host,
+    port: config.port,
+    database: config.database,
+    username: config.username
+});
 
 const app = express();
 

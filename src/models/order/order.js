@@ -5,14 +5,21 @@ module.exports = (sequelize) => {
   const Order = sequelize.define('Order', {
     totalPrice: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false
+      allowNull: false,
+      field: 'totalprice'
     },
     status: {
       type: DataTypes.STRING(50),
       allowNull: false
+    },
+    creationDate: {
+      type: DataTypes.DATE,
+      field: 'creationdate'
     }
   }, {
-    tableName: 'orders'
+    tableName: 'orders',
+    underscored: true,
+    timestamps: false
   });
 
   Order.associate = (models) => {

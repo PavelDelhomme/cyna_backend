@@ -1,4 +1,3 @@
-
 services:
   backend:
     build:
@@ -8,13 +7,13 @@ services:
     ports:
       - "3007:${SERVER_PORT:-3000}" # Host:3007 -> Container:3000
     environment:
-      - NODE_ENV=${NODE_ENV:-development}
-      - DB_HOST=${DB_HOST:-db}
-      - DB_USER=${DB_USER:-admin}
-      - DB_PASSWORD=${DB_PASSWORD:-yourpassword}
-      - DB_NAME=${DB_NAME:-cyna_database}
+      - NODE_ENV=docker
+      - DB_HOST=db
+      - DB_USER=admin
+      - DB_PASSWORD=yourpassword
+      - DB_NAME=cyna_database
       - DB_PORT=3306
-      - RESET_DB=${RESET_DB:-true}
+      - RESET_DB=true
     depends_on:
       db:
         condition: service_healthy
@@ -30,17 +29,26 @@ services:
     ports:
       - "3307:3306" # Map 3307 sur l'hôte vers 3306 dans le conteneur
     environment:
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-yourpassword}
-      MYSQL_DATABASE: ${DB_NAME:-cyna_database}
-      MYSQL_USER: ${DB_USER:-admin}
-      MYSQL_PASSWORD: ${DB_PASSWORD:-yourpassword}
+      MYSQL_ROOT_PASSWORD: yourpassword
+      MYSQL_DATABASE: cyna_database
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: yourpassword
       MYSQL_ALLOW_EMPTY_PASSWORD: "no"
     volumes:
       - db_data:/var/lib/mysql
       # - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # Désactiver car des problème lors de l'initialisation du conteneur
     healthcheck:
-      #test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-p${MYSQL_ROOT_PASSWORD}"]
-      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-u", "root", "-pyourpassword"]
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-pyourpassword",
+        ]
       interval: 5s
       timeout: 20s
       retries: 20
@@ -48,7 +56,7 @@ services:
     # depends_on:
     #   backend:
     #     condition: service_healthy
-  
+
   phpmyadmin:
     image: phpmyadmin/phpmyadmin
     container_name: cyna_phpmyadmin
@@ -57,9 +65,9 @@ services:
     environment:
       PMA_HOST: db
       PMA_PORT: 3306
-      MYSQL_ROOT_PASSWORD: ${DB_PASSWORD:-yourpassword}
-      PMA_USER: ${PMA_USER:-root}
-      PMA_PASSWORD: ${PMA_PASSWORD:-yourpassword}
+      MYSQL_ROOT_PASSWORD: yourpassword
+      PMA_USER: root
+      PMA_PASSWORD: yourpassword
     depends_on:
       - db
 
