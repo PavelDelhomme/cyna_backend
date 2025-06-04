@@ -134,7 +134,7 @@ const initializeApp = async () => {
       //await db.sequelize.sync({ force: resetDatabase, logging: console.log });
       await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
       await db.sequelize.sync({
-        force: process.env.RESET_DB === 'true',
+        force: process.env.RESET_DB === 'false',
         logging: console.log,
         //hooks: true,
         alter: false,

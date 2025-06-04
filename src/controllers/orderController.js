@@ -1,8 +1,31 @@
 const { Order, User, OrderItem, Product, Service } = require('../models');
 
 exports.listOrders = async (req, res) => {
-    const orders = await Order.findAll();
-    res.json(orders);
+    try {
+        const orders = await Order.findAll({
+            include: [
+                {
+                    model: OrderItem,
+                    include: [
+                        {
+                            model: Product,
+                            as: 'products',
+                            through: { attributes: [] }
+                        },
+                        {
+                            model: Service,
+                            as: 'services',
+                            through: { attributes: [] }
+                        }
+                    ]
+                }
+            ]
+        });
+        res.json(orders);
+    } catch (error) {
+        console.error("Erreur lors de la récupération des commandes:", error);
+        res.status(500).json({ error: error.message });
+    }
 };
 
 exports.getUserOrders = async (req, res) => {
@@ -81,5 +104,24 @@ exports.deleteOrder = async (req, res) => {
     } catch (error) {
         res.status(500).json({ error: error.message });
         console.error("Erreur lors de la suppression de l'order : ", error);
+    }
+};
+
+exports.updateOrderStatus = async (req, res) => {
+    const { id } = req.params;
+    const { status } = req.body;
+
+    try {
+        const order = await Order.findByPk(id);
+        if (!order) {
+            return res.status(404).json({ error: "Commande introuvable" });
+        }
+
+        await order.update({ status });
+        
+        res.json(order);
+    } catch (error) {
+        console.error("Erreur lors de la mise à jour du statut de la commande:", error);
+        res.status(500).json({ error: error.message });
     }
 };
