@@ -22,7 +22,8 @@ module.exports = (sequelize) => {
       },
     },
     { 
-      tableName: 'product_category_roles'
+      tableName: 'asso_categoryproducts_roles',
+      timestamps: false
     }
   );
 

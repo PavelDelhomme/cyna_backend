@@ -70,7 +70,7 @@ exports.createService = async (req, res) => {
         res.status(201).json(serviceWithPromo);
     } catch (err) {
         console.error('Erreur création service :', err);
-        res.status(500).json({ error: err.message });
+        res.status(500).json({ error: err.message }); 
     }
 };
 
@@ -148,9 +148,109 @@ exports.deleteService = async (req, res) => {
     try {
         const service = await Service.findByPk(req.params.id);
         if (!service) return res.status(404).json({ error: "Service non trouvé." });
+
+        // NOUVELLE PARTIE : Supprimer toutes les références au service d'abord
+        const { OrderItemService, Review, CarouselItem, ServiceRole } = require('../models');
+        
+        // Supprimer les associations order_item_services
+        await OrderItemService.destroy({
+            where: { service_id: req.params.id }
+        });
+        
+        // Supprimer les reviews liées au service
+        await Review.destroy({
+            where: { service_id: req.params.id }
+        });
+        
+        // Supprimer les éléments de carousel liés au service
+        await CarouselItem.destroy({
+            where: { service_id: req.params.id }
+        });
+        
+        // Supprimer les associations services-rôles
+        await ServiceRole.destroy({
+            where: { service_id: req.params.id }
+        });
+
+        // Maintenant supprimer le service
         await service.destroy();
         res.json({ message: "Service supprimé." });
     } catch (err) {
+        console.error('Erreur suppression service :', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.checkServiceDependencies = async (req, res) => {
+    try {
+        const serviceId = req.params.id;
+        const { OrderItemService, Review, CarouselItem, ServiceRole } = require('../models');
+        
+        // Vérifier les commandes qui utilisent ce service
+        const orderItems = await OrderItemService.findAll({
+            where: { service_id: serviceId },
+            include: [{
+                model: OrderItemService.sequelize.models.OrderItem,
+                include: [{
+                    model: OrderItemService.sequelize.models.Order,
+                    attributes: ['id']
+                }]
+            }]
+        });
+        
+        // Vérifier les avis
+        const reviews = await Review.findAll({
+            where: { service_id: serviceId },
+            attributes: ['id']
+        });
+        
+        // Vérifier les éléments de carousel
+        const carouselItems = await CarouselItem.findAll({
+            where: { service_id: serviceId },
+            attributes: ['id']
+        });
+        
+        // Vérifier les associations service-rôles
+        const roleAssociations = await ServiceRole.findAll({
+            where: { service_id: serviceId }
+        });
+        
+        const dependencies = {
+            orderItems: orderItems.length,
+            reviews: reviews.length,
+            carouselItems: carouselItems.length,
+            roleAssociations: roleAssociations.length,
+            canDelete: true,
+            warnings: []
+        };
+        
+        if (orderItems.length > 0) {
+            dependencies.warnings.push(
+                `${orderItems.length} commande(s) contienne(nt) ce service. Ces associations seront supprimées.`
+            );
+        }
+        
+        if (reviews.length > 0) {
+            dependencies.warnings.push(
+                `${reviews.length} avis concerne(nt) ce service. Ils seront supprimés.`
+            );
+        }
+        
+        if (carouselItems.length > 0) {
+            dependencies.warnings.push(
+                `${carouselItems.length} élément(s) du carousel utilise(nt) ce service. Ils seront supprimés.`
+            );
+        }
+        
+        if (roleAssociations.length > 0) {
+            dependencies.warnings.push(
+                `${roleAssociations.length} association(s) service-rôle sera(ont) supprimée(s).`
+            );
+        }
+        
+        res.json(dependencies);
+    } catch (err) {
+        console.error('Erreur vérification dépendances service :', err);
         res.status(500).json({ error: err.message });
     }
 };

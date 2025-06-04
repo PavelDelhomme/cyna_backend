@@ -22,7 +22,8 @@ module.exports = (sequelize) => {
       },
     },
     { 
-      tableName: 'service_type_roles'
+      tableName: 'asso_servicetypes_roles',
+      timestamps: false
     }
   );
 

@@ -140,10 +140,85 @@ exports.deleteProduct = async (req, res) => {
     const product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).json({ error: "Produit non trouvé." });
 
+    // NOUVELLE PARTIE : Supprimer toutes les références au produit d'abord
+    const { OrderItemProduct, Review, CarouselItem } = require('../models');
+    
+    // Supprimer les associations order_item_products
+    await OrderItemProduct.destroy({
+      where: { product_id: req.params.id }
+    });
+    
+    // Supprimer les reviews liées au produit
+    await Review.destroy({
+      where: { product_id: req.params.id }
+    });
+    
+    // Supprimer les éléments de carousel liés au produit
+    await CarouselItem.destroy({
+      where: { product_id: req.params.id }
+    });
+
+    // Maintenant supprimer le produit
     await product.destroy();
     res.json({ message: "Produit supprimé." });
   } catch (err) {
     console.error('Erreur suppression produit :', err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Nouveau : Vérifier les dépendances avant suppression
+exports.checkProductDependencies = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const { OrderItemProduct, Review, CarouselItem } = require('../models');
+    
+    // Vérifier les commandes qui utilisent ce produit
+    const orderItems = await OrderItemProduct.findAll({
+      where: { product_id: productId }
+    });
+    
+    // Vérifier les avis
+    const reviews = await Review.findAll({
+      where: { product_id: productId },
+      attributes: ['id']
+    });
+    
+    // Vérifier les éléments de carousel
+    const carouselItems = await CarouselItem.findAll({
+      where: { product_id: productId },
+      attributes: ['id']
+    });
+    
+    const dependencies = {
+      orderItems: orderItems.length,
+      reviews: reviews.length,
+      carouselItems: carouselItems.length,
+      canDelete: true,
+      warnings: []
+    };
+    
+    if (orderItems.length > 0) {
+      dependencies.warnings.push(
+        `${orderItems.length} commande(s) contienne(nt) ce produit. Ces associations seront supprimées.`
+      );
+    }
+    
+    if (reviews.length > 0) {
+      dependencies.warnings.push(
+        `${reviews.length} avis concerne(nt) ce produit. Ils seront supprimés.`
+      );
+    }
+    
+    if (carouselItems.length > 0) {
+      dependencies.warnings.push(
+        `${carouselItems.length} élément(s) du carousel utilise(nt) ce produit. Ils seront supprimés.`
+      );
+    }
+    
+    res.json(dependencies);
+  } catch (err) {
+    console.error('Erreur vérification dépendances produit :', err);
     res.status(500).json({ error: err.message });
   }
 };
