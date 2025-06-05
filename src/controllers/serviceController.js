@@ -115,7 +115,7 @@ exports.updateService = async (req, res) => {
         };
 
         // Gérer le promo_code_id séparément
-        if (promo_code_id === '') {
+        if (promo_code_id === '' || promo_code_id === null) {
             updateData.promo_code_id = null;
         } else if (promo_code_id) {
             const promoCode = await PromoCode.findByPk(promo_code_id);

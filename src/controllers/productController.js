@@ -99,10 +99,16 @@ exports.updateProduct = async (req, res) => {
       price: price ? parseFloat(price) : undefined,
       stock: stock ? parseInt(stock, 10) : undefined,
       category_id: category_id ? parseInt(category_id, 10) : undefined,
-      promo_code_id: promo_code_id ? parseInt(promo_code_id, 10) : undefined
     };
 
-    // Suppression des valeurs undefined
+    // Gérer promo_code_id séparément pour permettre null
+    if (promo_code_id === null) {
+      updateData.promo_code_id = null;
+    } else if (promo_code_id) {
+      updateData.promo_code_id = parseInt(promo_code_id, 10);
+    }
+
+    // Suppression des valeurs undefined (mais pas null)
     Object.keys(updateData).forEach(key => 
       updateData[key] === undefined && delete updateData[key]
     );
