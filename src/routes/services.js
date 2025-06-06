@@ -5,10 +5,13 @@ const svc     = require('../controllers/serviceController');
 const multer = require('multer');
 const upload = multer({ dest: 'uploads/' });
 
-router.get('/', auth(['user','admin']), svc.listServices);
-router.post('/', upload.single('image'), auth(['admin']), svc.createService);
-router.put('/:id', upload.single('image'), auth(['admin']), svc.updateService);
-router.delete('/:id', auth(['admin']),   svc.deleteService);
+// Route publique pour lister les services
+router.get('/', svc.listServices);
+
+// Routes protégées pour l'administration
+router.post('/', auth(['admin']), upload.single('image'), svc.createService);
+router.put('/:id', auth(['admin']), upload.single('image'), svc.updateService);
+router.delete('/:id', auth(['admin']), svc.deleteService);
 router.get('/:id/dependencies', auth(['admin']), svc.checkServiceDependencies);
 
 module.exports = router;

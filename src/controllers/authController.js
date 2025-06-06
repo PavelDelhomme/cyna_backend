@@ -78,6 +78,7 @@ const login = async (req, res) => {
             token,
             refreshToken,
             userId: user.id,
+            role: user.role?.name,
             profile: {
                 id: profile.id,
                 createdAt: profile.createdAt,

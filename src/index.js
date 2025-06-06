@@ -98,6 +98,7 @@ app.use("/api/tickets", require("./routes/tickets"));
 app.use('/api/team', require('./routes/team'));
 app.use('/api/carousel', require('./routes/carousel'));
 app.use("/api/details", require('./routes/product-details'));
+app.use('/api/search', require('./routes/search'));
 
 // public debug
 app.use("/api/dev",       require("./routes/devTest"));
@@ -105,27 +106,6 @@ app.use("/api/dev",       require("./routes/devTest"));
 // admin debug
 app.use("/api/admin/dev", require("./routes/devTest"));
 
-// --- Routes Admin propres ---
-/*app.use("/api/admin/auth",                require('./routes/admin/auth'));
-app.use("/api/admin/orders",              require('./routes/admin/orders'));
-app.use("/api/admin/invoices",            require('./routes/admin/invoices'));
-app.use("/api/admin/payments",            require('./routes/admin/payments'));
-app.use("/api/admin/services",            require('./routes/admin/services'));
-app.use("/api/admin/reviews",             require('./routes/admin/reviews'));
-app.use("/api/admin/addresses",           require('./routes/admin/addresses'));
-app.use("/api/admin/promo-codes",         require('./routes/admin/promo-codes'));
-app.use("/api/admin/roles",               require('./routes/admin/roles'));
-app.use("/api/admin/users",               require('./routes/admin/users'));
-app.use("/api/admin/chatbots",            require('./routes/admin/chatbots'));
-app.use("/api/admin/chatbot-histories",   require('./routes/admin/chatbot-histories'));
-app.use("/api/admin/product-categories",  require('./routes/admin/product-categories'));
-app.use("/api/admin/carts",               require('./routes/admin/carts'));
-app.use("/api/admin/products",            require('./routes/admin/products'));
-app.use("/api/admin/service-types",       require('./routes/admin/service-types'));
-app.use("/api/admin/stats",               require('./routes/admin/stats'));
-app.use("/api/admin/tickets",             require('./routes/admin/tickets'));
-app.use("/api/admin/profiles",            require('./routes/admin/profiles'));
-*/
 app.use((req, res) => {
   res.status(404).json({ error: `Route ${req.originalUrl} introuvable`});
 });
