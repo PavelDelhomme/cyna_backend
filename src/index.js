@@ -8,6 +8,7 @@ const config  = require("./config/database")[process.env.NODE_ENV || 'developmen
 const db      = require('./models');
 const jwt     = require('jsonwebtoken');
 const { where } = require('sequelize');
+const multer = require('multer');
 
 console.log('Environnement:', process.env.NODE_ENV);
 console.log('Configuration DB:', {
@@ -19,6 +20,21 @@ console.log('Configuration DB:', {
 
 const app = express();
 
+// Configurer le dossier d'upload
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, 'uploads/'); // dossier où stocker les images
+  },
+  filename: function (req, file, cb) {
+    // nom unique pour éviter les collisions
+    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+    cb(null, uniqueSuffix + path.extname(file.originalname));
+  }
+});
+const upload = multer({ storage: storage });
+
+// Rendre le dossier uploads accessible publiquement
+app.use('/uploads', express.static('uploads'));
 
 // 1. CORS : autorise ton front
 app.use(cors({
@@ -47,7 +63,8 @@ app.use(cors({
 console.log(config);
 
 // Middleware global
-app.use(express.json());
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
 // Servir le petit front-end de test
 app.use('/', express.static(path.join(__dirname, "../small_front_test")));

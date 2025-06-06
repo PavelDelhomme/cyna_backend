@@ -18,6 +18,7 @@ exports.listServices = async (req, res) => {
             'subscriptionType',
             'userCount',
             'promotion',
+            'image',
             'service_type_id',
             'promo_code_id',
             'createdAt',
@@ -33,7 +34,7 @@ exports.listServices = async (req, res) => {
 exports.createService = async (req, res) => {
     try {
         console.log('Payload reçu pour création service :', req.body);
-
+        console.log('Fichier reçu (req.file) :', req.file);
         const {
             name, description, price, status, subscription,
             subscriptionType, userCount, promotion, service_type_id,
@@ -46,6 +47,28 @@ exports.createService = async (req, res) => {
             return res.status(400).json({ error: "Champs obligatoires manquants." });
         }
 
+        // Gestion image
+        let imagePath = null;
+        if (req.file) {
+            imagePath = `/uploads/${req.file.filename}`;
+        } else if (req.body.image && req.body.image.startsWith('http')) {
+            imagePath = req.body.image;
+        }
+
+        // Gestion promo_code_id robuste
+        let promoId = null;
+        if (
+            promo_code_id !== undefined &&
+            promo_code_id !== null &&
+            promo_code_id !== '' &&
+            promo_code_id !== 'null'
+        ) {
+            const parsedPromo = parseInt(promo_code_id, 10);
+            if (!isNaN(parsedPromo)) {
+                promoId = parsedPromo;
+            }
+        }
+
         const service = await Service.create({
             name,
             description,
@@ -56,7 +79,8 @@ exports.createService = async (req, res) => {
             userCount: userCount === '' ? null : parseInt(userCount, 10),
             promotion,
             service_type_id: parseInt(service_type_id, 10),
-            promo_code_id: promo_code_id ? parseInt(promo_code_id, 10) : null
+            promo_code_id: promoId,
+            image: imagePath
         });
 
         const serviceWithPromo = await Service.findByPk(service.id, {
@@ -91,7 +115,7 @@ exports.assignPromoToService = async (req, res) => {
 exports.updateService = async (req, res) => {
     try {
         console.log('Payload reçu pour mise à jour service :', req.body);
-        
+        console.log('Fichier reçu (req.file) :', req.file);
         const {
             name, description, price, status, subscription,
             subscriptionType, userCount, promotion, service_type_id,
@@ -114,16 +138,34 @@ exports.updateService = async (req, res) => {
             service_type_id: service_type_id ? parseInt(service_type_id, 10) : service.service_type_id
         };
 
-        // Gérer le promo_code_id séparément
-        if (promo_code_id === '' || promo_code_id === null) {
+        // Gestion promo_code_id robuste
+        if (
+            promo_code_id === 'null' ||
+            promo_code_id === '' ||
+            promo_code_id === null ||
+            typeof promo_code_id === 'undefined'
+        ) {
             updateData.promo_code_id = null;
-        } else if (promo_code_id) {
-            const promoCode = await PromoCode.findByPk(promo_code_id);
-            if (!promoCode) {
-                return res.status(400).json({ error: "Code promo non trouvé." });
+        } else {
+            const parsedPromo = parseInt(promo_code_id, 10);
+            if (!isNaN(parsedPromo)) {
+                updateData.promo_code_id = parsedPromo;
             }
-            updateData.promo_code_id = parseInt(promo_code_id, 10);
         }
+
+        // Gestion image
+        if (req.file) {
+            updateData.image = `/uploads/${req.file.filename}`;
+        } else if (req.body.image && req.body.image.startsWith('http')) {
+            updateData.image = req.body.image;
+        }
+
+        // Supprimer les valeurs undefined
+        Object.keys(updateData).forEach(key => 
+            updateData[key] === undefined && delete updateData[key]
+        );
+
+        console.log('Données à mettre à jour:', updateData);
 
         // Mise à jour du service
         await service.update(updateData);

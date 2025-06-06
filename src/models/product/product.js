@@ -21,6 +21,10 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     promotion: DataTypes.STRING(255),
+    image: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
     category_id: {
       type: DataTypes.INTEGER,
       allowNull: true,

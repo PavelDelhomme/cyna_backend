@@ -9,6 +9,10 @@ module.exports = (sequelize) => {
     },
     name: DataTypes.STRING(50),
     description: DataTypes.STRING(255),
+    image: {
+      type: DataTypes.STRING(255),
+      allowNull: true
+    },
     status: DataTypes.BOOLEAN,
     price: {
       type: DataTypes.DECIMAL(10, 2),

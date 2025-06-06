@@ -11,7 +11,7 @@
     "promotion": "",
     "service_type_id": 1,
     "promo_code_id": null,
-    "image": "/images/prevention.jpg"
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"
   },
   {
     "id": 2,
@@ -25,7 +25,7 @@
     "promotion": "",
     "service_type_id": 2,
     "promo_code_id": null,
-    "image": "/images/protection.jpg"
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg"
   },
   {
     "id": 3,
@@ -39,6 +39,6 @@
     "promotion": "",
     "service_type_id": 3,
     "promo_code_id": null,
-    "image": "/images/reponse.jpg"
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg"
   }
 ]

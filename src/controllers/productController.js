@@ -4,6 +4,19 @@ const { Product, PromoCode, ProductCategory } = require('../models');
 exports.listProducts = async (req, res) => {
   try {
     const products = await Product.findAll({
+      attributes: [
+        'id',
+        'name',
+        'description',
+        'price',
+        'stock',
+        'promotion',
+        'image',
+        'category_id',
+        'promo_code_id',
+        'createdAt',
+        'updatedAt'
+      ],
       include: [
         {
           model: ProductCategory,
@@ -27,6 +40,8 @@ exports.listProducts = async (req, res) => {
 exports.createProduct = async (req, res) => {
   try {
     console.log('Payload reçu pour création produit :', req.body);
+    console.log('Fichier reçu (req.file) :', req.file);
+    console.log('URL reçue (req.body.imageUrl) :', req.body.imageUrl);
 
     const { name, description, price, stock, category_id, promo_code_id } = req.body;
 
@@ -38,13 +53,23 @@ exports.createProduct = async (req, res) => {
       return res.status(400).json({ error: "Champs obligatoires manquants." });
     }
 
+    // Gestion de l'image locale ou d'une URL
+    let imagePath = null;
+    if (req.file) {
+      imagePath = '/uploads/' + req.file.filename;
+    } else if (req.body.imageUrl) {
+      imagePath = req.body.imageUrl;
+    }
+    console.log('Chemin image enregistré en BDD :', imagePath);
+
     const product = await Product.create({
       name,
       description,
-      price: parseFloat(price), // conversion explicite en nombre
-      stock: parseInt(stock, 10), // conversion explicite en nombre
-      category_id: parseInt(category_id, 10), // conversion explicite en nombre
-      promo_code_id: promo_code_id ? parseInt(promo_code_id, 10) : null
+      price: parseFloat(price),
+      stock: parseInt(stock, 10),
+      category_id: parseInt(category_id, 10),
+      promo_code_id: promo_code_id ? parseInt(promo_code_id, 10) : null,
+      image: imagePath
     });
 
     const productWithAssociations = await Product.findByPk(product.id, {
@@ -86,6 +111,7 @@ exports.assignPromoToProduct = async (req, res) => {
 exports.updateProduct = async (req, res) => {
   try {
     console.log('Payload reçu pour mise à jour produit :', req.body);
+    console.log('Fichier reçu (req.file) :', req.file);
     
     const product = await Product.findByPk(req.params.id);
     if (!product) return res.status(404).json({ error: "Produit non trouvé." });
@@ -101,11 +127,26 @@ exports.updateProduct = async (req, res) => {
       category_id: category_id ? parseInt(category_id, 10) : undefined,
     };
 
-    // Gérer promo_code_id séparément pour permettre null
-    if (promo_code_id === null) {
+    // Gérer le promo_code_id de façon robuste
+    if (
+      req.body.promo_code_id === 'null' ||
+      req.body.promo_code_id === '' ||
+      req.body.promo_code_id === null ||
+      typeof req.body.promo_code_id === 'undefined'
+    ) {
       updateData.promo_code_id = null;
-    } else if (promo_code_id) {
-      updateData.promo_code_id = parseInt(promo_code_id, 10);
+    } else {
+      const parsedPromo = parseInt(req.body.promo_code_id, 10);
+      if (!isNaN(parsedPromo)) {
+        updateData.promo_code_id = parsedPromo;
+      }
+    }
+
+    // Gestion de l'image
+    if (req.file) {
+      updateData.image = '/uploads/' + req.file.filename;
+    } else if (req.body.image) {
+      updateData.image = req.body.image;
     }
 
     // Suppression des valeurs undefined (mais pas null)

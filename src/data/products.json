@@ -7,7 +7,7 @@
     "stock": 10,
     "promotion": "",
     "category_id": 1,
-    "image": "/images/products/firewall_x1000.jpg",
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
     "promo_code_id": 1
   },
   {
@@ -18,7 +18,7 @@
     "stock": 50,
     "promotion": "10% de réduction",
     "category_id": 2,
-    "image": "/images/products/antivirus_corp.jpg",
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg",
     "promo_code_id": 2
   },
   {
@@ -29,7 +29,7 @@
     "stock": 30,
     "promotion": "",
     "category_id": 3,
-    "image": "/images/products/vpn_secureconnect.jpg",
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
     "promo_code_id": 3
   },
   {
@@ -40,7 +40,7 @@
     "stock": 8,
     "promotion": "",
     "category_id": 4,
-    "image": "/images/products/identityguard.jpg",
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg",
     "promo_code_id": null
   },
   {
@@ -51,7 +51,7 @@
     "stock": 5,
     "promotion": "15% de réduction",
     "category_id": 5,
-    "image": "/images/products/encryption_suite.jpg",
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
     "promo_code_id": null
   },
   {
@@ -62,7 +62,7 @@
     "stock": 12,
     "promotion": "",
     "category_id": 6,
-    "image": "/images/products/ids_ips_pro.jpg",
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg",
     "promo_code_id": null
   }
 ]
