@@ -51,7 +51,7 @@ async function initCarts() {
       for (const cart of carts) {
         console.log('Insertion du panier:', cart);
         await connection.query(
-          `INSERT INTO carts (id, creationdate, lastupdate, user_id) VALUES (?, ?, ?, ?)`,
+          `INSERT INTO carts (id, creationdate, lastupdate, user_id, created_at, updated_at) VALUES (?, ?, ?, ?, NOW(), NOW())`,
           [cart.id, cart.creationdate, cart.lastupdate, cart.user_id]
         );
       }

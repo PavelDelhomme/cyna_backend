@@ -1,15 +1,25 @@
-CREATE DATABASE IF NOT EXISTS cyna_database;
+DROP DATABASE IF EXISTS cyna_database;
+CREATE DATABASE cyna_database;
 USE cyna_database;
 
 CREATE TABLE addresses (
    id INT AUTO_INCREMENT,
+   label VARCHAR(100),
    address1 VARCHAR(200),
+   line2 VARCHAR(200),
    city VARCHAR(100),
    postalcode VARCHAR(50),
    region VARCHAR(100),
    country VARCHAR(50),
    type VARCHAR(50),
-   PRIMARY KEY(id)
+   is_default BOOLEAN DEFAULT FALSE,
+   user_id INT,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_addresses_user 
+   FOREIGN KEY (user_id) REFERENCES users(id) 
+   ON DELETE CASCADE
 );
 
 CREATE TABLE product_categories (
@@ -41,7 +51,7 @@ CREATE TABLE roles (
 CREATE TABLE users (
    id INT AUTO_INCREMENT,
    name VARCHAR(50),
-   email VARCHAR(50),
+   email VARCHAR(50) UNIQUE,
    password VARCHAR(255),
    phone VARCHAR(20),
    role_id INT,
@@ -75,11 +85,11 @@ CREATE TABLE promo_codes (
 
 CREATE TABLE carts (
    id INT AUTO_INCREMENT,
-   creationdate DATETIME,
-   lastupdate DATETIME,
-   user_id INT NOT NULL,
+   user_id INT NULL,
+   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id),
-   CONSTRAINT fk_carts_user FOREIGN KEY(user_id) REFERENCES users(id)
+   CONSTRAINT fk_carts_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 CREATE TABLE services (
@@ -124,8 +134,8 @@ CREATE TABLE tickets (
    subject VARCHAR(50),
    description VARCHAR(255),
    status VARCHAR(50),
-   creationdate DATETIME,
-   updatedate DATETIME,
+   created_at DATETIME,
+   updated_at DATETIME,
    user_id INT NOT NULL,
    PRIMARY KEY(id),
    CONSTRAINT fk_tickets_user FOREIGN KEY(user_id) REFERENCES users(id)
@@ -158,16 +168,35 @@ CREATE TABLE user_profiles (
    CONSTRAINT fk_userprofiles_user FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
+CREATE TABLE payments (
+   id INT AUTO_INCREMENT, 
+   amount DOUBLE,
+   status VARCHAR(50),
+   method VARCHAR(50),
+   type VARCHAR(50),
+   last4 VARCHAR(4),
+   expiry VARCHAR(7),
+   isDefault BOOLEAN DEFAULT false,
+   user_id INT NOT NULL,
+   order_id INT NULL,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_payments_user FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
 CREATE TABLE orders (
    id INT AUTO_INCREMENT,
    creationdate DATETIME,
    totalprice DOUBLE,
    status VARCHAR(50),
-   user_id INT NOT NULL,
-   cart_id INT NOT NULL,
+   user_id INT NULL,
+   cart_id INT NULL,
+   payment_id INT,
    PRIMARY KEY(id),
-   CONSTRAINT fk_orders_user FOREIGN KEY(user_id) REFERENCES users(id),
-   CONSTRAINT fk_orders_cart FOREIGN KEY(cart_id) REFERENCES carts(id)
+   CONSTRAINT fk_orders_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+   CONSTRAINT fk_orders_cart FOREIGN KEY(cart_id) REFERENCES carts(id) ON DELETE SET NULL ON UPDATE CASCADE,
+   CONSTRAINT fk_orders_payment FOREIGN KEY(payment_id) REFERENCES payments(id)
 );
 
 CREATE TABLE order_items (
@@ -179,31 +208,20 @@ CREATE TABLE order_items (
    CONSTRAINT fk_orderitems_order FOREIGN KEY(order_id) REFERENCES orders(id)
 );
 
-CREATE TABLE payments (
-   id INT AUTO_INCREMENT, 
-   amount DOUBLE,
-   status VARCHAR(50),
-   creationdate DATETIME,
-   method VARCHAR(50),
-   order_id INT NOT NULL,
-   PRIMARY KEY(id),
-   CONSTRAINT fk_payments_order FOREIGN KEY(order_id) REFERENCES orders(id)
-);
-
 CREATE TABLE invoices (
    id INT AUTO_INCREMENT,
    name VARCHAR(50),
    email VARCHAR(50),
    amount DOUBLE,
    phone VARCHAR(20),
-   creationdate DATETIME,
+   created_at DATETIME,
    method VARCHAR(50),
    quantity VARCHAR(50),
-   user_id INT NOT NULL,
-   payment_id INT NOT NULL,
+   user_id INT NULL,
+   payment_id INT NULL,
    PRIMARY KEY(id),
    CONSTRAINT fk_invoices_user FOREIGN KEY(user_id) REFERENCES users(id),
-   CONSTRAINT fk_invoices_payment FOREIGN KEY(payment_id) REFERENCES payments(id)
+   CONSTRAINT fk_invoices_payment FOREIGN KEY(payment_id) REFERENCES payments(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
 CREATE TABLE reviews (
@@ -211,13 +229,14 @@ CREATE TABLE reviews (
    rating INT,
    description VARCHAR(255),
    reviewdate DATE,
-   service_id INT NOT NULL,
-   product_id INT NOT NULL,
+   service_id INT,
+   product_id INT,
    user_profile_id INT NOT NULL,
    PRIMARY KEY(id),
    CONSTRAINT fk_reviews_service FOREIGN KEY(service_id) REFERENCES services(id),
    CONSTRAINT fk_reviews_product FOREIGN KEY(product_id) REFERENCES products(id),
-   CONSTRAINT fk_reviews_userprofile FOREIGN KEY(user_profile_id) REFERENCES user_profiles(id)
+   CONSTRAINT fk_reviews_userprofile FOREIGN KEY(user_profile_id) REFERENCES user_profiles(id),
+   CHECK ((product_id IS NOT NULL AND service_id IS NULL) OR (product_id IS NULL AND service_id IS NOT NULL))
 );
 
 CREATE TABLE stats (

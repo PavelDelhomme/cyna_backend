@@ -11,10 +11,10 @@ const scripts = [
   'init-promoCodes.js',    // Création des codes promo (doit être avant les produits)
   'init-products.js',      // Création des produits (dépend des catégories et codes promo)
   'init-services.js',      // Création des services (dépend des types de services)
-  'init-carts.js',         // Création des paniers (dépend des utilisateurs)
   'init-orders.js',        // Création des commandes (dépend des paniers)
   'init-team.js',          // Création de l'équipe (pas de dépendances)
-  'init-carousel.js'       // Création du carousel (dépend des produits et services)
+  'init-carousel.js',      // Création du carousel (dépend des produits et services)
+  'init-payments.js'       // Création des paiements (dépend des commandes)
 ];
 
 function sleep(ms) {

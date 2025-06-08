@@ -12,9 +12,24 @@ module.exports = (sequelize) => {
       allowNull: false
     },
     status: DataTypes.STRING(50),
-    method: DataTypes.STRING(50)
+    method: DataTypes.STRING(50),
+    type: DataTypes.STRING(50),
+    last4: DataTypes.STRING(4),
+    expiry: DataTypes.STRING(7),
+    isDefault: {
+      type: DataTypes.BOOLEAN,
+      defaultValue: false,
+      field: 'isDefault'
+    },
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: false
+    }
   }, {
-    tableName: "payments"
+    tableName: "payments",
+    timestamps: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
   Payment.associate = (models) => {
@@ -23,6 +38,9 @@ module.exports = (sequelize) => {
     });
     Payment.hasMany(models.Invoice, {
       foreignKey: 'payment_id'
+    });
+    Payment.belongsTo(models.User, {
+      foreignKey: 'user_id'
     });
   };
 

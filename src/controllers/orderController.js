@@ -1,4 +1,4 @@
-const { Order, User, OrderItem, Product, Service } = require('../models');
+const { Order, User, OrderItem, Product, Service, Payment } = require('../models');
 
 exports.listOrders = async (req, res) => {
     try {
@@ -18,6 +18,10 @@ exports.listOrders = async (req, res) => {
                             through: { attributes: [] }
                         }
                     ]
+                },
+                {
+                    model: Payment,
+                    as: 'payment'
                 }
             ]
         });
@@ -49,6 +53,10 @@ exports.getUserOrders = async (req, res) => {
                             through: { attributes: [] }
                         }
                     ]
+                },
+                {
+                    model: Payment,
+                    as: 'payment'
                 }
             ]
         });

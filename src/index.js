@@ -9,6 +9,8 @@ const db      = require('./models');
 const jwt     = require('jsonwebtoken');
 const { where } = require('sequelize');
 const multer = require('multer');
+const auth = require('./middlewares/authMiddleware');  // Modification du chemin d'import
+const { execSync } = require('child_process');
 
 console.log('Environnement:', process.env.NODE_ENV);
 console.log('Configuration DB:', {
@@ -33,7 +35,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Rendre le dossier uploads accessible publiquement
+// Rendre le dossier uploads accessibles publiquement
 app.use('/uploads', express.static('uploads'));
 
 // 1. CORS : autorise ton front
@@ -75,7 +77,7 @@ const { User, Role } = db;
 
 // --- Routes User / Public ---
 app.use("/api/auth", require('./routes/auth'));  // Auth publique
-app.use("/api/addresses", require('./routes/addresses'));
+app.use("/api/addresses", auth(['user', 'admin']), require('./routes/addresses'));  // Ajout du middleware avec les rôles autorisés
 app.use("/api/users", require('./routes/users'));
 app.use("/api/roles", require('./routes/roles'));
 // → point d'entrée unique pour le profil (user/admin)
@@ -131,32 +133,30 @@ const initializeApp = async () => {
       //await db.sequelize.sync({ force: resetDatabase, logging: console.log });
       await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
       await db.sequelize.sync({
-        force: process.env.RESET_DB === 'false',
+        force: process.env.RESET_DB === 'true',
         logging: console.log,
-        //hooks: true,
         alter: false,
-        // Ajout de l'option pour MySQL
-        //query: { raw: true },
-        // Forcer l'ordre de suppression
         drop: {
           cascade: true,
           order: [
             // Tables de jointure d'abord
             'order_item_services', 'order_item_products', 
             'address_user_profiles', 'role_promo_codes',
+            'asso_categoryproducts_roles', 'asso_servicetypes_roles',
+            'asso_roles_promocodes', 'asso_services_roles',
             
             // Tables enfants ensuite
             'order_items', 'invoices', 'payments',
             'tickets', 'stats', 'reviews',
+            'chatbot_histories', 'chatbots',
             
             // Tables parents enfin
             'orders', 'carts', 'products', 'services',
             'promo_codes', 'service_types', 'product_categories',
-            'users', 'roles', 'addresses'
+            'user_profiles', 'users', 'roles', 'addresses'
           ]
         }
       });
-
       await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
       // Execution manuelle des seeder
       // if (process.env.RESET_DB === 'true') {
@@ -193,6 +193,16 @@ const initializeApp = async () => {
       const { UserProfile } = db;
       await UserProfile.findOrCreate({ where: { user_id: adminUser.id } });
 
+      if (process.env.INIT_ALL === 'true') {
+        try {
+          console.log("Lancement du script d'initialisation des données (init-all.js)...");
+          execSync('node ./scripts/init-all.js', { stdio: 'inherit', cwd: path.join(__dirname, '..', 'cyna_backend') });
+          console.log("✅ Données de démo insérées !");
+        } catch (err) {
+          console.error("Erreur lors de l'exécution de init-all.js :", err);
+          process.exit(1);
+        }
+      }
 
       // Démarrage du server
       const PORT = process.env.PORT || 3000;

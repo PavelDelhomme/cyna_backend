@@ -173,3 +173,120 @@ exports.deleteUserAddress = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+// Récupérer toutes les adresses d'un utilisateur
+exports.getAddresses = async (req, res) => {
+  try {
+    const userProfile = await UserProfile.findOne({
+      where: { user_id: req.user.id },
+      include: [{
+        model: Address,
+        as: 'addresses'
+      }]
+    });
+
+    if (!userProfile) {
+      return res.status(404).json({ message: 'Profil utilisateur non trouvé' });
+    }
+
+    res.json(userProfile.addresses);
+  } catch (error) {
+    console.error('[ADDRESS] Erreur lors de la récupération des adresses:', error);
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// Créer une nouvelle adresse
+exports.createAddress = async (req, res) => {
+  try {
+    const userProfile = await UserProfile.findOne({
+      where: { user_id: req.user.id }
+    });
+
+    if (!userProfile) {
+      return res.status(404).json({ message: 'Profil utilisateur non trouvé' });
+    }
+
+    const address = await Address.create(req.body);
+    await userProfile.addAddress(address);
+
+    if (req.body.is_default) {
+      await userProfile.addresses.forEach(async (addr) => {
+        if (addr.id !== address.id) {
+          await addr.update({ is_default: false });
+        }
+      });
+    }
+
+    console.log('[ADDRESS] Nouvelle adresse créée:', address.id);
+    res.status(201).json(address);
+  } catch (error) {
+    console.error('[ADDRESS] Erreur lors de la création:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// Mettre à jour une adresse
+exports.updateAddress = async (req, res) => {
+  try {
+    const userProfile = await UserProfile.findOne({
+      where: { user_id: req.user.id },
+      include: [{
+        model: Address,
+        as: 'addresses',
+        where: { id: req.params.id }
+      }]
+    });
+
+    if (!userProfile || !userProfile.addresses.length) {
+      console.warn('[ADDRESS] Adresse non trouvée:', req.params.id);
+      return res.status(404).json({ message: 'Adresse non trouvée' });
+    }
+
+    const address = userProfile.addresses[0];
+
+    if (req.body.is_default) {
+      await userProfile.addresses.forEach(async (addr) => {
+        if (addr.id !== address.id) {
+          await addr.update({ is_default: false });
+        }
+      });
+    }
+
+    await address.update(req.body);
+    console.log('[ADDRESS] Adresse mise à jour:', address.id);
+    res.json(address);
+  } catch (error) {
+    console.error('[ADDRESS] Erreur lors de la mise à jour:', error);
+    res.status(400).json({ message: error.message });
+  }
+};
+
+// Supprimer une adresse
+exports.deleteAddress = async (req, res) => {
+  try {
+    const userProfile = await UserProfile.findOne({
+      where: { user_id: req.user.id },
+      include: [{
+        model: Address,
+        as: 'addresses',
+        where: { id: req.params.id }
+      }]
+    });
+
+    if (!userProfile || !userProfile.addresses.length) {
+      console.warn('[ADDRESS] Adresse non trouvée:', req.params.id);
+      return res.status(404).json({ message: 'Adresse non trouvée' });
+    }
+
+    const address = userProfile.addresses[0];
+    await userProfile.removeAddress(address);
+    await address.destroy();
+
+    console.log('[ADDRESS] Adresse supprimée:', req.params.id);
+    res.json({ message: 'Adresse supprimée avec succès' });
+  } catch (error) {
+    console.error('[ADDRESS] Erreur lors de la suppression:', error);
+    res.status(500).json({ message: error.message });
+  }
+};

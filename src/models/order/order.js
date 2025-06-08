@@ -15,6 +15,20 @@ module.exports = (sequelize) => {
     creationDate: {
       type: DataTypes.DATE,
       field: 'creationdate'
+    },
+    payment_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    },
+    cart_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'carts',
+        key: 'id'
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     }
   }, {
     tableName: 'orders',
@@ -37,6 +51,10 @@ module.exports = (sequelize) => {
     Order.belongsTo(models.Cart, {
       foreignKey: 'cart_id',
       foreignKeyConstraint: { name: 'fk_order_cart' }
+    });
+    Order.belongsTo(models.Payment, {
+      foreignKey: 'payment_id',
+      as: 'payment'
     });
   };
 
