@@ -51,6 +51,7 @@ app.use(cors({
       'http://localhost:3007',
       'http://127.0.0.1:3007'
     ];
+    
     if (whiteList.includes(origin)) {
       callback(null, true);
     } else {

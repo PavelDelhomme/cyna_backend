@@ -7,6 +7,9 @@ const upload = multer({ dest: 'uploads/' });
 
 // Route publique pour lister les services
 router.get('/', svc.listServices);
+// GET /products/:id
+router.get('/service/:id', svc.getServiceByIdasync);
+
 
 // Routes protégées pour l'administration
 router.post('/', auth(['admin']), upload.single('image'), svc.createService);

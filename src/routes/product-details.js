@@ -4,12 +4,14 @@ const { Product, Service, PromoCode } = require('../models');
 
 // Route pour obtenir les détails d'un produit
 router.get('/product/:id', async (req, res) => {
+  console.log('GET /product/:id', req.params.id);
   try {
     const product = await Product.findByPk(req.params.id, {
       include: [
         {
           model: PromoCode,
-          attributes: ['code', 'discount_percentage', 'start_date', 'end_date']
+          as: 'promoCode',
+          attributes: ['code', 'discount_value', 'start_date', 'end_date']
         }
       ]
     });
@@ -26,11 +28,13 @@ router.get('/product/:id', async (req, res) => {
 
 // Route pour obtenir les détails d'un service
 router.get('/service/:id', async (req, res) => {
+  console.log('GET /service/:id', req.params.id);
   try {
     const service = await Service.findByPk(req.params.id, {
       include: [
         {
           model: PromoCode,
+          as: 'promoCode',
           attributes: ['code', 'discount_percentage', 'start_date', 'end_date']
         }
       ]
