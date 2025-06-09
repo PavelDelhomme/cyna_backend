@@ -3,11 +3,19 @@ const { Service, PromoCode } = require('../models');
 exports.listServices = async (req, res) => {
     try {
         const services = await Service.findAll({
-          include: [{
-            model: Service.sequelize.models.PromoCode,
-            as: 'promoCode',
-            required: false
-          }],
+          include: [
+            {
+              model: Service.sequelize.models.PromoCode,
+              as: 'promoCode',
+              required: false
+            },
+            {
+              model: Service.sequelize.models.ServiceType,
+              as: 'serviceType',
+              attributes: ['name'],
+              required: false
+            }
+          ],
           attributes: [
             'id',
             'name',
