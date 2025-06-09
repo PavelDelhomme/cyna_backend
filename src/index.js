@@ -9,7 +9,7 @@ const db      = require('./models');
 const jwt     = require('jsonwebtoken');
 const { where } = require('sequelize');
 const multer = require('multer');
-const auth = require('./middlewares/authMiddleware');  // Modification du chemin d'import
+const auth = require('./middlewares/authMiddleware'); 
 const { execSync } = require('child_process');
 
 console.log('Environnement:', process.env.NODE_ENV);
@@ -68,8 +68,6 @@ console.log(config);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Servir le petit front-end de test
-app.use('/', express.static(path.join(__dirname, "../small_front_test")));
 
 // DB
 const { User, Role } = db;
@@ -127,81 +125,54 @@ const initializeApp = async () => {
       });
       console.log("Connexion à la base de données établie avec succès.");
       
-      // Utilisation d'une variable d'environnement pour contrôler la réinitialisation de la base de données
-      //const resetDatabase = process.env.RESET_DB === 'true';
-      // Synchronisation des modèles avec la base de données (force : false pour ne pas supprimer les tables existantes | true pour laisser sequelize supprimer les tables existantes et les recréer)
-      //await db.sequelize.sync({ force: resetDatabase, logging: console.log });
-      await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-      await db.sequelize.sync({
-        force: process.env.RESET_DB === 'true',
-        logging: console.log,
-        alter: false,
-        drop: {
-          cascade: true,
-          order: [
-            // Tables de jointure d'abord
-            'order_item_services', 'order_item_products', 
-            'address_user_profiles', 'role_promo_codes',
-            'asso_categoryproducts_roles', 'asso_servicetypes_roles',
-            'asso_roles_promocodes', 'asso_services_roles',
-            
-            // Tables enfants ensuite
-            'order_items', 'invoices', 'payments',
-            'tickets', 'stats', 'reviews',
-            'chatbot_histories', 'chatbots',
-            
-            // Tables parents enfin
-            'orders', 'carts', 'products', 'services',
-            'promo_codes', 'service_types', 'product_categories',
-            'user_profiles', 'users', 'roles', 'addresses'
-          ]
-        }
-      });
-      await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
-      // Execution manuelle des seeder
-      // if (process.env.RESET_DB === 'true') {
-      //   const roles = await db.Role.findAll();
-      //   if (roles.length === 0) {
-      //     await db.sequelize.getQueryInterface().bulkInsert('roles', [
-      //       { name: 'admin' },
-      //       { name: 'user' },
-      //       { name: 'support' }
-      //     ]);
-      //   }
-      // }
-      
-      console.log("Synchronisation de la base de données terminée");
+      // Vérifier si la base de données est déjà initialisée
+      const isInitialized = await db.sequelize.query(
+        "SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'cyna_database' AND table_name = 'roles'"
+      ).then(([results]) => results[0].count > 0);
 
-      const adminUser = await createDevAdminIfNotExists();
-
-      if (process.env.RESET_DB === 'true') {
-        await db.Role.findOrCreate({
-          where: { name: 'user' },
-          default: { nme: 'user' }
+      if (!isInitialized || process.env.RESET_DB === 'true') {
+        console.log("Initialisation de la base de données...");
+        // Désactiver les contraintes de clés étrangères
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+        
+        // Synchronisation des modèles avec la base de données
+        await db.sequelize.sync({
+          force: true,
+          logging: console.log,
+          alter: false
         });
-      }
+        
+        // Réactiver les contraintes de clés étrangères
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+        
+        console.log("Synchronisation de la base de données terminée");
 
-      await Role.findOrCreate({ where: { name: 'user' }});
-      await Role.findOrCreate({ where: { name: 'admin' }});
-      await Role.findOrCreate({ where: { name: 'support' }});
-      await Role.findOrCreate({ where: { name: 'customer' }});
-      await Role.findOrCreate({ where: { name: 'seller' }});
+        // Créer les rôles de base
+        await Role.findOrCreate({ where: { name: 'user' }});
+        await Role.findOrCreate({ where: { name: 'admin' }});
+        await Role.findOrCreate({ where: { name: 'support' }});
+        await Role.findOrCreate({ where: { name: 'customer' }});
+        await Role.findOrCreate({ where: { name: 'seller' }});
+        console.log("✅ Rôles de base (user, admin, support, customer, seller) en place");
 
-      console.log("✅ Rôles de base (user, admin, support, customer, seller) en place");
+        // Créer l'admin par défaut
+        const adminUser = await createDevAdminIfNotExists();
+        const { UserProfile } = db;
+        await UserProfile.findOrCreate({ where: { user_id: adminUser.id } });
 
-      // create Dev admin profile if not exists
-      const { UserProfile } = db;
-      await UserProfile.findOrCreate({ where: { user_id: adminUser.id } });
-
-      if (process.env.INIT_ALL === 'true') {
-        try {
-          console.log("Lancement du script d'initialisation des données (init-all.js)...");
-          execSync('node ./scripts/init-all.js', { stdio: 'inherit', cwd: path.join(__dirname, '..', 'cyna_backend') });
-          console.log("✅ Données de démo insérées !");
-        } catch (err) {
-          console.error("Erreur lors de l'exécution de init-all.js :", err);
-          process.exit(1);
+        // Initialiser les données de démo si demandé
+        if (process.env.INIT_ALL === 'true') {
+          try {
+            console.log("Lancement du script d'initialisation des données (init-all.js)...");
+            require('../scripts/init-all.js');
+            console.log("✅ Données de démo insérées !");
+          } catch (err) {
+            console.error("Erreur lors de l'exécution de init-all.js :", err);
+            process.exit(1);
+          }
         }
+      } else {
+        console.log("Base de données déjà initialisée, démarrage normal...");
       }
 
       // Démarrage du server

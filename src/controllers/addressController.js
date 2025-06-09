@@ -1,4 +1,6 @@
 const { Address, AddressUserProfile, UserProfile } = require('../models');
+const { Op } = require('sequelize');
+const sequelize = require('sequelize');
 
 
 exports.listAddresses = async (req, res) => {
@@ -199,6 +201,28 @@ exports.getAddresses = async (req, res) => {
 // Créer une nouvelle adresse
 exports.createAddress = async (req, res) => {
   try {
+    console.log('[ADDRESS] Données reçues:', req.body);
+    const { address1, postalcode, city, country, region, type, is_default } = req.body;
+
+    // Normalisation des champs alternatifs venant du front
+    const normalizedCity = city || req.body.city?.trim();
+    const normalizedCountry = country || req.body.country?.trim();
+
+    // Vérification des champs requis
+    if (!address1 || !postalcode || !normalizedCity || !normalizedCountry) {
+      console.log('[ADDRESS] Champs manquants:', {
+        address1: !!address1,
+        postalcode: !!postalcode,
+        city: !!normalizedCity,
+        country: !!normalizedCountry
+      });
+      return res.status(400).json({ 
+        message: 'Champs manquants', 
+        required: ['address1', 'postalcode', 'city', 'country'],
+        received: req.body 
+      });
+    }
+
     const userProfile = await UserProfile.findOne({
       where: { user_id: req.user.id }
     });
@@ -207,15 +231,51 @@ exports.createAddress = async (req, res) => {
       return res.status(404).json({ message: 'Profil utilisateur non trouvé' });
     }
 
-    const address = await Address.create(req.body);
+    // Si c'est une adresse par défaut, mettre à jour les autres adresses
+    if (is_default) {
+      await Address.update(
+        { is_default: false },
+        { 
+          where: { 
+            id: {
+              [Op.in]: sequelize.literal(`(
+                SELECT address_id 
+                FROM asso_addresses_user_profiles 
+                WHERE user_profile_id = ${userProfile.id}
+              )`)
+            }
+          }
+        }
+      );
+    }
+
+    console.log('[ADDRESS] Création avec les données:', {
+      address1,
+      postalcode,
+      city: normalizedCity,
+      country: normalizedCountry,
+      region: region || null,
+      type: type || null,
+      is_default: is_default || false
+    });
+
+    const address = await Address.create({
+      label: req.body.label || null,
+      address1,
+      line2: req.body.line2 || null,
+      postalcode,
+      city: normalizedCity,
+      country: normalizedCountry,
+      region: req.body.region || null,
+      is_default: is_default || false,
+      user_id: req.user.id
+    });
+
     await userProfile.addAddress(address);
 
-    if (req.body.is_default) {
-      await userProfile.addresses.forEach(async (addr) => {
-        if (addr.id !== address.id) {
-          await addr.update({ is_default: false });
-        }
-      });
+    // S'assurer que la nouvelle adresse est bien par défaut
+    if (is_default) {
+      await address.update({ is_default: true });
     }
 
     console.log('[ADDRESS] Nouvelle adresse créée:', address.id);
@@ -246,11 +306,14 @@ exports.updateAddress = async (req, res) => {
     const address = userProfile.addresses[0];
 
     if (req.body.is_default) {
-      await userProfile.addresses.forEach(async (addr) => {
+      // Récupérer toutes les adresses de l'utilisateur
+      const userAddresses = await userProfile.getAddresses();
+      // Mettre à jour les autres adresses comme non-défaut
+      for (const addr of userAddresses) {
         if (addr.id !== address.id) {
           await addr.update({ is_default: false });
         }
-      });
+      }
     }
 
     await address.update(req.body);

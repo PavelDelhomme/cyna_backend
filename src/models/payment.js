@@ -9,7 +9,7 @@ module.exports = (sequelize) => {
     },
     amount: {
       type: DataTypes.DECIMAL(10, 2),
-      allowNull: false
+      allowNull: true
     },
     status: DataTypes.STRING(50),
     method: DataTypes.STRING(50),

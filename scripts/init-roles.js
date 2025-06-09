@@ -5,9 +5,8 @@ const mysql = require('mysql2/promise');
 const fs = require('fs').promises;
 
 async function initRoles() {
-  const rolesPath = path.join(__dirname, '../src/data/roles.json');
   let connection;
-
+  
   try {
     // Vérification des variables d'environnement
     console.log('Vérification des variables d\'environnement...');
@@ -18,56 +17,69 @@ async function initRoles() {
     console.log('NODE_ENV:', process.env.NODE_ENV);
     console.log('Fichier .env utilisé:', envFile);
 
+    // Lecture du fichier de données
     console.log('\nLecture du fichier roles.json...');
-    // Lecture du fichier JSON
-    const data = await fs.readFile(rolesPath, 'utf8');
-    const roles = JSON.parse(data);
-    console.log('Données des rôles chargées:', roles);
+    const rolesPath = path.join(__dirname, 'data', 'roles.json');
+    const rolesData = JSON.parse(await fs.readFile(rolesPath, 'utf8'));
+    console.log('\nDonnées des rôles chargées:', rolesData);
 
+    // Connexion à la base de données
     console.log('\nConnexion à la base de données...');
-    try {
-      connection = await mysql.createConnection({
-        host: process.env.DB_HOST,
-        user: process.env.DB_USER,
-        password: process.env.DB_PASSWORD,
-        database: process.env.DB_NAME,
-        port: process.env.DB_PORT
-      });
-      console.log('Connexion établie avec succès');
+    connection = await mysql.createConnection({
+      host: process.env.DB_HOST,
+      user: process.env.DB_USER,
+      password: process.env.DB_PASSWORD,
+      database: process.env.DB_NAME,
+      port: process.env.DB_PORT
+    });
+    console.log('Connexion établie avec succès');
 
-      // Test de la connexion
-      const [rows] = await connection.query('SELECT 1');
-      console.log('Test de connexion réussi:', rows);
+    // Test de la connexion
+    const [rows] = await connection.query('SELECT 1');
+    console.log('Test de connexion réussi:', rows);
 
+    // Vérifier si la table existe
+    const [tables] = await connection.query("SHOW TABLES LIKE 'roles'");
+    const tableExists = tables.length > 0;
+
+    if (!tableExists) {
+      console.log('\nCréation de la table roles...');
+      await connection.query(`
+        CREATE TABLE roles (
+          id INT PRIMARY KEY AUTO_INCREMENT,
+          name VARCHAR(255) NOT NULL UNIQUE,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        )
+      `);
+      console.log('Table roles créée avec succès');
+    } else {
       console.log('\nDésactivation des contraintes de clé étrangère...');
-      await connection.query('SET FOREIGN_KEY_CHECKS = 0');
+      await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
       console.log('Contraintes désactivées');
 
       console.log('\nSuppression des anciens rôles...');
       await connection.query('DELETE FROM roles');
       console.log('Anciens rôles supprimés');
-
-      console.log('\nInsertion des nouveaux rôles...');
-      for (const role of roles) {
-        console.log('Insertion du rôle:', role);
-        await connection.query(
-          `INSERT INTO roles (id, name) VALUES (?, ?)`,
-          [role.id, role.name]
-        );
-      }
-
-      console.log('\nRéactivation des contraintes de clé étrangère...');
-      await connection.query('SET FOREIGN_KEY_CHECKS = 1');
-      console.log('Contraintes réactivées');
-
-      console.log('Rôles initialisés avec succès !');
-    } catch (dbError) {
-      console.error('Erreur de base de données:', dbError);
-      throw dbError;
     }
+
+    // Insertion des nouveaux rôles
+    console.log('\nInsertion des nouveaux rôles...');
+    for (const role of rolesData) {
+      await connection.query('INSERT INTO roles (id, name) VALUES (?, ?)', [role.id, role.name]);
+    }
+    console.log('Nouveaux rôles insérés avec succès');
+
+    // Réactivation des contraintes
+    console.log('\nRéactivation des contraintes de clé étrangère...');
+    await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
+    console.log('Contraintes réactivées');
+
+    console.log('\n✅ Initialisation des rôles terminée avec succès !');
+
   } catch (err) {
-    console.error('Erreur lors de l\'initialisation des rôles :', err);
-    throw err; // Propager l'erreur pour que init-all.js puisse la gérer
+    console.error('\nErreur lors de l\'initialisation des rôles :', err);
+    throw err;
   } finally {
     if (connection) {
       console.log('\nFermeture de la connexion...');
@@ -79,7 +91,7 @@ async function initRoles() {
 
 // Gestion des erreurs non capturées
 process.on('unhandledRejection', (error) => {
-  console.error('Erreur non gérée:', error);
+  console.error('❌ Erreur non gérée:', error);
   process.exit(1);
 });
 

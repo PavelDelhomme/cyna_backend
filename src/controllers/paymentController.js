@@ -10,6 +10,7 @@ exports.listPayments = async (req, res) => {
 
 
 exports.createPayment = async (req, res) => {
+    console.log('createPayment called', req.body);
     try {
         const { amount, status, user_id, method, type, last4, expiry, isDefault, order_id } = req.body;
         const payment = await Payment.create({ amount, status, user_id, method, type, last4, expiry, isDefault, order_id });
