@@ -14,7 +14,8 @@ const scripts = [
   'init-orders.js',        // Création des commandes (dépend des paniers)
   'init-team.js',          // Création de l'équipe (pas de dépendances)
   'init-carousel.js',      // Création du carousel (dépend des produits et services)
-  'init-payments.js'       // Création des paiements (dépend des commandes)
+  'init-payments.js',      // Création des paiements (dépend des commandes)
+  'init-addresses.js'      // Création des adresses (dépend des utilisateurs)
 ];
 
 const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {

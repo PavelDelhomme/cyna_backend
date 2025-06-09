@@ -10,9 +10,12 @@ router.get('/', authMiddleware(['admin']), userController.getAllUsers);
 router.post('/', authMiddleware(['admin', 'user']), userController.createUser);
 
 router.post('/:userId/roles/:roleId',
-  authMiddleware(['admin']),            // seuls les admin pourront y accéder
+  authMiddleware(['admin']),
   userController.assignRoleToUser
 );
+
+// Compte d'utilisateurs (doit être AVANT /:id)
+router.get('/count', authMiddleware(['admin']), userController.countUsers);
 
 // Pour récupérer le profil de n'importe quel utilisateur (admin ou soi-même)
 router.get('/:id', authMiddleware(['user', 'admin']), userController.getUserById);
@@ -20,5 +23,9 @@ router.get('/:id', authMiddleware(['user', 'admin']), userController.getUserById
 // Modifier / supprimer son propre profil
 router.patch('/:id', authMiddleware(['user', 'admin']), userController.updateUser);
 router.delete('/:id', authMiddleware(['user', 'admin']), userController.deleteUser);
+
+router.post('/:userId/reset-password', authMiddleware(['admin']), userController.adminResetPassword);
+
+router.get('/profile/:id', authMiddleware(['user', 'admin']), userController.getUserProfile);
 
 module.exports = router;

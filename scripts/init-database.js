@@ -25,18 +25,18 @@ async function initDatabase() {
 
     // Connexion à la base de données
     console.log('\nConnexion à la base de données...');
-    connection = await mysql.createConnection({
-      host: process.env.DB_HOST,
-      user: process.env.DB_USER,
-      password: process.env.DB_PASSWORD,
-      database: process.env.DB_NAME,
-      port: process.env.DB_PORT
-    });
-    console.log('Connexion établie avec succès');
+      connection = await mysql.createConnection({
+        host: process.env.DB_HOST,
+        user: process.env.DB_USER,
+        password: process.env.DB_PASSWORD,
+        database: process.env.DB_NAME,
+        port: process.env.DB_PORT
+      });
+      console.log('Connexion établie avec succès');
 
-    // Test de la connexion
-    const [rows] = await connection.query('SELECT 1');
-    console.log('Test de connexion réussi:', rows);
+      // Test de la connexion
+      const [rows] = await connection.query('SELECT 1');
+      console.log('Test de connexion réussi:', rows);
 
     // Désactivation des contraintes de clé étrangère
     console.log('\nDésactivation des contraintes de clé étrangère...');

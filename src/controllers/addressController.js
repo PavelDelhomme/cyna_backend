@@ -1,4 +1,4 @@
-const { Address, AddressUserProfile, UserProfile } = require('../models');
+const { Address, AddressUserProfile, UserProfile, User } = require('../models');
 const { Op } = require('sequelize');
 const sequelize = require('sequelize');
 
@@ -15,7 +15,7 @@ exports.listAddresses = async (req, res) => {
 
 // Ajouter une adresse à un utilisateur spécifique
 exports.createAddressForUser = async (req, res) => {
-    const { address1, city, postalCode, region, country, type} = req.body;
+    const { address1, city, postalCode, region, country } = req.body;
     const { userId } = req.params;
 
     try {
@@ -24,7 +24,7 @@ exports.createAddressForUser = async (req, res) => {
             return res.status(404).json({ error: "Profil utilisateur introuvable" });
         }
 
-        const address = await Address.create({ address1, city, postalCode, region, country, type });
+        const address = await Address.create({ address1, city, postalCode, region, country });
 
         await AddressUserProfile.create({
             address_id: address.id,
@@ -40,7 +40,7 @@ exports.createAddressForUser = async (req, res) => {
 // Modifier une adresse par ID (admin)
 exports.updateAddress = async (req, res) => {
     const { id } = req.params;
-    const { address1, city, postalCode, region, country, type } = req.body;
+    const { address1, city, postalCode, region, country } = req.body;
 
     try {
         const address = await Address.findByPk(id);
@@ -48,7 +48,12 @@ exports.updateAddress = async (req, res) => {
         return res.status(404).json({ error: "Adresse introuvable" });
         }
 
-        await address.update({ address1, city, postalCode, region, country, type });
+        const updateData = { ...req.body };
+        if (updateData.is_default !== undefined) {
+          updateData.is_default = updateData.is_default;
+          delete updateData.is_default;
+        }
+        await address.update(updateData);
 
         res.json({ message: "Adresse mise à jour", address });
     } catch (error) {
@@ -88,25 +93,19 @@ exports.getUserAddresses = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
-// alias plus clair
+
 exports.getMyAddresses = exports.getUserAddresses;
-
-
-// exports.getUserAddresses déjà présent, renommez‐le en getMyAddresses pour plus de clarté :
-exports.getMyAddresses = exports.getUserAddresses;
-
 
 exports.addAddressToUser = async (req, res) => {
   try {
-    const { address1, city, postalCode, region, country, type } = req.body;
+    const { address1, city, postalCode, region, country } = req.body;
     
     const address = await Address.create({
       address1,
       city,
       postalCode,
       region,
-      country,
-      type
+      country
     });
 
     await AddressUserProfile.create({
@@ -120,13 +119,11 @@ exports.addAddressToUser = async (req, res) => {
   }
 };
 
-
-
 // Modifier une adresse par ID (si elle appartient au user)
 exports.updateUserAddress = async (req, res) => {
   try {
     const { id } = req.params;
-    const { address1, city, postalCode, region, country, type } = req.body;
+    const { address1, city, postalCode, region, country } = req.body;
 
     const addressLink = await AddressUserProfile.findOne({
       where: { address_id: id, user_profile_id: req.user.user_profile.id }
@@ -141,7 +138,7 @@ exports.updateUserAddress = async (req, res) => {
       return res.status(404).json({ error: "Adresse introuvable" });
     }
 
-    await address.update({ address1, city, postalCode, region, country, type });
+    await address.update({ address1, city, postalCode, region, country });
 
     res.json({ message: "Adresse mise à jour", address });
   } catch (error) {
@@ -183,7 +180,15 @@ exports.getAddresses = async (req, res) => {
       where: { user_id: req.user.id },
       include: [{
         model: Address,
-        as: 'addresses'
+        as: 'address',
+        through: {
+          attributes: ['is_default']
+        },
+        include: [{
+          model: User,
+          as: 'user',
+          attributes: ['id', 'name', 'email']
+        }]
       }]
     });
 
@@ -191,7 +196,7 @@ exports.getAddresses = async (req, res) => {
       return res.status(404).json({ message: 'Profil utilisateur non trouvé' });
     }
 
-    res.json(userProfile.addresses);
+    res.json(userProfile.address || []);
   } catch (error) {
     console.error('[ADDRESS] Erreur lors de la récupération des adresses:', error);
     res.status(500).json({ message: error.message });
@@ -202,7 +207,7 @@ exports.getAddresses = async (req, res) => {
 exports.createAddress = async (req, res) => {
   try {
     console.log('[ADDRESS] Données reçues:', req.body);
-    const { address1, postalcode, city, country, region, type, is_default } = req.body;
+    const { address1, postalcode, city, country, region, is_default } = req.body;
 
     // Normalisation des champs alternatifs venant du front
     const normalizedCity = city || req.body.city?.trim();
@@ -233,31 +238,15 @@ exports.createAddress = async (req, res) => {
 
     // Si c'est une adresse par défaut, mettre à jour les autres adresses
     if (is_default) {
-      await Address.update(
+      await AddressUserProfile.update(
         { is_default: false },
         { 
           where: { 
-            id: {
-              [Op.in]: sequelize.literal(`(
-                SELECT address_id 
-                FROM asso_addresses_user_profiles 
-                WHERE user_profile_id = ${userProfile.id}
-              )`)
-            }
+            user_profile_id: userProfile.id
           }
         }
       );
     }
-
-    console.log('[ADDRESS] Création avec les données:', {
-      address1,
-      postalcode,
-      city: normalizedCity,
-      country: normalizedCountry,
-      region: region || null,
-      type: type || null,
-      is_default: is_default || false
-    });
 
     const address = await Address.create({
       label: req.body.label || null,
@@ -266,17 +255,15 @@ exports.createAddress = async (req, res) => {
       postalcode,
       city: normalizedCity,
       country: normalizedCountry,
-      region: req.body.region || null,
-      is_default: is_default || false,
+      region: region || null,
       user_id: req.user.id
     });
 
-    await userProfile.addAddress(address);
-
-    // S'assurer que la nouvelle adresse est bien par défaut
-    if (is_default) {
-      await address.update({ is_default: true });
-    }
+    await AddressUserProfile.create({
+      address_id: address.id,
+      user_profile_id: userProfile.id,
+      is_default: is_default || false
+    });
 
     console.log('[ADDRESS] Nouvelle adresse créée:', address.id);
     res.status(201).json(address);
@@ -293,21 +280,21 @@ exports.updateAddress = async (req, res) => {
       where: { user_id: req.user.id },
       include: [{
         model: Address,
-        as: 'addresses',
+        as: 'address',
         where: { id: req.params.id }
       }]
     });
 
-    if (!userProfile || !userProfile.addresses.length) {
+    if (!userProfile || !userProfile.address.length) {
       console.warn('[ADDRESS] Adresse non trouvée:', req.params.id);
       return res.status(404).json({ message: 'Adresse non trouvée' });
     }
 
-    const address = userProfile.addresses[0];
+    const address = userProfile.address[0];
 
     if (req.body.is_default) {
       // Récupérer toutes les adresses de l'utilisateur
-      const userAddresses = await userProfile.getAddresses();
+      const userAddresses = await userProfile.getAddress();
       // Mettre à jour les autres adresses comme non-défaut
       for (const addr of userAddresses) {
         if (addr.id !== address.id) {
@@ -316,9 +303,14 @@ exports.updateAddress = async (req, res) => {
       }
     }
 
-    await address.update(req.body);
+    const updateData = { ...req.body };
+    if (updateData.isDefault !== undefined) {
+      updateData.is_default = updateData.isDefault;
+      delete updateData.isDefault;
+    }
+    await address.update(updateData);
     console.log('[ADDRESS] Adresse mise à jour:', address.id);
-    res.json(address);
+    res.status(200).json(address);
   } catch (error) {
     console.error('[ADDRESS] Erreur lors de la mise à jour:', error);
     res.status(400).json({ message: error.message });
@@ -332,17 +324,17 @@ exports.deleteAddress = async (req, res) => {
       where: { user_id: req.user.id },
       include: [{
         model: Address,
-        as: 'addresses',
+        as: 'address',
         where: { id: req.params.id }
       }]
     });
 
-    if (!userProfile || !userProfile.addresses.length) {
+    if (!userProfile || !userProfile.address.length) {
       console.warn('[ADDRESS] Adresse non trouvée:', req.params.id);
       return res.status(404).json({ message: 'Adresse non trouvée' });
     }
 
-    const address = userProfile.addresses[0];
+    const address = userProfile.address[0];
     await userProfile.removeAddress(address);
     await address.destroy();
 

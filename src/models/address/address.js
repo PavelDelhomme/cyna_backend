@@ -35,45 +35,37 @@ module.exports = (sequelize) => {
       type: DataTypes.STRING(50),
       allowNull: false
     },
-    type: {
-      type: DataTypes.STRING(50),
-      allowNull: true
-    },
     is_default: {
       type: DataTypes.BOOLEAN,
       defaultValue: false
     },
     user_id: {
       type: DataTypes.INTEGER,
-      allowNull: false,
+      allowNull: true,
       references: {
         model: 'users',
         key: 'id'
       }
-    },
-    created_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
-    },
-    updated_at: {
-      type: DataTypes.DATE,
-      allowNull: false,
-      defaultValue: DataTypes.NOW
     }
   }, {
     tableName: 'addresses',
     timestamps: true,
-    underscored: true
+    underscored: true,
+    createdAt: 'created_at',
+    updatedAt: 'updated_at'
   });
 
   Address.associate = (models) => {
     Address.belongsToMany(models.UserProfile, {
-      through: models.AddressUserProfile,
+      through: {
+        model: models.AddressUserProfile,
+        unique: false
+      },
       foreignKey: "address_id",
       otherKey: "user_profile_id",
-      as: "userProfiles"
+      as: "address"
     });
+    
     Address.belongsTo(models.User, {
       foreignKey: 'user_id',
       as: 'user'

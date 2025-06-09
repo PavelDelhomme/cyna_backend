@@ -133,3 +133,92 @@ exports.updateOrderStatus = async (req, res) => {
         res.status(500).json({ error: error.message });
     }
 };
+
+exports.countOrders = async (req, res) => {
+  try {
+    const { Order } = require('../models');
+    const count = await Order.count();
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.countPendingOrders = async (req, res) => {
+  try {
+    const { Order } = require('../models');
+    const totalPending = await Order.count({
+      where: {
+        status: [
+          'en cours',
+          'En attente de confirmation',
+          'En attente de paiement',
+          'En cours de traitement',
+          'En cours de livraison'
+        ]
+      }
+    });
+    res.json({ totalPending });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Détail des ventes par produit
+exports.productSalesDetails = async (req, res) => {
+  try {
+    const { sequelize } = require('../models');
+    const [results] = await sequelize.query(`
+      SELECT
+        p.name AS productName,
+        COUNT(DISTINCT oip.order_item_id) AS salesCount
+      FROM order_item_products oip
+      JOIN products p ON oip.product_id = p.id
+      GROUP BY p.id, p.name
+      ORDER BY salesCount DESC;
+    `);
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Détail des ventes par service
+exports.serviceSalesDetails = async (req, res) => {
+  try {
+    const { sequelize } = require('../models');
+    const [results] = await sequelize.query(`
+      SELECT
+        s.name AS serviceName,
+        COUNT(DISTINCT ois.order_item_id) AS salesCount
+      FROM order_item_services ois
+      JOIN services s ON ois.service_id = s.id
+      GROUP BY s.id, s.name
+      ORDER BY salesCount DESC;
+    `);
+    res.json(results);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.pendingOrders = async (req, res) => {
+  try {
+    const { Order, User } = require('../models');
+    const orders = await Order.findAll({
+      where: {
+        status: [
+          'en cours',
+          'En attente de confirmation',
+          'En attente de paiement',
+          'En cours de traitement',
+          'En cours de livraison'
+        ]
+      },
+      include: [{ model: User, as: 'User', attributes: ['id', 'name', 'email'] }]
+    });
+    res.json(orders);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};  

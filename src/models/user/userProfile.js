@@ -7,7 +7,6 @@ module.exports = (sequelize) => {
       autoIncrement: true,
       primaryKey: true
     }
-    // Suppression de userId car Sequelize ajoute automatiquement UserId cela créer des problème du duplicata de champs dans la bdd
   }, {
     tableName: 'user_profiles',
   });
@@ -26,7 +25,7 @@ module.exports = (sequelize) => {
       through: models.AddressUserProfile,
       foreignKey: "user_profile_id",
       otherKey: "address_id",
-      as: "addresses",
+      as: "address",
       foreignKeyConstraint: { name: 'fk_user_profile_address' }
     });
   };
