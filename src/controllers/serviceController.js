@@ -31,6 +31,17 @@ exports.listServices = async (req, res) => {
     }
 };
 
+exports.getServiceByIdasync = async (req, res) => {
+  try {
+    const service = await Service.findByPk(req.params.id);
+    if (!service) return res.status(404).json({ message: 'Service non trouvé' });
+    res.json(service);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
+
 exports.createService = async (req, res) => {
     try {
         console.log('Payload reçu pour création service :', req.body);

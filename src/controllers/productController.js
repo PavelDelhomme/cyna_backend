@@ -214,6 +214,16 @@ exports.deleteProduct = async (req, res) => {
   }
 };
 
+exports.getProductByIdasync = async (req, res) => {
+  try {
+    const product = await Product.findByPk(req.params.id);
+    if (!product) return res.status(404).json({ message: 'Produit non trouvé' });
+    res.json(product);
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
+};
+
 // Nouveau : Vérifier les dépendances avant suppression
 exports.checkProductDependencies = async (req, res) => {
   try {
