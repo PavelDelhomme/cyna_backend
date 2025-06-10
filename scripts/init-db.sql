@@ -210,14 +210,33 @@ CREATE TABLE invoices (
 
 CREATE TABLE tickets (
    id INT AUTO_INCREMENT,
-   subject VARCHAR(50),
-   description VARCHAR(255),
-   status VARCHAR(50),
+   subject VARCHAR(255) NOT NULL,
+   description TEXT NOT NULL,
+   status ENUM('nouveau', 'ouvert', 'en_cours', 'resolu', 'ferme') DEFAULT 'nouveau',
+   type ENUM('support_technique', 'question_produit', 'question_service', 'probleme_commande', 'remboursement', 'autre') DEFAULT 'support_technique',
+   user_id INT NOT NULL,
+   assigned_to INT NULL,
+   admin_response TEXT NULL,
+   resolved_at DATETIME NULL,
+   closed_at DATETIME NULL,
    created_at DATETIME,
    updated_at DATETIME,
-   user_id INT NOT NULL,
    PRIMARY KEY(id),
-   CONSTRAINT fk_tickets_user FOREIGN KEY(user_id) REFERENCES users(id)
+   CONSTRAINT fk_tickets_user FOREIGN KEY(user_id) REFERENCES users(id),
+   CONSTRAINT fk_tickets_assigned_to FOREIGN KEY(assigned_to) REFERENCES users(id) ON DELETE SET NULL
+);
+
+CREATE TABLE ticket_messages (
+   id INT AUTO_INCREMENT,
+   ticket_id INT NOT NULL,
+   user_id INT NOT NULL,
+   message TEXT NOT NULL,
+   is_admin BOOLEAN DEFAULT FALSE,
+   created_at DATETIME,
+   updated_at DATETIME,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_ticket_messages_ticket FOREIGN KEY(ticket_id) REFERENCES tickets(id) ON DELETE CASCADE,
+   CONSTRAINT fk_ticket_messages_user FOREIGN KEY(user_id) REFERENCES users(id)
 );
 
 CREATE TABLE chatbots (

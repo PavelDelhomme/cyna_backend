@@ -10,7 +10,7 @@ exports.createPromoCode = async (req, res) => {
     const {
       code,
       description,
-      discountType, // 'percentage' ou 'fixed'
+      discountType,
       discountValue,
       minOrderAmount,
       maxDiscountAmount,

@@ -5,6 +5,11 @@ exports.listOrders = async (req, res) => {
         const orders = await Order.findAll({
             include: [
                 {
+                    model: User,
+                    as: 'User',
+                    attributes: ['id', 'name', 'email']
+                },
+                {
                     model: OrderItem,
                     include: [
                         {
@@ -23,7 +28,8 @@ exports.listOrders = async (req, res) => {
                     model: Payment,
                     as: 'payment'
                 }
-            ]
+            ],
+            order: [['creationDate', 'DESC']]
         });
         res.json(orders);
     } catch (error) {
@@ -215,7 +221,12 @@ exports.pendingOrders = async (req, res) => {
           'En cours de livraison'
         ]
       },
-      include: [{ model: User, as: 'User', attributes: ['id', 'name', 'email'] }]
+      include: [{ 
+        model: User, 
+        as: 'User', 
+        attributes: ['id', 'name', 'email'] 
+      }],
+      order: [['creationDate', 'DESC']]
     });
     res.json(orders);
   } catch (error) {

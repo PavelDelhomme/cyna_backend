@@ -96,6 +96,8 @@ app.use("/api/orders", require("./routes/orders"));
 app.use("/api/invoices", require("./routes/invoices"));
 app.use("/api/carts", require("./routes/carts"));
 app.use("/api/tickets", require("./routes/tickets"));
+app.use("/api", require('./routes/ticketMessages'));
+app.use("/api", require('./routes/contact'));
 app.use('/api/team', require('./routes/team'));
 app.use('/api/carousel', require('./routes/carousel'));
 app.use("/api/details", require('./routes/product-details'));
