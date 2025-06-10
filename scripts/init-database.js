@@ -15,10 +15,16 @@ async function initDatabase() {
     console.log('DB_NAME:', process.env.DB_NAME);
     console.log('DB_PORT:', process.env.DB_PORT);
     console.log('NODE_ENV:', process.env.NODE_ENV);
+    console.log('RESET_DB:', process.env.RESET_DB);
     console.log('Fichier .env utilisé:', envFile);
 
+    // Lecture du fichier SQL
+    console.log('\nLecture du fichier init-db.sql...');
+    const sqlPath = path.join(__dirname, 'init-db.sql');
+    const sqlContent = await fs.readFile(sqlPath, 'utf8');
+
+    // Connexion à la base de données
     console.log('\nConnexion à la base de données...');
-    try {
       connection = await mysql.createConnection({
         host: process.env.DB_HOST,
         user: process.env.DB_USER,
@@ -32,92 +38,55 @@ async function initDatabase() {
       const [rows] = await connection.query('SELECT 1');
       console.log('Test de connexion réussi:', rows);
 
-      // Sélection de la base de données
-      console.log('\nSélection de la base de données...');
-      await connection.query('USE cyna_database;');
-      console.log('Base de données sélectionnée');
+    // Désactivation des contraintes de clé étrangère
+    console.log('\nDésactivation des contraintes de clé étrangère...');
+    await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
+    console.log('Contraintes désactivées');
 
-      // Suppression des tables existantes dans le bon ordre
+    // Vérification de l'existence des tables
+    const [tables] = await connection.query("SHOW TABLES");
+    const tablesExist = tables.length > 0;
+
+    if (process.env.RESET_DB === 'true' && tablesExist) {
       console.log('\nSuppression des tables existantes...');
-      await connection.query('SET FOREIGN_KEY_CHECKS = 0;');
-      console.log('Contraintes de clé étrangère désactivées');
-      
-      const tables = [
-        'promo_code_usage',
-        'asso_roles_promocodes',
-        'role_promo_codes',
-        'asso_services_roles',
-        'asso_servicetypes_roles',
-        'asso_categoryproducts_roles',
-        'asso_addresses_user_profiles',
-        'order_item_services',
-        'order_item_products',
-        'stats',
-        'reviews',
-        'invoices',
-        'payments',
-        'order_items',
-        'orders',
-        'user_profiles',
-        'chatbot_history',
-        'chatbots',
-        'tickets',
-        'products',
-        'services',
-        'carts',
-        'promo_codes',
-        'users',
-        'roles',
-        'service_types',
-        'product_categories',
-        'addresses',
-        'team_members',
-        'carousel_items',
-        'TEMP_PROMO_CODES',
-        'PROMO_CODES'
+      // Suppression des tables dans l'ordre inverse des dépendances
+      const dropQueries = [
+        'DROP TABLE IF EXISTS order_item_products',
+        'DROP TABLE IF EXISTS order_item_services',
+        'DROP TABLE IF EXISTS order_items',
+        'DROP TABLE IF EXISTS orders',
+        'DROP TABLE IF EXISTS carts',
+        'DROP TABLE IF EXISTS users',
+        'DROP TABLE IF EXISTS roles'
       ];
 
-      console.log('Tables à supprimer:', tables.length);
-      for (const table of tables) {
-        console.log(`Suppression de la table ${table}...`);
-        await connection.query(`DROP TABLE IF EXISTS ${table};`);
-        console.log(`Table ${table} supprimée`);
+      for (const query of dropQueries) {
+        await connection.query(query);
       }
-
-      await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
-      console.log('Contraintes de clé étrangère réactivées');
-      
       console.log('Tables supprimées avec succès');
-
-      // Lecture du fichier d'initialisation
-      console.log('\nLecture du fichier init-db.sql...');
-      const initPath = path.join(__dirname, 'init-db.sql');
-      const initSQL = await fs.readFile(initPath, 'utf8');
-      console.log('Fichier SQL chargé');
-
-      // Séparation des commandes SQL
-      const commands = initSQL.split(';').filter(cmd => cmd.trim());
-      console.log(`Nombre de commandes SQL à exécuter : ${commands.length}`);
-
-      // Exécution du script d'initialisation
-      console.log('\nInitialisation de la base de données...');
-      for (let i = 0; i < commands.length; i++) {
-        const command = commands[i];
-        if (command.trim()) {
-          console.log(`Exécution de la commande ${i + 1}/${commands.length}...`);
-          await connection.query(command);
-          console.log(`Commande ${i + 1} exécutée avec succès`);
-        }
-      }
-      console.log('Base de données initialisée avec succès !');
-
-    } catch (dbError) {
-      console.error('Erreur de base de données:', dbError);
-      throw dbError;
     }
+
+    // Exécution du script SQL
+    console.log('\nExécution du script SQL...');
+    const queries = sqlContent.split(';').filter(query => query.trim());
+    
+    for (const query of queries) {
+      if (query.trim()) {
+        await connection.query(query);
+      }
+    }
+    console.log('Script SQL exécuté avec succès');
+
+    // Réactivation des contraintes
+    console.log('\nRéactivation des contraintes de clé étrangère...');
+    await connection.query('SET FOREIGN_KEY_CHECKS = 1;');
+    console.log('Contraintes réactivées');
+
+    console.log('\n✅ Initialisation de la base de données terminée avec succès !');
+
   } catch (err) {
-    console.error('Erreur lors de l\'initialisation de la base de données :', err);
-    throw err; // Propager l'erreur pour que init-all.js puisse la gérer
+    console.error('\nErreur lors de l\'initialisation de la base de données :', err);
+    throw err;
   } finally {
     if (connection) {
       console.log('\nFermeture de la connexion...');
@@ -129,7 +98,7 @@ async function initDatabase() {
 
 // Gestion des erreurs non capturées
 process.on('unhandledRejection', (error) => {
-  console.error('Erreur non gérée:', error);
+  console.error('❌ Erreur non gérée:', error);
   process.exit(1);
 });
 

@@ -1,5 +1,13 @@
 [
   {
+    "id": 1,
+    "name": "Guillaume Coquemont",
+    "email": "guillaume@cyna.dev",
+    "password": "azerty123",
+    "phone": "0102030405",
+    "role_id": 2
+  },
+  {
     "id": 2,
     "name": "Standard User",
     "email": "user@example.com",

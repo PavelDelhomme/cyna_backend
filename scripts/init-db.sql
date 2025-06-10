@@ -1,14 +1,14 @@
-CREATE DATABASE IF NOT EXISTS cyna_database;
+-- Suppression des lignes de création de la base de données
+-- DROP DATABASE IF EXISTS cyna_database;
+-- CREATE DATABASE cyna_database;
 USE cyna_database;
 
-CREATE TABLE addresses (
+-- 1. Tables sans dépendances
+CREATE TABLE roles (
    id INT AUTO_INCREMENT,
-   address1 VARCHAR(200),
-   city VARCHAR(100),
-   postalcode VARCHAR(50),
-   region VARCHAR(100),
-   country VARCHAR(50),
-   type VARCHAR(50),
+   name VARCHAR(10),
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id)
 );
 
@@ -30,18 +30,22 @@ CREATE TABLE service_types (
    PRIMARY KEY(id)
 );
 
-CREATE TABLE roles (
+CREATE TABLE team_members(
    id INT AUTO_INCREMENT,
-   name VARCHAR(10),
+   name VARCHAR(100) NOT NULL,
+   role VARCHAR(100) NOT NULL,
+   avatar VARCHAR(255),
+   description TEXT,
    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id)
 );
 
+-- 2. Tables qui dépendent des précédentes
 CREATE TABLE users (
    id INT AUTO_INCREMENT,
    name VARCHAR(50),
-   email VARCHAR(50),
+   email VARCHAR(50) UNIQUE,
    password VARCHAR(255),
    phone VARCHAR(20),
    role_id INT,
@@ -49,6 +53,25 @@ CREATE TABLE users (
    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id),
    CONSTRAINT fk_users_role FOREIGN KEY(role_id) REFERENCES roles(id)
+);
+
+CREATE TABLE addresses (
+   id INT AUTO_INCREMENT,
+   label VARCHAR(100),
+   address1 VARCHAR(200),
+   line2 VARCHAR(200),
+   city VARCHAR(100),
+   postalcode VARCHAR(50),
+   region VARCHAR(100),
+   country VARCHAR(50),
+   is_default BOOLEAN DEFAULT FALSE,
+   user_id INT,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_addresses_user 
+   FOREIGN KEY (user_id) REFERENCES users(id) 
+   ON DELETE CASCADE
 );
 
 CREATE TABLE promo_codes (
@@ -75,13 +98,23 @@ CREATE TABLE promo_codes (
 
 CREATE TABLE carts (
    id INT AUTO_INCREMENT,
-   creationdate DATETIME,
-   lastupdate DATETIME,
-   user_id INT NOT NULL,
+   user_id INT NULL,
+   created_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(id),
-   CONSTRAINT fk_carts_user FOREIGN KEY(user_id) REFERENCES users(id)
+   CONSTRAINT fk_carts_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE
 );
 
+CREATE TABLE user_profiles (
+   id INT AUTO_INCREMENT,
+   user_id INT NOT NULL,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_userprofiles_user FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+-- 3. Tables qui dépendent des précédentes
 CREATE TABLE services (
    id INT AUTO_INCREMENT,
    name VARCHAR(50),
@@ -119,13 +152,69 @@ CREATE TABLE products (
    CONSTRAINT fk_products_promocode FOREIGN KEY(promo_code_id) REFERENCES promo_codes(id)
 );
 
+CREATE TABLE payments (
+   id INT AUTO_INCREMENT, 
+   amount DOUBLE,
+   status VARCHAR(50),
+   method VARCHAR(50),
+   type VARCHAR(50),
+   last4 VARCHAR(4),
+   expiry VARCHAR(7),
+   isDefault BOOLEAN DEFAULT false,
+   user_id INT NOT NULL,
+   order_id INT NULL,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_payments_user FOREIGN KEY(user_id) REFERENCES users(id)
+);
+
+CREATE TABLE orders (
+   id INT AUTO_INCREMENT,
+   creationdate DATETIME,
+   totalprice DOUBLE,
+   status VARCHAR(50),
+   user_id INT NULL,
+   cart_id INT NULL,
+   payment_id INT,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_orders_user FOREIGN KEY(user_id) REFERENCES users(id) ON DELETE SET NULL ON UPDATE CASCADE,
+   CONSTRAINT fk_orders_cart FOREIGN KEY(cart_id) REFERENCES carts(id) ON DELETE SET NULL ON UPDATE CASCADE,
+   CONSTRAINT fk_orders_payment FOREIGN KEY(payment_id) REFERENCES payments(id)
+);
+
+CREATE TABLE order_items (
+   id INT AUTO_INCREMENT,
+   quantity INT,
+   price DOUBLE,
+   order_id INT NOT NULL,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_orderitems_order FOREIGN KEY(order_id) REFERENCES orders(id)
+);
+
+CREATE TABLE invoices (
+   id INT AUTO_INCREMENT,
+   name VARCHAR(50),
+   email VARCHAR(50),
+   amount DOUBLE,
+   phone VARCHAR(20),
+   created_at DATETIME,
+   method VARCHAR(50),
+   quantity VARCHAR(50),
+   user_id INT NULL,
+   payment_id INT NULL,
+   PRIMARY KEY(id),
+   CONSTRAINT fk_invoices_user FOREIGN KEY(user_id) REFERENCES users(id),
+   CONSTRAINT fk_invoices_payment FOREIGN KEY(payment_id) REFERENCES payments(id) ON DELETE SET NULL ON UPDATE CASCADE
+);
+
 CREATE TABLE tickets (
    id INT AUTO_INCREMENT,
    subject VARCHAR(50),
    description VARCHAR(255),
    status VARCHAR(50),
-   creationdate DATETIME,
-   updatedate DATETIME,
+   created_at DATETIME,
+   updated_at DATETIME,
    user_id INT NOT NULL,
    PRIMARY KEY(id),
    CONSTRAINT fk_tickets_user FOREIGN KEY(user_id) REFERENCES users(id)
@@ -149,75 +238,19 @@ CREATE TABLE chatbot_history (
    CONSTRAINT fk_chathistory_chatbot FOREIGN KEY(chatbot_id) REFERENCES chatbots(id)
 );
 
-CREATE TABLE user_profiles (
-   id INT AUTO_INCREMENT,
-   user_id INT NOT NULL,
-   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-   PRIMARY KEY(id),
-   CONSTRAINT fk_userprofiles_user FOREIGN KEY(user_id) REFERENCES users(id)
-);
-
-CREATE TABLE orders (
-   id INT AUTO_INCREMENT,
-   creationdate DATETIME,
-   totalprice DOUBLE,
-   status VARCHAR(50),
-   user_id INT NOT NULL,
-   cart_id INT NOT NULL,
-   PRIMARY KEY(id),
-   CONSTRAINT fk_orders_user FOREIGN KEY(user_id) REFERENCES users(id),
-   CONSTRAINT fk_orders_cart FOREIGN KEY(cart_id) REFERENCES carts(id)
-);
-
-CREATE TABLE order_items (
-   id INT AUTO_INCREMENT,
-   quantity INT,
-   price DOUBLE,
-   order_id INT NOT NULL,
-   PRIMARY KEY(id),
-   CONSTRAINT fk_orderitems_order FOREIGN KEY(order_id) REFERENCES orders(id)
-);
-
-CREATE TABLE payments (
-   id INT AUTO_INCREMENT, 
-   amount DOUBLE,
-   status VARCHAR(50),
-   creationdate DATETIME,
-   method VARCHAR(50),
-   order_id INT NOT NULL,
-   PRIMARY KEY(id),
-   CONSTRAINT fk_payments_order FOREIGN KEY(order_id) REFERENCES orders(id)
-);
-
-CREATE TABLE invoices (
-   id INT AUTO_INCREMENT,
-   name VARCHAR(50),
-   email VARCHAR(50),
-   amount DOUBLE,
-   phone VARCHAR(20),
-   creationdate DATETIME,
-   method VARCHAR(50),
-   quantity VARCHAR(50),
-   user_id INT NOT NULL,
-   payment_id INT NOT NULL,
-   PRIMARY KEY(id),
-   CONSTRAINT fk_invoices_user FOREIGN KEY(user_id) REFERENCES users(id),
-   CONSTRAINT fk_invoices_payment FOREIGN KEY(payment_id) REFERENCES payments(id)
-);
-
 CREATE TABLE reviews (
    id INT AUTO_INCREMENT,
    rating INT,
    description VARCHAR(255),
    reviewdate DATE,
-   service_id INT NOT NULL,
-   product_id INT NOT NULL,
+   service_id INT,
+   product_id INT,
    user_profile_id INT NOT NULL,
    PRIMARY KEY(id),
    CONSTRAINT fk_reviews_service FOREIGN KEY(service_id) REFERENCES services(id),
    CONSTRAINT fk_reviews_product FOREIGN KEY(product_id) REFERENCES products(id),
-   CONSTRAINT fk_reviews_userprofile FOREIGN KEY(user_profile_id) REFERENCES user_profiles(id)
+   CONSTRAINT fk_reviews_userprofile FOREIGN KEY(user_profile_id) REFERENCES user_profiles(id),
+   CHECK ((product_id IS NOT NULL AND service_id IS NULL) OR (product_id IS NULL AND service_id IS NOT NULL))
 );
 
 CREATE TABLE stats (
@@ -227,6 +260,7 @@ CREATE TABLE stats (
    CONSTRAINT fk_stats_userprofile FOREIGN KEY(user_profile_id) REFERENCES user_profiles(id)
 );
 
+-- 4. Tables d'association
 CREATE TABLE order_item_products (
    order_item_id INT,
    product_id INT,
@@ -250,6 +284,9 @@ CREATE TABLE order_item_services (
 CREATE TABLE asso_addresses_user_profiles (
    address_id INT,
    user_profile_id INT,
+   is_default BOOLEAN DEFAULT FALSE,
+   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
    PRIMARY KEY(address_id, user_profile_id),
    CONSTRAINT fk_aaup_address FOREIGN KEY(address_id) REFERENCES addresses(id),
    CONSTRAINT fk_aaup_userprofile FOREIGN KEY(user_profile_id) REFERENCES user_profiles(id)
@@ -309,17 +346,6 @@ CREATE TABLE promo_code_usage (
     CONSTRAINT fk_pcusage_promocode FOREIGN KEY(promo_code_id) REFERENCES promo_codes(id),
     CONSTRAINT fk_pcusage_user FOREIGN KEY(user_id) REFERENCES users(id),
     CONSTRAINT fk_pcusage_order FOREIGN KEY(order_id) REFERENCES orders(id)
-);
-
-CREATE TABLE team_members(
-   id INT AUTO_INCREMENT,
-   name VARCHAR(100) NOT NULL,
-   role VARCHAR(100) NOT NULL,
-   avatar VARCHAR(255),
-   description TEXT,
-   created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
-   updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-   PRIMARY KEY(id)
 );
 
 CREATE TABLE carousel_items (

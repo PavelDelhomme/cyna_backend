@@ -25,6 +25,17 @@ const signup = async (req, res) => {
     try {
         const { name, email, password } = req.body;
 
+        // Vérification des champs requis
+        if (!name || !email || !password) {
+            return res.status(400).json({ error: "Tous les champs sont requis" });
+        }
+
+        // Vérifier si l'email existe déjà
+        const existing = await User.findOne({ where: { email } });
+        if (existing) {
+            return res.status(400).json({ error: "Cet email est déjà utilisé" });
+        }
+
         // Vérifier/Créer le rôle 'user' si absent
         const [role] = await Role.findOrCreate({
             where: { name: 'user' },
@@ -33,7 +44,7 @@ const signup = async (req, res) => {
 
         const user = await User.create({ name, email, password, role_id: role.id });
 
-        // Créatoin de UserProfile
+        // Création de UserProfile
         const [profile] = await UserProfile.findOrCreate({ where: { user_id: user.id } });
 
         const { token, refreshToken } = generateTokens(user, role.name);
@@ -49,8 +60,17 @@ const signup = async (req, res) => {
             updatedAt: profile.updatedAt
           },
           role: role.name, 
-          });
+        });
     } catch (error) {
+        // Gestion des erreurs Sequelize (validation, unicité, etc.)
+        if (error.name === 'SequelizeUniqueConstraintError') {
+            if (error.errors && error.errors[0].path === 'email') {
+                return res.status(400).json({ error: "Cet email est déjà utilisé" });
+            }
+        }
+        if (error.name === 'SequelizeValidationError' || error.name === 'SequelizeUniqueConstraintError') {
+            return res.status(400).json({ error: error.errors[0].message || "Erreur de validation" });
+        }
         console.log(error);
         res.status(400).json({ error: error.message });
     }

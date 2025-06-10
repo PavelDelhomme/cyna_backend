@@ -170,7 +170,17 @@ exports.getUserProfile = async (req, res) => {
   try {
     const userProfile = await UserProfile.findOne({
       where: { user_id: req.params.id },
-      include: ['addresses']
+      include: [
+        {
+          model: db.User,
+          as: 'user',
+          attributes: ['id', 'name', 'email', 'phone']
+        },
+        {
+          model: db.Address,
+          as: 'address'
+        }
+      ]
     });
     if (!userProfile) return res.status(404).json({ error: 'Profil introuvable' });
     res.json(userProfile);
@@ -229,6 +239,33 @@ exports.resetUsers = async (req, res) => {
   } catch (error) {
     console.error("[devController.js] Erreur lors du reset ", error);
     res.status(500).json({ error: "Erreur lors du reset" });
+  }
+};
+
+exports.countUsers = async (req, res) => {
+  try {
+    const { User } = require('../models');
+    const count = await User.count();
+    res.json({ count });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.adminResetPassword = async (req, res) => {
+  try {
+    const { userId } = req.params;
+    const { newPassword } = req.body;
+    const { User } = require('../models');
+    const user = await User.findByPk(userId);
+    if (!user) return res.status(404).json({ error: "Utilisateur introuvable" });
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: "Mot de passe réinitialisé avec succès" });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
   }
 };
 

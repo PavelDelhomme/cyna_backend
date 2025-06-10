@@ -70,7 +70,7 @@ async function initOrders() {
         const userId = orders.find(order => order.cart_id === cartId).user_id;
         console.log(`Vérification du panier #${cartId} pour l'utilisateur #${userId}`);
         await connection.query(
-          `INSERT IGNORE INTO carts (id, creationdate, lastupdate, user_id) VALUES (?, NOW(), NOW(), ?)`,
+          `INSERT IGNORE INTO carts (id, created_at, updated_at, user_id) VALUES (?, NOW(), NOW(), ?)`,
           [cartId, userId]
         );
       }
@@ -78,10 +78,17 @@ async function initOrders() {
       console.log('\nInsertion des commandes...');
       for (const order of orders) {
         console.log('Insertion de la commande:', order);
-        await connection.query(
-          `INSERT INTO orders (id, user_id, cart_id, totalprice, status, creationdate) VALUES (?, ?, ?, ?, ?, ?)`,
-          [order.id, order.user_id, order.cart_id, order.totalprice, order.status, order.creationdate]
-        );
+        if (order.payment_id) {
+          await connection.query(
+            `INSERT INTO orders (id, user_id, cart_id, totalprice, status, creationdate, payment_id) VALUES (?, ?, ?, ?, ?, ?, ?)`,
+            [order.id, order.user_id, order.cart_id, order.totalprice, order.status, order.creationdate, order.payment_id]
+          );
+        } else {
+          await connection.query(
+            `INSERT INTO orders (id, user_id, cart_id, totalprice, status, creationdate) VALUES (?, ?, ?, ?, ?, ?)`,
+            [order.id, order.user_id, order.cart_id, order.totalprice, order.status, order.creationdate]
+          );
+        }
       }
 
       console.log('\nRécupération des prix des services...');

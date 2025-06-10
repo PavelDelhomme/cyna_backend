@@ -1,13 +1,27 @@
-const { UserProfile, User } = require('../models');
+const { UserProfile, User, sequelize } = require('../models');
+const bcrypt = require('bcryptjs');
 
 exports.getMyProfile = async (req, res) => {
   try {
-    const userProfile = await UserProfile.findOne({
-      where: { user_id: req.user.id },
-      include: ['addresses']
+    const user = await User.findByPk(req.user.id, {
+      attributes: ['id', 'name', 'email', 'phone']
     });
-    if (!userProfile) return res.status(404).json({ error: 'Profil utilisateur introuvable' });
-    res.json(userProfile);
+    
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
+
+    // Séparer le nom complet en prénom et nom
+    const nameParts = user.name.split(' ');
+    const firstname = nameParts[0] || '';
+    const lastname = nameParts.slice(1).join(' ') || '';
+
+    // Créer un nouvel objet avec les champs séparés
+    const userWithSeparatedName = {
+      ...user.toJSON(),
+      firstname,
+      lastname
+    };
+
+    res.json(userWithSeparatedName);
   } catch (error) {
     console.error("[profileController] Erreur récupération de mon profil", error);
     res.status(500).json({ error: error.message });
@@ -16,13 +30,18 @@ exports.getMyProfile = async (req, res) => {
 
 exports.updateMyProfile = async (req, res) => {
   try {
-    const userProfile = await UserProfile.findOne({ where: { user_id: req.user.id } });
-    if (!userProfile) return res.status(404).json({ error: 'Profil introuvable' });
+    const user = await User.findByPk(req.user.id);
+    if (!user) return res.status(404).json({ error: 'Utilisateur non trouvé' });
 
-    // Exemple : accepte des champs libres, à sécuriser selon ton besoin
-    await userProfile.update(req.body);
+    // On ne met à jour que les champs autorisés
+    const { firstname, lastname, email, phone } = req.body;
+    if (firstname) user.firstname = firstname;
+    if (lastname) user.lastname = lastname;
+    if (email) user.email = email;
+    if (phone) user.phone = phone;
 
-    res.json({ message: "Profil mis à jour", userProfile });
+    await user.save();
+    res.json({ message: "Profil mis à jour", user });
   } catch (error) {
     console.error("[profileController] Erreur mise à jour profil", error);
     res.status(500).json({ error: error.message });
@@ -88,5 +107,31 @@ exports.createAdminProfile = async (req, res) => {
   } catch (err) {
     console.error("[devController.js] Erreur lors de la tentative de création du profil pour l'administrateur", error);
     res.status(500).json({ error: err.message });
+  }
+};
+
+exports.updatePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+    const user = await User.findByPk(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({ error: 'Utilisateur non trouvé' });
+    }
+
+    // Vérifier l'ancien mot de passe
+    const isValidPassword = await user.validPassword(currentPassword);
+    if (!isValidPassword) {
+      return res.status(400).json({ error: 'Mot de passe actuel incorrect' });
+    }
+
+    // Mettre à jour le nouveau mot de passe
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ message: 'Mot de passe mis à jour avec succès' });
+  } catch (error) {
+    console.error("[profileController] Erreur mise à jour mot de passe", error);
+    res.status(500).json({ error: error.message });
   }
 };

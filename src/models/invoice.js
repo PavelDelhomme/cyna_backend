@@ -15,21 +15,37 @@ module.exports = (sequelize) => {
     },
     phone: DataTypes.STRING(20),
     method: DataTypes.STRING(50),
-    quantity: DataTypes.STRING(50)
+    quantity: DataTypes.STRING(50),
+    user_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    },
+    payment_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true
+    }
   }, {
     tableName: 'invoices'
   });
 
   Invoice.associate = (models) => {
     Invoice.belongsTo(models.User, {
-      foreignKey: 'user_id',
-      foreignKeyConstraint: { name: 'fk_invoice_user' }
+      foreignKey: {
+        name: 'fk_invoice_user',
+        allowNull: true
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     });
+
     Invoice.belongsTo(models.Payment, {
-      foreignKey: 'payment_id',
-      foreignKeyConstraint: { name: 'fk_invoice_payment' }
+      foreignKey: {
+        name: 'fk_invoice_payment',
+        allowNull: true
+      },
+      onDelete: 'SET NULL',
+      onUpdate: 'CASCADE'
     });
   };
-
   return Invoice;
 };

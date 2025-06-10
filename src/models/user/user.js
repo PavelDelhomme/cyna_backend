@@ -10,7 +10,34 @@ module.exports = (sequelize) => {
     },
     name: {
       type: DataTypes.STRING(50),
-      allowNull: false
+      allowNull: false,
+      get() {
+        return this.getDataValue('name');
+      },
+      set(value) {
+        this.setDataValue('name', value);
+      }
+    },
+    firstname: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        return this.name.split(' ')[0];
+      },
+      set(value) {
+        const lastname = this.lastname || '';
+        this.name = `${value} ${lastname}`.trim();
+      }
+    },
+    lastname: {
+      type: DataTypes.VIRTUAL,
+      get() {
+        const parts = this.name.split(' ');
+        return parts.length > 1 ? parts.slice(1).join(' ') : '';
+      },
+      set(value) {
+        const firstname = this.firstname || '';
+        this.name = `${firstname} ${value}`.trim();
+      }
     },
     email: {
       type: DataTypes.STRING(50),

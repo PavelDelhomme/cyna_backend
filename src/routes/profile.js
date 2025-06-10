@@ -17,13 +17,17 @@ router
     .get(profCtrl.getMyProfile)
     .patch(profCtrl.updateMyProfile)
     .delete(profCtrl.deleteMyProfile);
+
+// Route pour le changement de mot de passe
+router.post('/password', profCtrl.updatePassword);
+
 router.get('/me', profCtrl.getMyProfile);
 
 // Adresses liées à mon profil
 // GET    /api/profile/addresses        -> lister mes adresses
 // POST   /api/profile/addresses        -> créer une nouvelle adresse
-// PATCH  /api/profile/addresses/:id    -> modifier l’adresse n°:id
-// DELETE /api/profile/addresses/:id    -> supprimer l’adresse n°:id
+// PATCH  /api/profile/addresses/:id    -> modifier l'adresse n°:id
+// DELETE /api/profile/addresses/:id    -> supprimer l'adresse n°:id
 router
     .route('/addresses')
     .get(addrCtrl.getUserAddresses)

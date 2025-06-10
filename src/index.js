@@ -9,6 +9,8 @@ const db      = require('./models');
 const jwt     = require('jsonwebtoken');
 const { where } = require('sequelize');
 const multer = require('multer');
+const auth = require('./middlewares/authMiddleware'); 
+const { execSync } = require('child_process');
 
 console.log('Environnement:', process.env.NODE_ENV);
 console.log('Configuration DB:', {
@@ -33,7 +35,7 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage: storage });
 
-// Rendre le dossier uploads accessible publiquement
+// Rendre le dossier uploads accessibles publiquement
 app.use('/uploads', express.static('uploads'));
 
 // 1. CORS : autorise ton front
@@ -66,8 +68,6 @@ console.log(config);
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ limit: '10mb', extended: true }));
 
-// Servir le petit front-end de test
-app.use('/', express.static(path.join(__dirname, "../small_front_test")));
 
 // DB
 const { User, Role } = db;
@@ -75,7 +75,7 @@ const { User, Role } = db;
 
 // --- Routes User / Public ---
 app.use("/api/auth", require('./routes/auth'));  // Auth publique
-app.use("/api/addresses", require('./routes/addresses'));
+app.use("/api/addresses", auth(['user', 'admin']), require('./routes/addresses'));  // Ajout du middleware avec les rôles autorisés
 app.use("/api/users", require('./routes/users'));
 app.use("/api/roles", require('./routes/roles'));
 // → point d'entrée unique pour le profil (user/admin)
@@ -125,74 +125,55 @@ const initializeApp = async () => {
       });
       console.log("Connexion à la base de données établie avec succès.");
       
-      // Utilisation d'une variable d'environnement pour contrôler la réinitialisation de la base de données
-      //const resetDatabase = process.env.RESET_DB === 'true';
-      // Synchronisation des modèles avec la base de données (force : false pour ne pas supprimer les tables existantes | true pour laisser sequelize supprimer les tables existantes et les recréer)
-      //await db.sequelize.sync({ force: resetDatabase, logging: console.log });
-      await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
-      await db.sequelize.sync({
-        force: process.env.RESET_DB === 'false',
-        logging: console.log,
-        //hooks: true,
-        alter: false,
-        // Ajout de l'option pour MySQL
-        //query: { raw: true },
-        // Forcer l'ordre de suppression
-        drop: {
-          cascade: true,
-          order: [
-            // Tables de jointure d'abord
-            'order_item_services', 'order_item_products', 
-            'address_user_profiles', 'role_promo_codes',
-            
-            // Tables enfants ensuite
-            'order_items', 'invoices', 'payments',
-            'tickets', 'stats', 'reviews',
-            
-            // Tables parents enfin
-            'orders', 'carts', 'products', 'services',
-            'promo_codes', 'service_types', 'product_categories',
-            'users', 'roles', 'addresses'
-          ]
-        }
-      });
+      // Vérifier si la base de données est déjà initialisée
+      const isInitialized = await db.sequelize.query(
+        "SELECT COUNT(*) as count FROM information_schema.tables WHERE table_schema = 'cyna_database' AND table_name = 'roles'"
+      ).then(([results]) => results[0].count > 0);
 
-      await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
-      // Execution manuelle des seeder
-      // if (process.env.RESET_DB === 'true') {
-      //   const roles = await db.Role.findAll();
-      //   if (roles.length === 0) {
-      //     await db.sequelize.getQueryInterface().bulkInsert('roles', [
-      //       { name: 'admin' },
-      //       { name: 'user' },
-      //       { name: 'support' }
-      //     ]);
-      //   }
-      // }
-      
-      console.log("Synchronisation de la base de données terminée");
-
-      const adminUser = await createDevAdminIfNotExists();
-
-      if (process.env.RESET_DB === 'true') {
-        await db.Role.findOrCreate({
-          where: { name: 'user' },
-          default: { nme: 'user' }
+      if (!isInitialized || process.env.RESET_DB === 'true') {
+        console.log("Initialisation de la base de données...");
+        // Désactiver les contraintes de clés étrangères
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 0');
+        
+        // Synchronisation des modèles avec la base de données
+        await db.sequelize.sync({
+          force: true,
+          logging: console.log,
+          alter: false
         });
+        
+        // Réactiver les contraintes de clés étrangères
+        await db.sequelize.query('SET FOREIGN_KEY_CHECKS = 1');
+        
+        console.log("Synchronisation de la base de données terminée");
+
+        // Créer les rôles de base
+        await Role.findOrCreate({ where: { name: 'user' }});
+        await Role.findOrCreate({ where: { name: 'admin' }});
+        await Role.findOrCreate({ where: { name: 'support' }});
+        await Role.findOrCreate({ where: { name: 'customer' }});
+        await Role.findOrCreate({ where: { name: 'seller' }});
+        console.log("✅ Rôles de base (user, admin, support, customer, seller) en place");
+
+        // Créer l'admin par défaut
+        const adminUser = await createDevAdminIfNotExists();
+        const { UserProfile } = db;
+        await UserProfile.findOrCreate({ where: { user_id: adminUser.id } });
+
+        // Initialiser les données de démo si demandé
+        if (process.env.INIT_ALL === 'true') {
+          try {
+            console.log("Lancement du script d'initialisation des données (init-all.js)...");
+            require('../scripts/init-all.js');
+            console.log("✅ Données de démo insérées !");
+          } catch (err) {
+            console.error("Erreur lors de l'exécution de init-all.js :", err);
+            process.exit(1);
+          }
+        }
+      } else {
+        console.log("Base de données déjà initialisée, démarrage normal...");
       }
-
-      await Role.findOrCreate({ where: { name: 'user' }});
-      await Role.findOrCreate({ where: { name: 'admin' }});
-      await Role.findOrCreate({ where: { name: 'support' }});
-      await Role.findOrCreate({ where: { name: 'customer' }});
-      await Role.findOrCreate({ where: { name: 'seller' }});
-
-      console.log("✅ Rôles de base (user, admin, support, customer, seller) en place");
-
-      // create Dev admin profile if not exists
-      const { UserProfile } = db;
-      await UserProfile.findOrCreate({ where: { user_id: adminUser.id } });
-
 
       // Démarrage du server
       const PORT = process.env.PORT || 3000;

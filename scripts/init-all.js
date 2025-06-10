@@ -1,5 +1,5 @@
-const { execSync } = require('child_process');
 const path = require('path');
+const { Sequelize } = require('sequelize');
 
 const scripts = [
   'init-database.js',      // Création de la structure de la base de données
@@ -11,14 +11,32 @@ const scripts = [
   'init-promoCodes.js',    // Création des codes promo (doit être avant les produits)
   'init-products.js',      // Création des produits (dépend des catégories et codes promo)
   'init-services.js',      // Création des services (dépend des types de services)
-  'init-carts.js',         // Création des paniers (dépend des utilisateurs)
   'init-orders.js',        // Création des commandes (dépend des paniers)
   'init-team.js',          // Création de l'équipe (pas de dépendances)
-  'init-carousel.js'       // Création du carousel (dépend des produits et services)
+  'init-carousel.js',      // Création du carousel (dépend des produits et services)
+  'init-payments.js',      // Création des paiements (dépend des commandes)
+  'init-addresses.js'      // Création des adresses (dépend des utilisateurs)
 ];
+
+const sequelize = new Sequelize(process.env.DB_NAME, process.env.DB_USER, process.env.DB_PASSWORD, {
+  host: process.env.DB_HOST,
+  dialect: 'mysql'
+});
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function isAlreadyInitialized() {
+  // Vérifie si la table 'products' existe
+  const [tables] = await sequelize.query("SHOW TABLES LIKE 'products'");
+  if (tables.length === 0) {
+    console.log("La table 'products' n'existe pas encore.");
+    return false;
+  }
+  // Si elle existe, on peut compter
+  const [results] = await sequelize.query('SELECT COUNT(*) as count FROM products');
+  return results[0].count > 0;
 }
 
 async function runScript(script) {
@@ -32,7 +50,8 @@ async function runScript(script) {
     console.log('⏳ Démarrage de l\'exécution...');
     
     const startTime = Date.now();
-    execSync(`node "${scriptPath}"`, { stdio: 'inherit' });
+    // Au lieu d'utiliser execSync, on require le script
+    require(scriptPath);
     const endTime = Date.now();
     
     console.log(`\n✅ ${script} terminé avec succès en ${(endTime - startTime) / 1000} secondes`);
@@ -57,6 +76,11 @@ async function runAllScripts() {
     success: [],
     failed: []
   };
+
+  if (await isAlreadyInitialized()) {
+    console.log('La base est déjà initialisée, on ne fait rien.');
+    process.exit(0);
+  }
 
   for (const script of scripts) {
     const success = await runScript(script);

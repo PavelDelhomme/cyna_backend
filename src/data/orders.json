@@ -29,7 +29,8 @@
     "cart_id": 4,
     "totalprice": 9508,
     "status": "Livré",
-    "creationdate": "2024-02-15T11:20:00"
+    "creationdate": "2024-02-15T11:20:00",
+    "payment_id": 1
   },
   {
     "id": 5,
@@ -61,7 +62,8 @@
     "cart_id": 11,
     "totalprice": 3000,
     "status": "En attente de confirmation",
-    "creationdate": "2024-06-10 11:00:00"
+    "creationdate": "2024-06-10 11:00:00",
+    "payment_id": 2
   },
   {
     "id": 12,
@@ -69,7 +71,8 @@
     "cart_id": 12,
     "totalprice": 0,
     "status": "en cours",
-    "creationdate": "2024-06-10 12:00:00"
+    "creationdate": "2024-06-10 12:00:00",
+    "payment_id": 3
   },
   {
     "id": 13,
@@ -77,6 +80,7 @@
     "cart_id": 13,
     "totalprice": 0,
     "status": "en cours",
-    "creationdate": "2024-06-10 13:00:00"
+    "creationdate": "2024-06-10 13:00:00",
+    "payment_id": 4
   }
 ]

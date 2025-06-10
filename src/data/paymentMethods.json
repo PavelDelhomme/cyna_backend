@@ -1,28 +1,38 @@
 [
   {
-    "id": 1,
-    "user_id": 42,
+    "user_id": 2,
     "method": "Visa",
-    "last4": "4242",
-    "expiry": "12/24",
-    "is_default": true,
-    "isDefault": false
+    "type": "CB",
+    "last4": "1234",
+    "expiry": "12/25",
+    "isDefault": true,
+    "order_id": 4
   },
   {
-    "id": 2,
-    "user_id": 42,
+    "user_id": 3,
     "method": "MasterCard",
-    "last4": "5555",
-    "expiry": "11/23",
-    "is_default": false,
-    "type": "moyen 1",
-    "isDefault": true
+    "type": "CB",
+    "last4": "5678",
+    "expiry": "11/26",
+    "isDefault": true,
+    "order_id": 11
   },
   {
-    "id": 3,
-    "type": "test",
-    "last4": "4343",
-    "expiry": "12/32",
-    "isDefault": false
+    "user_id": 4,
+    "method": "Amex",
+    "type": "CB",
+    "last4": "8765",
+    "expiry": "10/27",
+    "isDefault": true,
+    "order_id": 12
+  },
+  {
+    "user_id": 5,
+    "method": "Visa",
+    "type": "CB",
+    "last4": "4321",
+    "expiry": "09/28",
+    "isDefault": true,
+    "order_id": 13
   }
 ]

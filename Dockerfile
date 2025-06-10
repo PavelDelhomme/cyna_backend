@@ -3,12 +3,15 @@ FROM node:20.18.2
 # Définit le répertoire de travail dans le conteneur
 WORKDIR /app
 
+# Définit l'argument pour l'initialisation
+ARG INIT_DB=false
+
 RUN apt-get update && apt-get install -y \
     python3 \
     make \
     g++ \
+    bash \
     && rm -rf /var/lib/apt/lists/*
-
 
 # Copie les fichiers de configuration
 COPY package*.json ./
@@ -23,5 +26,9 @@ COPY . .
 # Expose le port défini dans l'environnement ou 3000 par défaut
 EXPOSE ${SERVER_PORT:-3000}
 
+# Ajoute le script wait-for-it
+ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.sh /wait-for-it.sh
+RUN chmod +x /wait-for-it.sh
+
 # Commande pour démarrer l'application
-CMD ["npm", "run", "dev"]
+CMD ["bash", "-c", "/wait-for-it.sh db:3306 --timeout=30 --strict -- bash -c 'if [ \"$INIT_DB\" = \"true\" ]; then node ./scripts/init-all.js; fi && npm run start'"]
