@@ -11,7 +11,7 @@ router.get('/product/:id', async (req, res) => {
         {
           model: PromoCode,
           as: 'promoCode',
-          attributes: ['code', 'discount_value', 'start_date', 'end_date']
+          attributes: ['code', 'discount_value', 'discount_type', 'start_date', 'end_date']
         }
       ]
     });
@@ -35,7 +35,7 @@ router.get('/service/:id', async (req, res) => {
         {
           model: PromoCode,
           as: 'promoCode',
-          attributes: ['code', 'discount_percentage', 'start_date', 'end_date']
+          attributes: ['code', 'discount_value', 'discount_type', 'start_date', 'end_date']
         }
       ]
     });
