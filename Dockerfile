@@ -1,4 +1,4 @@
-FROM node:20.18.2
+FROM node:20.18.2-alpine
 
 # Définit le répertoire de travail dans le conteneur
 WORKDIR /app
@@ -6,12 +6,7 @@ WORKDIR /app
 # Définit l'argument pour l'initialisation
 ARG INIT_DB=false
 
-RUN apt-get update && apt-get install -y \
-    python3 \
-    make \
-    g++ \
-    bash \
-    && rm -rf /var/lib/apt/lists/*
+RUN apk add --no-cache python3 make g++ bash
 
 # Copie les fichiers de configuration
 COPY package*.json ./
