@@ -47,7 +47,7 @@ const config = {
         username: process.env.DB_USER || 'admin',
         password: process.env.DB_PASSWORD || 'yourpassword',
         database: process.env.DB_NAME || 'cyna_database',
-        host: process.env.DB_HOST || 'db',
+        host: process.env.DB_HOST || 'cyna_db',
         dialect: 'mysql',
         port: parseInt(process.env.DB_PORT || '3306'),
         pool: {

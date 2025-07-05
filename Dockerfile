@@ -26,4 +26,4 @@ ADD https://raw.githubusercontent.com/vishnubob/wait-for-it/master/wait-for-it.s
 RUN chmod +x /wait-for-it.sh
 
 # Commande pour démarrer l'application
-CMD ["bash", "-c", "/wait-for-it.sh db:3306 --timeout=30 --strict -- bash -c 'if [ \"$INIT_DB\" = \"true\" ]; then node ./scripts/init-all.js; fi && npm run start'"]
+CMD ["bash", "-c", "/wait-for-it.sh cyna_db:3306 --timeout=30 --strict -- bash -c 'if [ \"$INIT_DB\" = \"true\" ]; then node ./scripts/init-all.js; fi && npm run start'"]
