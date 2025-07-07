@@ -49,7 +49,9 @@ app.use(cors({
       'http://localhost:3000', // <-- Ajoute ce port pour le front React
       'http://127.0.0.1:3000',
       'http://localhost:3007',
-      'http://127.0.0.1:3007'
+      'http://127.0.0.1:3007',
+      'https://cyna.delhomme.ovh',
+      'https://www.cyna.delhomme.ovh'
     ];
     if (whiteList.includes(origin)) {
       callback(null, true);
