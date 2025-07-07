@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 
 services:
 
@@ -39,3 +40,83 @@ volumes:
 # docker ps -a
 # docker compose exec <service_name> <path_to_executable> (docker compose exec app bash) --Commande fréquement utilisée
 # docker ocmpose down
+=======
+services:
+  cyna_backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: cyna_backend
+    ports:
+      - "3007:${SERVER_PORT:-3000}" # Host:3007 -> Container:3000
+    environment:
+      - NODE_ENV=docker
+      - DB_HOST=cyna_db
+      - DB_USER=admin
+      - DB_PASSWORD=yourpassword
+      - DB_NAME=cyna_database
+      - DB_PORT=3306
+      - INIT_ALL=false
+      - INIT_DB=true # On ajoute cette variable pour l'initialisation
+    depends_on:
+      cyna_db:
+        condition: service_healthy
+    volumes:
+      - .:/app
+      - node_modules:/app/node_modules
+    restart: "no"
+
+  cyna_db:
+    image: mysql:8.0
+    container_name: cyna_db
+    ports:
+      - "3307:3306" # Map 3307 sur l'hôte vers 3306 dans le conteneur
+    environment:
+      MYSQL_ROOT_PASSWORD: yourpassword
+      MYSQL_DATABASE: cyna_database
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: yourpassword
+      MYSQL_ALLOW_EMPTY_PASSWORD: "no"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # - ./scripts/init-db.sql:/docker-entrypoint-initdb.d/init-db.sql # Désactiver car des problème lors de l'initialisation du conteneur
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "mysqladmin",
+          "ping",
+          "-h",
+          "localhost",
+          "-u",
+          "root",
+          "-pyourpassword",
+        ]
+      interval: 5s
+      timeout: 20s
+      retries: 20
+      start_period: 40s # Pour donner plus de temps au conteneur MySQL afin qu'il soit completement démarrer avant de commencer les vérifications de santé.
+    restart: "no"
+    # depends_on:
+    #   backend:
+    #     condition: service_healthy
+
+  cyna_phpmyadmin:
+    image: phpmyadmin/phpmyadmin
+    container_name: cyna_phpmyadmin
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: cyna_db
+      PMA_PORT: 3306
+      MYSQL_ROOT_PASSWORD: yourpassword
+      PMA_USER: root
+      PMA_PASSWORD: yourpassword
+    depends_on:
+      - cyna_db
+    restart: "no"
+
+volumes:
+  mysql_data:
+  node_modules:
+>>>>>>> dev-paul

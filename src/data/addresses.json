@@ -1,0 +1,62 @@
+[
+  {
+    "id": 1,
+    "label": "Domicile",
+    "line1": "10 rue des Lilas",
+    "city": "Paris",
+    "zip": "75000",
+    "country": "France",
+    "isDefault": true,
+    "user_id": 1
+  },
+  {
+    "id": 2,
+    "label": "Travail",
+    "line1": "123 rue de la pluie",
+    "city": "Rennes",
+    "zip": "35500",
+    "country": "France",
+    "isDefault": false,
+    "user_id": 2
+  },
+  {
+    "id": 3,
+    "label": "Domicile",
+    "line1": "5 avenue des Champs",
+    "city": "Lyon",
+    "zip": "69000",
+    "country": "France",
+    "isDefault": true,
+    "user_id": 3
+  },
+  {
+    "id": 4,
+    "label": "Domicile",
+    "line1": "8 rue du Soleil",
+    "city": "Marseille",
+    "zip": "13000",
+    "country": "France",
+    "isDefault": true,
+    "user_id": 4
+  },
+  {
+    "id": 5,
+    "label": "Domicile",
+    "line1": "22 rue de la Mer",
+    "city": "Nantes",
+    "zip": "44000",
+    "country": "France",
+    "isDefault": true,
+    "user_id": 5
+  },
+  {
+    "id": 6,
+    "label": "Domicile",
+    "line1": "10 rue des Lilas",
+    "city": "Paris",
+    "zip": "75000",
+    "country": "France",
+    "isDefault": true,
+    "user_id": 6
+  }
+]

@@ -1,0 +1,42 @@
+[
+  {
+    "id": 1,
+    "name": "Détection et réponse aux menaces gérées",
+    "description": "Surveillance 24 h/24 et réponse automatisée aux menaces de sécurité à l'aide de plateformes SIEM et SOAR avancées."
+  },
+  {
+    "id": 2,
+    "name": "Évaluation des vulnérabilités et tests de pénétration",
+    "description": "Analyse complète et simulations d'attaques pour identifier et corriger les faiblesses de sécurité."
+  },
+  {
+    "id": 3,
+    "name": "Audit de sécurité et conformité",
+    "description": "Évaluation des politiques et des contrôles pour garantir la conformité aux normes telles que ISO 27001, RGPD et PCI‑DSS."
+  },
+  {
+    "id": 4,
+    "name": "Réponse aux incidents et analyses médico-légales",
+    "description": "Confinement rapide et investigation des incidents de sécurité, y compris l'analyse médico-légale numérique."
+  },
+  {
+    "id": 5,
+    "name": "Sécurité cloud et revue d'architecture",
+    "description": "Conception et validation d'environnements cloud sécurisés sur AWS, Azure et Google Cloud."
+  },
+  {
+    "id": 6,
+    "name": "Formation à la sensibilisation à la sécurité",
+    "description": "Programmes personnalisés pour renforcer la vigilance des employés contre le phishing et l'ingénierie sociale."
+  },
+  {
+    "id": 7,
+    "name": "Gestion des identités et des accès",
+    "description": "Mise en place d'authentification centralisée, d'authentification multifacteur et de contrôles d'accès privilégié."
+  },
+  {
+    "id": 8,
+    "name": "Protection des endpoints et EDR",
+    "description": "Déploiement et gestion de solutions de détection et de réponse aux menaces sur postes de travail et serveurs."
+  }
+]

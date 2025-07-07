@@ -1,0 +1,23 @@
+[
+  {
+    "id": 1,
+    "name": "Alice Dupont",
+    "role": "CEO",
+    "avatar": "https://images.pexels.com/photos/1239291/pexels-photo-1239291.jpeg",
+    "description": "Alice dirige la vision stratégique de Cyna et assure la coordination des activités. Test"
+  },
+  {
+    "id": 2,
+    "name": "Bob Martin",
+    "role": "CTO",
+    "avatar": "https://images.pexels.com/photos/614810/pexels-photo-614810.jpeg",
+    "description": "Bob supervise le développement technologique et l'innovation chez Cyna."
+  },
+  {
+    "id": 3,
+    "name": "Claire Durand",
+    "role": "CISO",
+    "avatar": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg",
+    "description": "Claire garantit la sécurité des informations et la conformité aux normes."
+  }
+]

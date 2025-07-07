@@ -1,0 +1,10 @@
+[
+  { "order_item_id": 6, "service_id": 3 },
+  { "order_item_id": 24, "service_id": 1 },
+  { "order_item_id": 25, "service_id": 2 },
+  { "order_item_id": 26, "service_id": 3 },
+  { "order_item_id": 15, "service_id": 1 },
+  { "order_item_id": 16, "service_id": 1 },
+  { "order_item_id": 32, "service_id": 1 },
+  { "order_item_id": 33, "service_id": 2 }
+]

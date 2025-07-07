@@ -1,0 +1,26 @@
+const { DataTypes } = require('sequelize');
+
+module.exports = (sequelize) => {
+  const ProductCategory = sequelize.define('ProductCategory', {
+    id: {
+      type: DataTypes.INTEGER,
+      autoIncrement: true,
+      primaryKey: true
+    },
+    name: DataTypes.STRING(50),
+    description: DataTypes.STRING(50)
+  }, {
+    tableName: "product_categories"
+  });
+
+  ProductCategory.associate = (models) => {
+    ProductCategory.hasMany(models.Product);
+    ProductCategory.belongsToMany(models.Role, {
+      through: models.ProductCategoryRole,
+      foreignKey: 'category_id',
+      as: 'roles'
+    });
+  };
+
+  return ProductCategory;
+};

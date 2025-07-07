@@ -1,1 +1,13 @@
+<<<<<<< HEAD
 node_modules/
+=======
+node_modules
+node_modules/dotenv
+node_modules/.bin
+node_modules/*
+node_modules/.bin/mime
+node_modules/.bin/nodemon
+node_modules/.bin/nodetouch
+node_modules/.bin/semver
+node_modules/.bin/uuid
+>>>>>>> dev-paul

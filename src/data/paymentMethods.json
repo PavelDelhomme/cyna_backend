@@ -1,0 +1,38 @@
+[
+  {
+    "user_id": 2,
+    "method": "Visa",
+    "type": "CB",
+    "last4": "1234",
+    "expiry": "12/25",
+    "isDefault": true,
+    "order_id": 4
+  },
+  {
+    "user_id": 3,
+    "method": "MasterCard",
+    "type": "CB",
+    "last4": "5678",
+    "expiry": "11/26",
+    "isDefault": true,
+    "order_id": 11
+  },
+  {
+    "user_id": 4,
+    "method": "Amex",
+    "type": "CB",
+    "last4": "8765",
+    "expiry": "10/27",
+    "isDefault": true,
+    "order_id": 12
+  },
+  {
+    "user_id": 5,
+    "method": "Visa",
+    "type": "CB",
+    "last4": "4321",
+    "expiry": "09/28",
+    "isDefault": true,
+    "order_id": 13
+  }
+]

@@ -1,0 +1,68 @@
+[
+  {
+    "id": 1,
+    "name": "Pare-feu Matériel X1000",
+    "description": "Pare-feu matériel haute performance pour filtrage et contrôle avancé du trafic réseau.",
+    "price": 2500,
+    "stock": 10,
+    "promotion": "",
+    "category_id": 1,
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+    "promo_code_id": 1
+  },
+  {
+    "id": 2,
+    "name": "Antivirus Corporate Edition",
+    "description": "Solution antivirus centralisée avec mises à jour automatiques et protection en temps réel.",
+    "price": 79,
+    "stock": 50,
+    "promotion": "10% de réduction",
+    "category_id": 2,
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg",
+    "promo_code_id": 2
+  },
+  {
+    "id": 3,
+    "name": "VPN SecureConnect Pro",
+    "description": "VPN d'entreprise avec chiffrement AES 256 bits et support multi-plateforme.",
+    "price": 150,
+    "stock": 30,
+    "promotion": "",
+    "category_id": 3,
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+    "promo_code_id": 3
+  },
+  {
+    "id": 4,
+    "name": "IdentityGuard IAM",
+    "description": "Plateforme complète de gestion des identités et des accès pour sécuriser vos utilisateurs.",
+    "price": 1200,
+    "stock": 8,
+    "promotion": "",
+    "category_id": 4,
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg",
+    "promo_code_id": null
+  },
+  {
+    "id": 5,
+    "name": "Encryption Suite Enterprise",
+    "description": "Solution de chiffrement des données au repos et en transit, conforme aux normes industrielles.",
+    "price": 3000,
+    "stock": 5,
+    "promotion": "15% de réduction",
+    "category_id": 5,
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg",
+    "promo_code_id": null
+  },
+  {
+    "id": 6,
+    "name": "IDS/IPS Sensor Pro",
+    "description": "Système de détection et prévention des intrusions en temps réel pour réseau d'entreprise.",
+    "price": 1800,
+    "stock": 12,
+    "promotion": "",
+    "category_id": 6,
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg",
+    "promo_code_id": null
+  }
+]

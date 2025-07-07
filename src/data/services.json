@@ -1,0 +1,44 @@
+[
+  {
+    "id": 1,
+    "name": "Prévention",
+    "description": "Réduisez votre niveau d'exposition aux risques grâce à nos audits.",
+    "status": true,
+    "price": 2999.99,
+    "subscription": true,
+    "subscriptiontype": "annuel",
+    "usercount": 0,
+    "promotion": "",
+    "service_type_id": 1,
+    "promo_code_id": null,
+    "image": "https://images.pexels.com/photos/3861969/pexels-photo-3861969.jpeg"
+  },
+  {
+    "id": 2,
+    "name": "Protection",
+    "description": "Défendez-vous face aux menaces grâce à une surveillance en temps réel 24/7.",
+    "status": true,
+    "price": 4999.99,
+    "subscription": true,
+    "subscriptiontype": "annuel",
+    "usercount": 0,
+    "promotion": "",
+    "service_type_id": 2,
+    "promo_code_id": null,
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg"
+  },
+  {
+    "id": 3,
+    "name": "Réponse",
+    "description": "Soyez sécurisé avec notre CERT : investigation, éradication et remédiation.",
+    "status": true,
+    "price": 7999.99,
+    "subscription": true,
+    "subscriptiontype": "annuel",
+    "usercount": 0,
+    "promotion": "",
+    "service_type_id": 3,
+    "promo_code_id": null,
+    "image": "https://images.pexels.com/photos/1181690/pexels-photo-1181690.jpeg"
+  }
+]

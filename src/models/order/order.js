@@ -1,0 +1,80 @@
+const { DataTypes, ForeignKeyConstraintError } = require("sequelize");
+const { sequelize } = require("..");
+
+module.exports = (sequelize) => {
+  const Order = sequelize.define('Order', {
+    totalPrice: {
+      type: DataTypes.DECIMAL(10, 2),
+      allowNull: false,
+      field: 'totalprice'
+    },
+    status: {
+      type: DataTypes.STRING(50),
+      allowNull: false
+    },
+    creationDate: {
+      type: DataTypes.DATE,
+      field: 'creationdate'
+    },
+    payment_id: {
+      type: DataTypes.INTEGER,
+      allowNull: true,
+    }
+  }, {
+    tableName: 'orders',
+    underscored: true,
+    timestamps: false
+  });
+
+  Order.associate = (models) => {
+    Order.hasMany(models.OrderItem, {
+      foreignKey: 'order_id',
+      onDelete: 'CASCADE',
+      onUpdate: 'CASCADE',
+      foreignKeyConstraint: { name: 'fk_order_order_item' }
+    });
+    
+    Order.belongsTo(models.User, {
+      foreignKey: 'user_id',
+      as: 'User'
+    });
+    Order.belongsTo(models.Cart, {
+      foreignKey: 'cart_id',
+      foreignKeyConstraint: { name: 'fk_order_cart' }
+    });
+    Order.belongsTo(models.Payment, {
+      foreignKey: 'payment_id',
+      as: 'payment'
+    });
+  };
+
+  return Order;
+};
+// module.exports = (sequelize) => {
+//   const Order = sequelize.define('Order', {
+//     id: {
+//       type: DataTypes.INTEGER,
+//       autoIncrement: true,
+//       primaryKey: true
+//     },
+//     creationDate: {
+//       type: DataTypes.DATE,
+//       defaultValue: DataTypes.NOW
+//     },
+//     totalPrice: {
+//       type: DataTypes.DECIMAL(10, 2),
+//       allowNull: false
+//     },
+//     status: {
+//       type: DataTypes.STRING(50),
+//       allowNull: false
+//     }
+//   });
+
+//   Order.associate = (models) => {
+//     Order.belongsTo(models.User, { foreignKey: 'userId' });
+//     Order.belongsTo(models.Cart, { foreignKey: 'cartId' });
+//   };
+
+//   return Order;
+// };

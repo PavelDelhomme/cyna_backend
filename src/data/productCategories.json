@@ -1,0 +1,32 @@
+[
+  {
+    "id": 1,
+    "name": "Pare-feux matériels",
+    "description": "Appareils physiques de filtrage et contrôle du trafic réseau pour prévenir les intrusions."
+  },
+  {
+    "id": 2,
+    "name": "Solutions antivirus",
+    "description": "Logiciels de détection et suppression des logiciels malveillants pour postes de travail et serveurs."
+  },
+  {
+    "id": 3,
+    "name": "VPN d'entreprise",
+    "description": "Services de réseau privé virtuel pour sécuriser les connexions à distance des employés."
+  },
+  {
+    "id": 4,
+    "name": "Gestion des identités",
+    "description": "Outils et plateformes pour authentification, provisionnement et gestion des accès utilisateurs."
+  },
+  {
+    "id": 5,
+    "name": "Solutions de chiffrement",
+    "description": "Dispositifs et logiciels pour chiffrer les données au repos et en transit."
+  },
+  {
+    "id": 6,
+    "name": "Systèmes de détection d'intrusion",
+    "description": "Capteurs et logiciels IDS/IPS pour analyser le trafic et bloquer les comportements suspects."
+  }
+]
